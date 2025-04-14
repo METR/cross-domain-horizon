@@ -1,17 +1,19 @@
 """
-Constructs gpqa.toml from the GPQA dataset and the scores in data/gpqa_scores.toml
+Constructs data/gpqa/dataset.toml from the GPQA Hugging Face dataset.
 
-Average columns "Self-reported time (minutes)_EV_1" and "Self-reported time (minutes)_EV_2"
-to get the time per question and put this in a list `lengths`
+Calculates average expert validation times ('lengths') from the dataset.
+Outputs dataset metadata (n_questions, chance_accuracy, lengths) to dataset.toml.
 
-Scores are in data/gpqa_scores.toml and should go under heading `[scores]`
+The 'lengths' can then be used by other scripts (e.g., calculate_horizons.py).
+Scores are handled externally (e.g., manually in data/gpqa/scores.toml).
 """
 
 import toml
 import numpy as np
+import pandas as pd
 from datasets import load_dataset
 from pathlib import Path
-from typing import List, Dict, Optional, Union, Tuple
+from typing import List, Dict, Optional
 
 def convert_to_float(value) -> Optional[float]:
     """Convert a value to float, return None if conversion fails."""
@@ -43,82 +45,63 @@ def calculate_average_times(dataset, column1: str, column2: str) -> List[Optiona
     
     return result
 
-def read_scores(scores_path: Path) -> Dict[str, str]:
-    """Read model scores from a TOML file."""
+def write_dataset_toml(output_path: Path, n_questions: int, 
+                       lengths: List[Optional[float]], chance_accuracy: float) -> None:
+    """Write dataset metadata to a TOML file."""
+    output_data = {
+        "n_questions": n_questions,
+        "chance_accuracy": chance_accuracy,
+        "lengths": lengths  # TOML library handles None as null
+    }
     try:
-        with open(scores_path, "r") as f:
-            scores_content = f.read()
-        
-        scores = {}
-        for line in scores_content.strip().split("\n"):
-            if line and "=" in line:
-                model, score = line.split("=", 1)
-                scores[model.strip()] = score.strip().strip('"\'')
-        return scores
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w") as f:
+            toml.dump(output_data, f)
     except Exception as e:
-        print(f"Error loading scores file: {e}")
-        return {}
-
-def write_toml_file(output_path: Path, n_questions: int, lengths: List[Optional[float]], 
-                   scores: Dict[str, str], chance_accuracy: float) -> None:
-    """Write the data to a TOML file."""
-    with open(output_path, "w") as f:
-        f.write(f"n_questions = {n_questions}\n")
-        f.write(f"chance_accuracy = {chance_accuracy}\n\n")
-        # Write the lengths array
-        f.write("lengths = [\n")
-        for i, length in enumerate(lengths):
-            value = f"  {length}" if length is not None else "  null"
-            f.write(value)
-            
-            if i < len(lengths) - 1:
-                f.write(",")
-            f.write("\n")
-        f.write("]\n\n")
-        
-        # Write the scores section
-        f.write("[scores]\n")
-        for model, score in scores.items():
-            f.write(f'{model} = "{score}"\n')
+        print(f"Error writing to {output_path}: {e}")
 
 def main():
+    # --- Configuration ---
+    DATA_DIR = Path("data/gpqa")
+    DATASET_OUTPUT_FILE = DATA_DIR / "dataset.toml"
+    CHANCE_ACCURACY = 0.25
+    # ---------------------
+
+    # Ensure output directory exists
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
     # Load the GPQA dataset
+    print("Loading GPQA dataset...")
     dataset = load_dataset("Idavidrein/gpqa", "gpqa_main")
+    print("Dataset loaded.")
     
     # Get the number of questions
     n_questions = len(dataset["train"])
     
     # Calculate average times
+    print("Calculating average times...")
     lengths = calculate_average_times(
         dataset, 
         "Self-reported time (minutes)_EV_1", 
         "Self-reported time (minutes)_EV_2"
     )
+    print("Average times calculated.")
 
-    CHANCE_ACCURACY = 0.25
-
-    import pandas as pd
-
-    s_lengths = pd.Series(lengths)
-    s_lengths = s_lengths.dropna()
-
-    print(f"Question length stats:")
+    # --- Statistical Analysis (optional, for info during run) ---
+    s_lengths = pd.Series(lengths).dropna()
+    print("\nQuestion length stats (based on calculated lengths):")
     print(s_lengths.describe())
-
     # Print 10th smallest/largest horizons
-    print(f"\n10th smallest horizon: {s_lengths.nsmallest(10).iloc[-1]:.1f} minutes")
-    print(f"10th largest horizon: {s_lengths.nlargest(10).iloc[-1]:.1f} minutes")
+    if len(s_lengths) >= 10:
+        print(f"10th smallest length: {s_lengths.nsmallest(10).iloc[-1]:.1f} minutes")
+        print(f"10th largest length: {s_lengths.nlargest(10).iloc[-1]:.1f} minutes")
+    # ----------------------------------------------------------
 
+    # Write dataset metadata output file
+    print(f"\nWriting dataset metadata to {DATASET_OUTPUT_FILE}...")
+    write_dataset_toml(DATASET_OUTPUT_FILE, n_questions, lengths, CHANCE_ACCURACY)
     
-    # Read scores
-    scores_path = Path("data/gpqa_scores.toml")
-    scores = read_scores(scores_path)
-    
-    # Write output file
-    output_path = Path("data/gpqa.toml")
-    write_toml_file(output_path, n_questions, lengths, scores, CHANCE_ACCURACY)
-    
-    print(f"Successfully created {output_path}")
+    print(f"\nSuccessfully created {DATASET_OUTPUT_FILE}")
 
 if __name__ == "__main__":
     main()

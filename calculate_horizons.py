@@ -91,11 +91,9 @@ def estimate_horizon(score: int, lengths: list[int], n_iterations=100, min_horiz
         # Convert from log space to calculate expected score
         horizon = np.exp(log_horizon)
         expected = expected_score(horizon, lengths)
-        print(f"Horizon: {horizon:.2f}, Expected: {expected:.2f}, Score: {score}")
         
         # If the expected score is close enough to the target, return the horizon
         if abs(expected - score) < 0.1:
-            print(f"Horizon estimate for {score} questions: {horizon:.2f} minutes")
             return horizon
         
         # Binary search in log space
@@ -127,12 +125,15 @@ def estimate_horizons(scores: dict[str, int], lengths: list[float]) -> dict[str,
     return result
     
 
-def main(data_file: pathlib.Path, output_file: pathlib.Path) -> None:
-    with open(data_file, "rb") as f:
+def main(dataset_file: pathlib.Path, scores_file: pathlib.Path, output_file: pathlib.Path) -> None:
+    with open(dataset_file, "rb") as f:
         data = tomllib.load(f)
+    
+    with open(scores_file, "rb") as f:
+        scores_data = tomllib.load(f)
 
     n_questions = int(data["n_questions"])
-    score_percent = data["scores"]
+    score_percent = scores_data["scores"]
     score_percent = {k: float(v.strip("%")) for k, v in score_percent.items()}
     scores = {k: round(score * n_questions / 100) for k, score in score_percent.items()}
     lengths = data["lengths"]
@@ -150,4 +151,6 @@ def main(data_file: pathlib.Path, output_file: pathlib.Path) -> None:
 
 
 if __name__ == "__main__":
-    main(data_file="data/gpqa.toml", output_file="data/gpqa_horizons.csv")
+    main(dataset_file="data/gpqa/dataset.toml",
+         scores_file="data/gpqa/scores.toml",
+         output_file="data/gpqa/horizons.csv")

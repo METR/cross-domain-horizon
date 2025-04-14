@@ -3,7 +3,7 @@ Applies MLE to get a horizon length estimate given
 - percentage score on benchmark
 - estimate of time for each question
 
-Algorithm (EM):
+Algorithm (EM), not used:
 - For each model, iterate until convergence:
   - Estimate Q(horizon | horizon_t)
     - Estimate / sample from distribution over which questions are correct
@@ -23,7 +23,7 @@ import tomllib
 DEFAULT_SLOPE = 0.6
 
 def sigmoid(horizon, x, slope) -> np.ndarray:
-    result = 1 / (1 + np.exp(-np.log2(horizon) + slope * np.log2(x)))
+    result = 1 / (1 + np.exp(slope * (-np.log2(horizon) + np.log2(x))))
     return result
 
 def expected_score(horizon: float, lengths: list[int]):
@@ -91,9 +91,11 @@ def estimate_horizon(score: int, lengths: list[int], n_iterations=100, min_horiz
         # Convert from log space to calculate expected score
         horizon = np.exp(log_horizon)
         expected = expected_score(horizon, lengths)
+        print(f"Horizon: {horizon:.2f}, Expected: {expected:.2f}, Score: {score}")
         
         # If the expected score is close enough to the target, return the horizon
-        if abs(expected - score) < 0.01:
+        if abs(expected - score) < 0.1:
+            print(f"Horizon estimate for {score} questions: {horizon:.2f} minutes")
             return horizon
         
         # Binary search in log space
@@ -104,7 +106,8 @@ def estimate_horizon(score: int, lengths: list[int], n_iterations=100, min_horiz
             log_max = log_horizon
             log_horizon = (log_min + log_horizon) / 2
             
-    return np.exp(log_horizon)
+    result = np.exp(log_horizon)
+    return result
 
 def estimate_horizons(scores: dict[str, int], lengths: list[float]) -> dict[str, float]:
     """
@@ -129,20 +132,21 @@ def main(data_file: pathlib.Path, output_file: pathlib.Path) -> None:
         data = tomllib.load(f)
 
     n_questions = int(data["n_questions"])
-    raw_scores = data["scores"]
-    raw_scores = {k: float(v.strip("%")) for k, v in raw_scores.items()}
-    scores = {k: round(score * n_questions / 100) for k, score in raw_scores.items()}
-    # lengths = data["lengths"]
-    lengths = np.random.randint(1, 100, size=n_questions)
+    score_percent = data["scores"]
+    score_percent = {k: float(v.strip("%")) for k, v in score_percent.items()}
+    scores = {k: round(score * n_questions / 100) for k, score in score_percent.items()}
+    lengths = data["lengths"]
+    assert len(lengths) == n_questions
 
     horizons = estimate_horizons(scores, lengths)
     df = pd.DataFrame({
         'model': list(horizons.keys()),
         'horizon': list(horizons.values()),
-        'score': [raw_scores[m] for m in horizons.keys()]
+        'score': [score_percent[m] for m in horizons.keys()]
     })
     df = df.sort_values('score', ascending=False)
     df.to_csv(output_file, index=False, float_format='%.4f')
+    print(f"Horizons saved to {output_file}")
 
 
 if __name__ == "__main__":

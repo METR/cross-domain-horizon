@@ -1,7 +1,3 @@
-n_questions = 448
-
-chance_accuracy = 0.25
-
 lengths = [
   22.5,
   12.5,

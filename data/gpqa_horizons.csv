@@ -1,5 +1,5 @@
 model,horizon,score
-grok_3_beta,33.4607,84.6000
-openai_o1,22.1494,75.7000
-llama_4_maverick,17.8397,69.8000
-claude_3_7_r,16.7659,68.0000
+grok_3_beta,175.3565,84.6000
+openai_o1,88.5915,75.7000
+llama_4_maverick,62.2734,69.8000
+claude_3_7_r,56.2870,68.0000

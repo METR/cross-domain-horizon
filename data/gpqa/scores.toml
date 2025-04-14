@@ -1,5 +1,7 @@
+source = "various"
+
 [scores]
-llama_4_maverick = "69.8%"
-claude_3_7_r = "68%"
-grok_3_beta = "84.6%"
+meta_llama_4_maverick = "69.8%"
+anthropic_claude_3_7_sonnet_thinking = "68%"
+xai_grok_3_mini_fast_beta_high_reasoning = "84.6%"
 openai_o1 = "75.7%"

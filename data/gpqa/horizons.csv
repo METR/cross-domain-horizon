@@ -1,5 +1,5 @@
 model,horizon,score
-grok_3_beta,175.3565,84.6000
+xai_grok_3_mini_fast_beta_high_reasoning,175.3565,84.6000
 openai_o1,88.5915,75.7000
-llama_4_maverick,62.2734,69.8000
-claude_3_7_r,56.2870,68.0000
+meta_llama_4_maverick,62.2734,69.8000
+anthropic_claude_3_7_sonnet_thinking,56.2870,68.0000

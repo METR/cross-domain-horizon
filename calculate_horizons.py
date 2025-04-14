@@ -19,6 +19,7 @@ import pandas as pd
 import pathlib
 from typing import Iterator
 import tomllib
+import argparse
 
 DEFAULT_SLOPE = 0.6
 
@@ -125,10 +126,17 @@ def estimate_horizons(scores: dict[str, int], lengths: list[float]) -> dict[str,
     return result
     
 
-def main(dataset_file: pathlib.Path, scores_file: pathlib.Path, output_file: pathlib.Path) -> None:
+def process_dataset(dataset_name: str) -> None:
+    """Processes a single dataset (e.g., 'gpqa', 'aime')."""
+    dataset_file = pathlib.Path(f"data/{dataset_name}/dataset.toml")
+    scores_file = pathlib.Path(f"data/{dataset_name}/scores.toml")
+    output_file = pathlib.Path(f"data/{dataset_name}/horizons.csv")
+
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
     with open(dataset_file, "rb") as f:
         data = tomllib.load(f)
-    
+
     with open(scores_file, "rb") as f:
         scores_data = tomllib.load(f)
 
@@ -147,10 +155,29 @@ def main(dataset_file: pathlib.Path, scores_file: pathlib.Path, output_file: pat
     })
     df = df.sort_values('score', ascending=False)
     df.to_csv(output_file, index=False, float_format='%.4f')
-    print(f"Horizons saved to {output_file}")
+    print(f"Horizons for {dataset_name} saved to {output_file}")
+    
+
+def main(data_path: str) -> None:
+    if data_path == "gpqa":
+        process_dataset("gpqa")
+    elif data_path == "aime":
+        process_dataset("aime")
+    elif data_path == "all":
+        process_dataset("gpqa")
+        process_dataset("aime")
+    else:
+        print(f"Error: Invalid data_path '{data_path}'")
 
 
 if __name__ == "__main__":
-    main(dataset_file="data/gpqa/dataset.toml",
-         scores_file="data/gpqa/scores.toml",
-         output_file="data/gpqa/horizons.csv")
+    parser = argparse.ArgumentParser(description="Estimate model time horizons based on benchmark scores.")
+    parser.add_argument(
+        "--data-path",
+        type=str,
+        choices=["gpqa", "aime", "all"],
+        default="all",
+        help="Specify the dataset to process ('gpqa', 'aime', or 'all'). Default is 'all'."
+    )
+    args = parser.parse_args()
+    main(data_path=args.data_path)

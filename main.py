@@ -26,30 +26,15 @@ def sigmoid(horizon, x, slope) -> np.ndarray:
     result = 1 / (1 + np.exp(-np.log2(horizon) + slope * np.log2(x)))
     return result
 
-
-def bernoulli_sum_generator(total: int, probs: list[float], rng: np.random.Generator) -> Iterator[list[int]]:
+def expected_score(horizon: float, lengths: list[int]):
     """
-    Generator that uses rejection sampling to sample len(probs) Bernoulli variables
-    with probabilities `probs` that sum to a total `total`.
-    """
-    n = len(probs)
-    while True:
-        X = rng.binomial(n=[1]*n, p=probs)
-        if sum(X) == total:
-            yield X
-
-
-def log_likelihood(probs: list[float], horizon: float, lengths: list[int]):
-    """
-    Gets expected log likelihood that horizon `horizon` will produce samples `samples`
+    Gets expected score that horizon `horizon` will produce
     Input:
-    - probs: list of floats
     - horizon: float
     - lengths: list of ints
     """
     probs_for_horizon = sigmoid(horizon, lengths, DEFAULT_SLOPE)
-
-    
+    return np.sum(probs_for_horizon)
 
     
 def initial_estimate(score: int, lengths: list[int]):
@@ -60,20 +45,66 @@ def initial_estimate(score: int, lengths: list[int]):
     lengths = sorted(lengths)
     return lengths[min(len(lengths) - 1, score)]
 
-def estimate_horizon(score: int, lengths: list[int], n_samples:int=100, rtol = 1e-2, max_iterations=100, seed=0):
+def estimate_horizon(score: int, lengths: list[int], n_iterations=100, min_horizon=None, max_horizon=None):
+    """
+    Estimates the horizon as the value of h for which
+    a model would get mean score `score` with horizon h
 
-    bsgen = bernoulli_sum_generator(score, lengths, rng=np.random.default_rng(seed))
-    default_slope=DEFAULT_SLOPE
-
-    first_time = True
-    horizon = initial_estimate(score, lengths)
-    new_horizon = 0
-    while first_time or abs((new_horizon / horizon) - 1) < rtol:
-        probs = sigmoid(horizon, lengths, default_slope)
-        for _ in range(n_samples):
-        X = next(bsgen)
-        new_horizon = np.sum(X * lengths)
-
+    Algorithm:
+    - Initialize horizon
+    - Binary search in log space until convergence:
+      - Estimate expected score for horizon
+      - Update horizon
+      
+    Args:
+        score: Target score to achieve
+        lengths: List of question lengths
+        n_iterations: Maximum number of iterations for binary search
+        min_horizon: Minimum possible horizon (default: 0.1 * min(lengths))
+        max_horizon: Maximum possible horizon (default: 10 * max(lengths))
+        
+    Returns:
+        Estimated horizon or nan if horizon is outside bounds
+    """
+    # Set default bounds if not provided
+    if min_horizon is None:
+        min_horizon = 0.1 * min(lengths)
+    if max_horizon is None:
+        max_horizon = 10 * max(lengths)
+    
+    # Convert to log space for binary search
+    log_min = np.log(min_horizon)
+    log_max = np.log(max_horizon)
+    
+    # Initialize horizon with a reasonable guess
+    init_horizon = initial_estimate(score, lengths)
+    log_horizon = np.log(max(min_horizon, min(max_horizon, init_horizon)))
+    
+    # Check if target score is outside the range of what's possible with these bounds
+    min_expected = expected_score(min_horizon, lengths)
+    max_expected = expected_score(max_horizon, lengths)
+    
+    if score < min_expected or score > max_expected:
+        return float('nan')
+    
+    for _ in range(n_iterations):
+        # Convert from log space to calculate expected score
+        horizon = np.exp(log_horizon)
+        expected = expected_score(horizon, lengths)
+        
+        # If the expected score is close enough to the target, return the horizon
+        if abs(expected - score) < 0.01:
+            return horizon
+        
+        # Binary search in log space
+        if expected < score:
+            log_min = log_horizon
+            log_horizon = (log_horizon + log_max) / 2
+        else:
+            log_max = log_horizon
+            log_horizon = (log_min + log_horizon) / 2
+            
+    return np.exp(log_horizon)
 
 def estimate_horizons(scores: dict[str, int], lengths: list[float]) -> dict[str, float]:
     """
@@ -93,20 +124,26 @@ def estimate_horizons(scores: dict[str, int], lengths: list[float]) -> dict[str,
     return result
     
 
-def main(data_file: pathlib.Path) -> None:
+def main(data_file: pathlib.Path, output_file: pathlib.Path) -> None:
     with open(data_file, "rb") as f:
         data = tomllib.load(f)
 
     n_questions = int(data["n_questions"])
-    scores = data["scores"]
-    scores = {k: float(v.strip("%")) for k, v in scores.items()}
-    scores = {k: round(score * n_questions / 100) for k, score in scores.items()}
+    raw_scores = data["scores"]
+    raw_scores = {k: float(v.strip("%")) for k, v in raw_scores.items()}
+    scores = {k: round(score * n_questions / 100) for k, score in raw_scores.items()}
     # lengths = data["lengths"]
     lengths = np.random.randint(1, 100, size=n_questions)
 
     horizons = estimate_horizons(scores, lengths)
-    print(horizons)
+    df = pd.DataFrame({
+        'model': list(horizons.keys()),
+        'horizon': list(horizons.values()),
+        'score': [raw_scores[m] for m in horizons.keys()]
+    })
+    df = df.sort_values('score', ascending=False)
+    df.to_csv(output_file, index=False, float_format='%.4f')
 
 
 if __name__ == "__main__":
-    main("data/gpqa.toml")
+    main(data_file="data/gpqa.toml", output_file="data/gpqa_horizons.csv")

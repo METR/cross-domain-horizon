@@ -1,0 +1,43 @@
+model                                   , aime               , gpqa               , hcast_r_s
+ai21_jamba_1_6_large                    ,    0.0             ,  337.806           ,     
+ai21_jamba_1_6_mini                     ,    0.0             ,  264.03000000000003,     
+anthropic_claude_3_5_haiku_latest       ,    0.0             ,  742.65            ,     
+anthropic_claude_3_5_sonnet_latest      ,   46.908           , 2109.6240000000003 , 1739.01072
+anthropic_claude_3_5_sonnet_old         ,                    ,                    , 1093.0098
+anthropic_claude_3_7_sonnet             ,  152.70600000000002, 3253.404           , 3253.58052
+anthropic_claude_3_7_sonnet_thinking    ,  748.218           , 5173.674           ,     
+anthropic_claude_3_opus                 ,                    ,                    ,  385.36949999999996
+cohere_command_a                        ,   68.622           ,  463.38            ,     
+cohere_command_r_plus                   ,                    ,  456.984           ,     
+deepseek_deepseek_r1                    , 2168.946           ,                    ,     
+deepseek_v3                             ,  190.608           , 1637.052           ,     
+deepseek_v3_03_24_2025                  ,  692.478           , 2338.9919999999997 ,     
+google_gemini_1_5_flash_002             ,   92.256           , 1107.768           ,     
+google_gemini_1_5_pro_002               ,  105.924           , 2017.05            ,     
+google_gemini_2_0_flash_001             ,  231.252           , 2881.716           ,     
+google_gemini_2_5_pro_exp               , 5102.778           , 7404.324           ,     
+meta_llama_3_3_instruct_turbo_70b       ,   92.256           , 1347.156           ,     
+meta_llama_4_maverick                   ,  169.27200000000002, 3289.344           ,     
+meta_llama_4_scout                      ,  105.924           , 1026.828           ,     
+mistral_large_11_2024                   ,   46.908           , 1061.076           ,     
+mistral_small_02_2024                   ,    0.0             , 1406.94            ,     
+mistral_small_3_1_03_2025               ,    0.0             ,  880.4459999999999 ,     
+openai_davinci_002                      ,                    ,                    ,    8.9316
+openai_gpt_2                            ,                    ,                    ,    2.38752
+openai_gpt_3_5                          ,                    ,  463.38            ,     
+openai_gpt_3_5_turbo_instruct           ,                    ,                    ,   36.27084
+openai_gpt_4_0125                       ,                    ,                    ,  321.96378
+openai_gpt_4_0314                       ,                    ,                    ,  321.8427
+openai_gpt_4_1106                       ,                    ,                    ,  513.44598
+openai_gpt_4_turbo                      ,                    ,                    ,  394.04033999999996
+openai_gpt_4o_2024_05_13                ,                    , 1362.45            ,  550.2270000000001
+openai_gpt_4o_2024_08_06                ,   68.622           ,                    ,     
+openai_gpt_4o_2024_11_20                ,   56.592           , 1551.096           ,     
+openai_gpt_4o_mini                      ,   56.592           , 1016.352           ,     
+openai_o1                               , 1958.298           , 4487.85            , 2352.3945599999997
+openai_o1_preview                       ,                    ,                    , 1333.28142
+openai_o3_mini                          , 5988.222000000001  , 5096.226           ,     
+xai_grok_2                              ,   80.352           , 1347.156           ,     
+xai_grok_3_beta                         ,  956.6460000000001 , 4685.478           ,     
+xai_grok_3_mini_fast_beta_high_reasoning, 5102.778           , 6694.098           ,     
+xai_grok_3_mini_fast_beta_low_reasoning , 1757.8619999999999 , 4430.201999999999  ,     

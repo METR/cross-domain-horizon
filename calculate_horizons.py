@@ -156,16 +156,15 @@ def process_dataset(dataset_name: str) -> None:
     df = df.sort_values('score', ascending=False)
     df.to_csv(output_file, index=False, float_format='%.4f')
     print(f"Horizons for {dataset_name} saved to {output_file}")
-    
+
+benchmarks = ["gpqa", "aime", "osworld"]
 
 def main(data_path: str) -> None:
-    if data_path == "gpqa":
-        process_dataset("gpqa")
-    elif data_path == "aime":
-        process_dataset("aime")
-    elif data_path == "all":
-        process_dataset("gpqa")
-        process_dataset("aime")
+    if data_path == "all":
+        for benchmark in benchmarks:
+            process_dataset(benchmark)
+    elif data_path in benchmarks:
+        process_dataset(data_path)
     else:
         print(f"Error: Invalid data_path '{data_path}'")
 
@@ -175,7 +174,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--data-path",
         type=str,
-        choices=["gpqa", "aime", "all"],
+        choices=benchmarks + ["all"],
         default="all",
         help="Specify the dataset to process ('gpqa', 'aime', or 'all'). Default is 'all'."
     )

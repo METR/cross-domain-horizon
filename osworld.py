@@ -1,0 +1,51 @@
+import numpy as np
+from scipy.stats import lognorm
+import math
+import os
+
+# OSWorld Benchmark Parameters
+# Source: Figure 4 and Table 6 from the provided image context.
+# Distribution: Lognormal (assumed based on violin plot shape)
+# Median: 111.94s
+# Difficulty Split: Easy (<60s): 28.72%, Medium (60-180s): 40.11%, Hard (>180s): 30.17%
+
+median_time = 111.94 / 60
+n_tasks = 369
+output_dir = "data/benchmarks"
+output_filename = os.path.join(output_dir, "osworld.toml")
+
+# Lognormal parameters (mu, sigma of the underlying normal distribution)
+# mu = ln(median)
+mu = math.log(median_time)
+
+# sigma is chosen to best fit the Easy/Medium/Hard percentages.
+# Calculation (see conversation context) suggests sigma ~ 1.04
+sigma = 1.0396
+
+# Set a random seed for reproducible results
+np.random.seed(42)
+
+# Generate evenly spaced probabilities for quantiles
+# Use (i+1)/(n+1) to avoid 0 and 1, which can give -inf/inf for ppf
+probabilities = [(i + 1) / (n_tasks + 1) for i in range(n_tasks)]
+
+# Calculate task completion times using the Percent Point Function (ppf) - inverse CDF
+# scipy.stats.lognorm uses s=sigma and scale=exp(mu)
+sampled_times = lognorm.ppf(probabilities, s=sigma, scale=math.exp(mu))
+
+# Format the times to one decimal place
+formatted_times = [f"{t:.1f}" for t in sampled_times]
+
+# Ensure the output directory exists
+os.makedirs(output_dir, exist_ok=True)
+
+# Write output to the specified file
+with open(output_filename, 'w') as f:
+    f.write(f"n_questions = {n_tasks}\n")
+    # chance_accuracy is not provided in the source data, so it's omitted.
+    f.write("lengths = [")
+    # Join the formatted times with commas and spaces
+    f.write(", ".join(formatted_times))
+    f.write("]\n")
+
+print(f"Successfully generated {output_filename}")

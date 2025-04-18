@@ -1,0 +1,18 @@
+# OSWorld benchmark scores (%)
+# Note: Scores represent the highest reported percentage for each base model, potentially ignoring variations like step counts.
+source = "https://os-world.github.io/"
+
+[scores]
+anthropic_claude_3_7_sonnet = "28.0%"
+anthropic_claude_3_5_sonnet_latest = "21.0%"
+anthropic_claude_3_5_sonnet_old = "22.0%"
+qwen_2_5_vl_72b = "8.8%"
+cogagent_9b = "8.12%"
+openai_gpt_4_vision = "7.69%"
+google_gemini_pro_vision = "5.8%"
+google_gemini_1_5_pro_002 = "5.4%"
+openai_gpt_4o = "5.03%"
+openai_gpt_4o_mini = "3.77%"
+anthropic_claude_3_opus = "2.42%"
+qwen_vl_max_0809 = "2.42%"
+cogagent = "1.11%" 

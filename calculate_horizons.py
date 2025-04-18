@@ -128,9 +128,9 @@ def estimate_horizons(scores: dict[str, int], lengths: list[float]) -> dict[str,
 
 def process_dataset(dataset_name: str) -> None:
     """Processes a single dataset (e.g., 'gpqa', 'aime')."""
-    dataset_file = pathlib.Path(f"data/{dataset_name}/dataset.toml")
-    scores_file = pathlib.Path(f"data/{dataset_name}/scores.toml")
-    output_file = pathlib.Path(f"data/{dataset_name}/horizons.csv")
+    dataset_file = pathlib.Path(f"data/benchmarks/{dataset_name}.toml")
+    scores_file = pathlib.Path(f"data/scores/{dataset_name}.toml")
+    output_file = pathlib.Path(f"data/horizons/{dataset_name}.csv")
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
 

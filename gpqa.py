@@ -1,5 +1,5 @@
 """
-Constructs data/gpqa/dataset.toml from the GPQA Hugging Face dataset.
+Constructs data/benchmarks/gpqa.toml from the GPQA Hugging Face dataset.
 
 Calculates average expert validation times ('lengths') from the dataset.
 Outputs dataset metadata (n_questions, chance_accuracy, lengths) to dataset.toml.
@@ -62,8 +62,8 @@ def write_dataset_toml(output_path: Path, n_questions: int,
 
 def main():
     # --- Configuration ---
-    DATA_DIR = Path("data/gpqa")
-    DATASET_OUTPUT_FILE = DATA_DIR / "dataset.toml"
+    DATA_DIR = Path("data/benchmarks")
+    DATASET_OUTPUT_FILE = DATA_DIR / "gpqa.toml"
     CHANCE_ACCURACY = 0.25
     # ---------------------
 

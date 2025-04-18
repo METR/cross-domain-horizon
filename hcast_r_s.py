@@ -4,10 +4,11 @@ from pathlib import Path
 # Define paths
 source_dir = Path("data/hcast_r_s")
 source_file = source_dir / "horizons_raw.csv"
-output_file = source_dir / "horizons.csv"
+output_dir = Path("data/horizons")
+output_file = output_dir / "hcast_r_s.csv"
 
 # Ensure output directory exists
-source_dir.mkdir(parents=True, exist_ok=True)
+output_dir.mkdir(parents=True, exist_ok=True)
 
 # Define the mapping for agent names to standardized model names
 name_mapping = {

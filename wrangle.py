@@ -5,36 +5,40 @@ from scipy.stats import gmean
 import numpy as np
 
 DATA_DIR = 'data'
+HORIZONS_DIR = os.path.join(DATA_DIR, 'horizons') # New constant for horizons dir
 MIN_HORIZON_THRESHOLD_SECONDS = 10 * 60  # 10 minutes
 
 def load_data(data_dir):
-    """Loads horizon data from all benchmark subdirectories."""
+    """Loads horizon data from CSV files in the horizons subdirectory."""
     all_data = []
-    benchmark_dirs = [os.path.join(data_dir, d) for d in os.listdir(data_dir)
-                      if os.path.isdir(os.path.join(data_dir, d))]
+    horizons_dir = os.path.join(data_dir, 'horizons') # Use the specific horizons directory
+    csv_files = glob.glob(os.path.join(horizons_dir, '*.csv')) # Find all CSVs in horizons dir
 
-    for bench_dir in benchmark_dirs:
-        benchmark_name = os.path.basename(bench_dir)
-        csv_path = os.path.join(bench_dir, 'horizons.csv')
-        if os.path.exists(csv_path):
-            try:
-                df = pd.read_csv(csv_path)
-                # Assuming columns are 'model', 'horizon' (in minutes), 'score'
-                if 'model' in df.columns and 'horizon' in df.columns:
-                    # Fill missing horizons with 0 before converting
-                    df['horizon'] = df['horizon'].fillna(0)
-                    # Convert horizon from minutes to seconds
-                    df['horizon'] = df['horizon'] * 60
-                    df['benchmark'] = benchmark_name
-                    all_data.append(df[['model', 'benchmark', 'horizon']])
-                else:
-                    print(f"Warning: Skipping {csv_path}. Missing 'model' or 'horizon' column.")
-            except Exception as e:
-                print(f"Warning: Could not read {csv_path}. Error: {e}")
-        else:
-            print(f"Warning: No horizons.csv found in {bench_dir}")
+    if not csv_files:
+        print(f"Warning: No CSV files found in {horizons_dir}")
+        return pd.DataFrame(columns=['model', 'benchmark', 'horizon'])
+
+    for csv_path in csv_files:
+        benchmark_name = os.path.basename(csv_path).replace('.csv', '') # Extract benchmark from filename
+        try:
+            df = pd.read_csv(csv_path)
+            # Assuming columns are 'model', 'horizon' (in minutes) - score no longer needed here?
+            if 'model' in df.columns and 'horizon' in df.columns:
+                # Fill missing horizons with 0 before converting
+                df['horizon'] = df['horizon'].fillna(0)
+                # Convert horizon from minutes to seconds
+                df['horizon'] = df['horizon'] * 60
+                df['benchmark'] = benchmark_name
+                # Select only necessary columns
+                all_data.append(df[['model', 'benchmark', 'horizon']])
+            else:
+                print(f"Warning: Skipping {csv_path}. Missing 'model' or 'horizon' column.")
+        except Exception as e:
+            print(f"Warning: Could not read {csv_path}. Error: {e}")
+
 
     if not all_data:
+        print("Warning: No data loaded after processing CSV files.")
         return pd.DataFrame(columns=['model', 'benchmark', 'horizon'])
 
     return pd.concat(all_data, ignore_index=True)

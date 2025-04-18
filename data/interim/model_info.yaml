@@ -1,0 +1,85 @@
+models:
+  GPT-4o mini:
+    company: OpenAI
+    release_date: '2024-07-18'
+    aliases: []
+  GPT-4 Turbo:
+    company: OpenAI
+    release_date: '2024-04-09'
+    aliases: []
+  Claude 3 Sonnet:
+    company: Anthropic
+    release_date: '2024-03-04'
+    aliases: []
+  GPT-4o:
+    company: OpenAI
+    release_date: '2024-05-13'
+    aliases: []
+  o1-preview (elicited):
+    company: OpenAI
+    release_date: '2024-09-12'
+    aliases: []
+  Claude 3 Opus:
+    company: Anthropic
+    release_date: '2024-03-04'
+    aliases: []
+  Claude 3.5 Sonnet (old):
+    company: Anthropic
+    release_date: '2024-06-20'
+    aliases: []
+  Claude 3.5 Sonnet:
+    company: Anthropic
+    release_date: '2024-10-22'
+    aliases: []
+  Claude 3.5 Sonnet (retry 8x):
+    company: Anthropic
+    release_date: '2024-10-22'
+    aliases: []
+  Claude 3.5 Sonnet (New):
+    company: Anthropic
+    release_date: '2024-10-22'
+    aliases: []
+  Claude 3.7 Sonnet:
+    company: Anthropic
+    release_date: '2025-02-24'
+    aliases: []
+  Claude 3.5 Sonnet (Old):
+    company: Anthropic
+    release_date: '2024-06-20'
+    aliases: []
+  GPT-4 0314:
+    company: OpenAI
+    release_date: '2023-03-14'
+    aliases: []
+  GPT-4 1106:
+    company: OpenAI
+    release_date: '2023-11-06'
+    aliases: []
+  GPT-4 0125:
+    company: OpenAI
+    release_date: '2024-01-25'
+    aliases: []
+  davinci-002 (GPT-3):
+    company: OpenAI
+    release_date: '2020-05-28'
+    aliases: []
+  gpt-3.5-turbo-instruct:
+    company: OpenAI
+    release_date: '2022-03-15'
+    aliases: []
+  o1:
+    company: OpenAI
+    release_date: '2024-12-05'
+    aliases: []
+  o1-preview:
+    company: OpenAI
+    release_date: '2024-09-12'
+    aliases: []
+  GPT-2:
+    company: OpenAI
+    release_date: '2019-02-14'
+    aliases: []
+  GPT-4 0613:
+    company: OpenAI
+    release_date: '2023-06-13'
+    aliases: []

@@ -18,35 +18,43 @@ import numpy as np
 import pandas as pd
 import pathlib
 from typing import Iterator
+from dataclasses import dataclass
 import tomllib
 import argparse
 
 DEFAULT_SLOPE = 0.6
+DEFAULT_CHANCE_ACCURACY = 0.0
 
-def sigmoid(horizon, x, slope) -> np.ndarray:
+@dataclass
+class BenchmarkSpec:
+    n_questions: int
+    lengths: list[int]
+    chance_accuracy: float
+
+def sigmoid(horizon, x, slope, chance_accuracy) -> np.ndarray:
     result = 1 / (1 + np.exp(slope * (-np.log2(horizon) + np.log2(x))))
-    return result
+    return chance_accuracy + (1 - chance_accuracy) * result
 
-def expected_score(horizon: float, lengths: list[int]):
+def expected_score(horizon: float, bspec: BenchmarkSpec):
     """
     Gets expected score that horizon `horizon` will produce
     Input:
     - horizon: float
     - lengths: list of ints
     """
-    probs_for_horizon = sigmoid(horizon, lengths, DEFAULT_SLOPE)
+    probs_for_horizon = sigmoid(horizon, bspec.lengths, DEFAULT_SLOPE, bspec.chance_accuracy)
     return np.sum(probs_for_horizon)
 
     
-def initial_estimate(score: int, lengths: list[int]):
+def initial_estimate(score: int, bspec: BenchmarkSpec):
     """
     Estimates the horizon as the value of h for which
     a model would get score `score` with horizon h
     """
-    lengths = sorted(lengths)
+    lengths = sorted(bspec.lengths)
     return lengths[min(len(lengths) - 1, score)]
 
-def estimate_horizon(score: int, lengths: list[int], n_iterations=100, min_horizon=None, max_horizon=None):
+def estimate_horizon(score: int, bspec: BenchmarkSpec, n_iterations=100, min_horizon=None, max_horizon=None):
     """
     Estimates the horizon as the value of h for which
     a model would get mean score `score` with horizon h
@@ -67,6 +75,7 @@ def estimate_horizon(score: int, lengths: list[int], n_iterations=100, min_horiz
     Returns:
         Estimated horizon or nan if horizon is outside bounds
     """
+    lengths = bspec.lengths
     # Set default bounds if not provided
     if min_horizon is None:
         min_horizon = 0.1 * min(lengths)
@@ -78,12 +87,12 @@ def estimate_horizon(score: int, lengths: list[int], n_iterations=100, min_horiz
     log_max = np.log(max_horizon)
     
     # Initialize horizon with a reasonable guess
-    init_horizon = initial_estimate(score, lengths)
+    init_horizon = initial_estimate(score, bspec=bspec)
     log_horizon = np.log(max(min_horizon, min(max_horizon, init_horizon)))
     
     # Check if target score is outside the range of what's possible with these bounds
-    min_expected = expected_score(min_horizon, lengths)
-    max_expected = expected_score(max_horizon, lengths)
+    min_expected = expected_score(min_horizon, bspec=bspec)
+    max_expected = expected_score(max_horizon, bspec=bspec)
     
     if score < min_expected or score > max_expected:
         return float('nan')
@@ -91,7 +100,7 @@ def estimate_horizon(score: int, lengths: list[int], n_iterations=100, min_horiz
     for _ in range(n_iterations):
         # Convert from log space to calculate expected score
         horizon = np.exp(log_horizon)
-        expected = expected_score(horizon, lengths)
+        expected = expected_score(horizon, bspec=bspec)
         
         # If the expected score is close enough to the target, return the horizon
         if abs(expected - score) < 0.1:
@@ -108,7 +117,7 @@ def estimate_horizon(score: int, lengths: list[int], n_iterations=100, min_horiz
     result = np.exp(log_horizon)
     return result
 
-def estimate_horizons(scores: dict[str, int], lengths: list[float]) -> dict[str, float]:
+def estimate_horizons(scores: dict[str, int], bspec: BenchmarkSpec) -> dict[str, float]:
     """
     Estimates time horizon for each model given score and question lengths in minutes
 
@@ -117,12 +126,11 @@ def estimate_horizons(scores: dict[str, int], lengths: list[float]) -> dict[str,
     - lengths: 
     """
 
-    n_questions = len(lengths)
-    assert all(0 <= score <= n_questions for score in scores.values())
+    assert all(0 <= score <= bspec.n_questions for score in scores.values())
 
     result = {}
     for model, score in scores.items():
-        result[model] = estimate_horizon(score, lengths)
+        result[model] = estimate_horizon(score, bspec=bspec)
     return result
     
 
@@ -147,7 +155,8 @@ def process_dataset(dataset_name: str) -> None:
     lengths = data["lengths"]
     assert len(lengths) == n_questions
 
-    horizons = estimate_horizons(scores, lengths)
+    bspec = BenchmarkSpec(n_questions=n_questions, lengths=lengths, chance_accuracy=DEFAULT_CHANCE_ACCURACY)
+    horizons = estimate_horizons(scores, bspec=bspec)
     df = pd.DataFrame({
         'model': list(horizons.keys()),
         'horizon': list(horizons.values()),

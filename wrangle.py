@@ -3,26 +3,31 @@ import os
 import glob
 from scipy.stats import gmean
 import numpy as np
+import yaml
+from datetime import datetime
 
 DATA_DIR = 'data'
 HORIZONS_DIR = os.path.join(DATA_DIR, 'horizons') # New constant for horizons dir
+RELEASE_DATES_FILE = os.path.join(DATA_DIR, 'raw', 'release_dates.yaml') # Path to release dates
 MIN_HORIZON_THRESHOLD_SECONDS = 10 * 60  # 10 minutes
 
 def load_data(data_dir):
-    """Loads horizon data from CSV files in the horizons subdirectory."""
+    """Loads horizon data and merges release dates."""
+    # --- Load Horizon Data ---
     all_data = []
     horizons_dir = os.path.join(data_dir, 'horizons') # Use the specific horizons directory
     csv_files = glob.glob(os.path.join(horizons_dir, '*.csv')) # Find all CSVs in horizons dir
 
     if not csv_files:
         print(f"Warning: No CSV files found in {horizons_dir}")
-        return pd.DataFrame(columns=['model', 'benchmark', 'horizon'])
+        # Return empty DataFrame with all expected columns
+        return pd.DataFrame(columns=['model', 'benchmark', 'horizon', 'release_date'])
 
     for csv_path in csv_files:
         benchmark_name = os.path.basename(csv_path).replace('.csv', '') # Extract benchmark from filename
         try:
             df = pd.read_csv(csv_path)
-            # Assuming columns are 'model', 'horizon' (in minutes) - score no longer needed here?
+            # Assuming columns are 'model', 'horizon' (in minutes)
             if 'model' in df.columns and 'horizon' in df.columns:
                 # Fill missing horizons with 0 before converting
                 df['horizon'] = df['horizon'].fillna(0)
@@ -39,9 +44,45 @@ def load_data(data_dir):
 
     if not all_data:
         print("Warning: No data loaded after processing CSV files.")
-        return pd.DataFrame(columns=['model', 'benchmark', 'horizon'])
+        # Return empty DataFrame with all expected columns
+        return pd.DataFrame(columns=['model', 'benchmark', 'horizon', 'release_date'])
 
-    return pd.concat(all_data, ignore_index=True)
+    horizon_df = pd.concat(all_data, ignore_index=True)
+
+    # --- Load and Merge Release Dates ---
+    try:
+        with open(RELEASE_DATES_FILE, 'r') as f:
+            release_data = yaml.safe_load(f)
+            # Extract the 'date' dictionary
+            release_dates_dict = release_data.get('date', {})
+            if not release_dates_dict:
+                 # Print error and raise if date key is missing or empty
+                 error_msg = f"Error: No 'date' key found or empty in {RELEASE_DATES_FILE}. Cannot proceed."
+                 print(error_msg)
+                 raise ValueError(error_msg)
+                 # horizon_df['release_date'] = pd.NaT
+                 # return horizon_df
+
+        # Convert dictionary to DataFrame
+        release_df = pd.DataFrame(list(release_dates_dict.items()), columns=['model', 'release_date'])
+        # Convert release_date strings to datetime objects
+        release_df['release_date'] = pd.to_datetime(release_df['release_date'], errors='coerce')
+
+        # Merge with horizon data
+        merged_df = pd.merge(horizon_df, release_df, on='model', how='left')
+
+        # Check for models without release dates after merge
+        missing_dates = merged_df[merged_df['release_date'].isna()]['model'].unique()
+        if len(missing_dates) > 0:
+            print(f"Warning: Missing release dates for models: {list(missing_dates)}")
+
+        return merged_df
+    except Exception as e:
+        # Print error and raise for any other unexpected issues
+        error_msg = f"An unexpected error occurred while loading/merging release dates: {e}. Cannot proceed."
+        print(error_msg)
+        raise e
+
 
 def filter_and_sort_models(df):
     """Filters models based on horizon threshold and count, and sorts by geometric mean.

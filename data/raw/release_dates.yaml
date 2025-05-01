@@ -4,13 +4,10 @@ date:
   Claude 3 Sonnet: 2024-03-04
   GPT-4o: 2024-05-13
   o1-preview (elicited): 2024-09-12
-  Claude 3 Opus: 2024-03-04
-  Claude 3.5 Sonnet (old): 2024-06-20
-  Claude 3.5 Sonnet: 2024-10-22
-  Claude 3.5 Sonnet (retry 8x): 2024-10-22
-  Claude 3.5 Sonnet (New): 2024-10-22
-  Claude 3.7 Sonnet: 2025-02-24
-  Claude 3.5 Sonnet (Old): 2024-06-20
+  anthropic_claude_3_opus: 2024-03-04
+  anthropic_claude_3_5_sonnet_latest: 2024-10-22
+  anthropic_claude_3_7_sonnet: 2025-02-24
+  anthropic_claude_3_5_sonnet_old: 2024-06-20
   GPT-4 0314: 2023-03-14
   GPT-4 1106: 2023-11-06
   GPT-4 0125: 2024-01-25

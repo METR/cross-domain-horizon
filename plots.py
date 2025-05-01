@@ -6,12 +6,14 @@ import glob
 import numpy as np
 import adjustText # Import adjustText
 import matplotlib.ticker as mticker # Import ticker
+import matplotlib.dates as mdates # Add date formatting import
 
 # Import wrangle functions and constants
 import wrangle
 
 BAR_PLOT_OUTPUT_FILE = 'plots/all_bar.png'
 SCATTER_PLOT_OUTPUT_FILE = 'plots/scatter.png' # New output file
+LINES_PLOT_OUTPUT_FILE = 'plots/lines_over_time.png' # New output file for lines plot
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
 
 def plot_horizons(df, sorted_models):
@@ -149,6 +151,74 @@ def plot_scatter(df):
     print(f"Scatter plot saved to {SCATTER_PLOT_OUTPUT_FILE}")
     plt.close()
 
+def plot_lines_over_time(df):
+    """Generates and saves a scatter plot of horizon vs. release date with trendlines."""
+    if df.empty:
+        print("No data loaded for lines over time plot.")
+        return
+
+    # Ensure 'release_date' exists and has valid dates
+    if 'release_date' not in df.columns or df['release_date'].isnull().all():
+        print("Warning: No valid \'release_date\' data found. Skipping lines over time plot.")
+        return
+
+    # Filter out rows with missing release dates or zero/negative horizons for plotting
+    plot_df = df.dropna(subset=['release_date']).copy()
+    plot_df = plot_df[plot_df['horizon'] > 0] # Log scale needs positive values
+
+    if plot_df.empty:
+        print("No valid data points (with release date and positive horizon) found for lines over time plot.")
+        return
+
+    # Convert horizon to minutes for the y-axis
+    plot_df['horizon_minutes'] = plot_df['horizon'] / 60.0
+
+    # Convert release_date to numerical format for lmplot
+    plot_df['release_date_num'] = mdates.date2num(plot_df['release_date'])
+
+    plt.figure(figsize=(14, 8))
+
+    # Use lmplot for scatter plot with regression lines per benchmark
+    # Use the numerical date for x-axis calculation
+    g = sns.lmplot(
+        data=plot_df,
+        x='release_date_num', # Use numerical date for regression
+        y='horizon_minutes',
+        hue='benchmark',
+        scatter_kws={'s': 50, 'alpha': 0.7},
+        height=7, # Adjust height
+        aspect=1.5, # Adjust aspect ratio
+        legend=False # Turn off default legend
+    )
+
+    # Set y-axis to log scale
+    g.ax.set_yscale('log')
+
+    # Formatting the plot
+    g.ax.set_xlabel("Model Release Date")
+    g.ax.set_ylabel("Horizon (minutes, log scale)")
+    g.ax.set_title("Model Horizon vs. Release Date by Benchmark (Log Scale)")
+    g.ax.grid(True, which="both", ls="--", linewidth=0.5)
+
+    # Format x-axis dates using the numerical dates
+    g.ax.xaxis.set_major_locator(mdates.YearLocator()) # Major ticks by year
+    g.ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y')) # Format numerical dates as YYYY
+    g.ax.xaxis.set_minor_locator(mdates.MonthLocator(bymonth=[1, 4, 7, 10])) # Minor ticks quarterly
+    # Rotate labels after formatting
+    plt.setp(g.ax.get_xticklabels(), rotation=45, ha='right')
+
+    # Add a proper legend
+    plt.legend(title='Benchmark', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout(rect=[0, 0, 0.85, 1]) # Adjust layout for legend
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(LINES_PLOT_OUTPUT_FILE), exist_ok=True)
+
+    # Save the plot
+    plt.savefig(LINES_PLOT_OUTPUT_FILE)
+    print(f"Lines over time plot saved to {LINES_PLOT_OUTPUT_FILE}")
+    plt.close('all') # Close all figures associated with lmplot
+
 def main():
     # Load all data initially using wrangle
     all_df = wrangle.load_data(wrangle.DATA_DIR)
@@ -171,7 +241,11 @@ def main():
 
     # --- Scatter Plot --- 
     # Generate and save the scatter plot using the original loaded data
-    plot_scatter(all_df)
+    plot_scatter(all_df.copy()) # Use copy
+
+    # --- Lines Over Time Plot ---
+    # Generate and save the lines over time plot using the original loaded data
+    plot_lines_over_time(all_df.copy()) # Use copy
 
 if __name__ == "__main__":
     main()

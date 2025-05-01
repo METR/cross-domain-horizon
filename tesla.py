@@ -64,12 +64,12 @@ if __name__ == "__main__":
     # Write to CSV
     try:
         with open(OUTPUT_FILE, 'w', newline='') as csvfile:
-            fieldnames = ['date', 'version', 'horizon']
+            fieldnames = ['date', 'model', 'horizon']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             writer.writeheader()
             for version, record in processed_data["records"].items():
-                writer.writerow({'date': record['date'], 'version': version, 'horizon': record['minutes']})
+                writer.writerow({'date': record['date'], 'model': version, 'horizon': record['minutes']})
         print(f"Successfully wrote data to {OUTPUT_FILE}")
     except IOError as e:
         print(f"Error writing to CSV file {OUTPUT_FILE}: {e}", file=sys.stderr)

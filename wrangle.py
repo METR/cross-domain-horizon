@@ -8,7 +8,7 @@ from datetime import datetime
 
 DATA_DIR = 'data'
 HORIZONS_DIR = os.path.join(DATA_DIR, 'horizons') # New constant for horizons dir
-RELEASE_DATES_FILE = os.path.join(DATA_DIR, 'raw', 'release_dates.yaml') # Path to release dates
+RELEASE_DATES_FILE = os.path.join(DATA_DIR, 'raw', 'model_info.yaml') # Path to release dates
 MIN_HORIZON_THRESHOLD_SECONDS = 10 * 60  # 10 minutes
 
 def load_data(data_dir):
@@ -54,18 +54,21 @@ def load_data(data_dir):
         with open(RELEASE_DATES_FILE, 'r') as f:
             release_data = yaml.safe_load(f)
             # Extract the 'date' dictionary
-            release_dates_dict = release_data.get('date', {})
+            release_dates_dict = release_data.get('model_info', {})
             if not release_dates_dict:
                  # Print error and raise if date key is missing or empty
-                 error_msg = f"Error: No 'date' key found or empty in {RELEASE_DATES_FILE}. Cannot proceed."
+                 error_msg = f"Error: No 'model_info' key found or empty in {RELEASE_DATES_FILE}. Cannot proceed."
                  print(error_msg)
                  raise ValueError(error_msg)
                  # horizon_df['release_date'] = pd.NaT
                  # return horizon_df
 
-        # Convert dictionary to DataFrame
-        release_df = pd.DataFrame(list(release_dates_dict.items()), columns=['model', 'release_date'])
-        # Convert release_date strings to datetime objects
+        # Flatten nested 'release_date' values if present
+        release_df = pd.DataFrame(
+            [(m, (d.get('release_date') if isinstance(d, dict) else d))
+             for m, d in release_dates_dict.items()],
+            columns=['model', 'release_date']
+        )
         release_df['release_date'] = pd.to_datetime(release_df['release_date'], errors='coerce')
 
         # Merge with horizon data

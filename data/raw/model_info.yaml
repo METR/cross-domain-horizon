@@ -1,126 +1,123 @@
-10.10.x:
-  release_date: '2022-02-01'
-10.11.x:
-  release_date: '2022-04-03'
-10.12.x:
-  release_date: '2022-05-18'
-10.69.x:
-  release_date: '2022-08-21'
-11.3.x:
-  release_date: '2023-02-14'
-11.4.x:
-  release_date: '2023-04-17'
-12.3.x:
-  release_date: '2024-03-12'
-12.5.x:
-  release_date: '2024-10-01'
-12.6.x:
-  release_date: '2024-12-31'
-13.2.x:
-  release_date: '2024-12-01'
-Claude 3 Sonnet:
-  release_date: 2024-03-04
-GPT-4 Turbo:
-  release_date: 2024-04-09
-GPT-4o:
-  release_date: 2024-05-13
-GPT-4o mini:
-  release_date: 2024-07-18
-ai21_jamba_1_6_large:
-  release_date: 2025-03-06
-ai21_jamba_1_6_mini:
-  release_date: 2025-03-06
-anthropic_claude_3_5_haiku_latest:
-  release_date: 2024-10
-anthropic_claude_3_5_sonnet_latest:
-  release_date: 2024-10-22
-anthropic_claude_3_5_sonnet_old:
-  release_date: 2024-06-20
-anthropic_claude_3_7_sonnet:
-  release_date: 2025-02-24
-anthropic_claude_3_7_sonnet_thinking:
-  release_date: unknown
-anthropic_claude_3_opus:
-  release_date: 2024-03-04
-cogagent:
-  release_date: 2023-12-15
-cogagent_9b:
-  release_date: 2024-12-20
-cohere_command_a:
-  release_date: 2025-03-13
-cohere_command_r_plus:
-  release_date: 2024-04-04
-davinci-002 (GPT-3):
-  release_date: 2020-05-28
-deepseek_deepseek_r1:
-  release_date: 2025-01-20
-deepseek_v3:
-  release_date: 2024-12-26
-deepseek_v3_03_24_2025:
-  release_date: 2025-03-24
-google_gemini_1_5_flash_002:
-  release_date: 2024-06-12
-google_gemini_1_5_pro_002:
-  release_date: 2024-06-12
-google_gemini_2_0_flash_001:
-  release_date: 2025-02-05
-google_gemini_2_5_pro_exp:
-  release_date: 2025-03-28
-google_gemini_pro_vision:
-  release_date: 2024-02-15
-meta_llama_3_3_instruct_turbo_70b:
-  release_date: 2024-04-18
-meta_llama_4_maverick:
-  release_date: 2025-04-05
-meta_llama_4_scout:
-  release_date: 2025-04-04
-mistral_large_11_2024:
-  release_date: 2024-11
-mistral_small_02_2024:
-  release_date: 2024-02
-mistral_small_3_1_03_2025:
-  release_date: unknown
-o1-preview (elicited):
-  release_date: 2024-09-12
-openai_gpt_2:
-  release_date: 2019-02-14
-openai_gpt_3_5:
-  release_date: 2022-03-15
-openai_gpt_4_0125:
-  release_date: 2024-01-25
-openai_gpt_4_0314:
-  release_date: 2023-03-14
-openai_gpt_4_0613:
-  release_date: 2023-06-13
-openai_gpt_4_1106:
-  release_date: 2023-11-06
-openai_gpt_4_vision:
-  release_date: 2023-11-06
-openai_gpt_4o:
-  release_date: 2024-05-13
-openai_gpt_4o_2024_05_13:
-  release_date: 2024-05-13
-openai_gpt_4o_2024_08_06:
-  release_date: 2024-08-06
-openai_gpt_4o_2024_11_20:
-  release_date: 2024-11-20
-openai_gpt_4o_mini:
-  release_date: 2024-07-18
-openai_o1:
-  release_date: 2024-12-05
-openai_o1_preview:
-  release_date: 2024-09-12
-openai_o3_mini:
-  release_date: 2025-01-31
-qwen_2_5_vl_72b:
-  release_date: 2024-09-19
-qwen_vl_max_0809:
-  release_date: unknown
-xai_grok_2:
-  release_date: 2024-08-13
-xai_grok_3_beta:
-  release_date: 2025-02-18
-xai_grok_3_mini_fast_beta_high_reasoning:
-  release_date: unknown
-xai_grok_3_mini_fast_beta_low_reasoning:
-  release_date: unknown
+model_info:
+  10.10.x:
+    release_date: '2022-02-01'
+  10.11.x:
+    release_date: '2022-04-03'
+  10.12.x:
+    release_date: '2022-05-18'
+  10.69.x:
+    release_date: '2022-08-21'
+  11.3.x:
+    release_date: '2023-02-14'
+  11.4.x:
+    release_date: '2023-04-17'
+  12.3.x:
+    release_date: '2024-03-12'
+  12.5.x:
+    release_date: '2024-10-01'
+  12.6.x:
+    release_date: '2024-12-31'
+  13.2.x:
+    release_date: '2024-12-01'
+  anthropic_claude_3_sonnet:
+    release_date: 2024-03-04
+  ai21_jamba_1_6_large:
+    release_date: 2025-03-06
+  ai21_jamba_1_6_mini:
+    release_date: 2025-03-06
+  anthropic_claude_3_5_haiku_latest:
+    release_date: 2024-10
+  anthropic_claude_3_5_sonnet_latest:
+    release_date: 2024-10-22
+  anthropic_claude_3_5_sonnet_old:
+    release_date: 2024-06-20
+  anthropic_claude_3_7_sonnet:
+    release_date: 2025-02-24
+  anthropic_claude_3_7_sonnet_thinking:
+    release_date: unknown
+  anthropic_claude_3_opus:
+    release_date: 2024-03-04
+  cogagent:
+    release_date: 2023-12-15
+  cogagent_9b:
+    release_date: 2024-12-20
+  cohere_command_a:
+    release_date: 2025-03-13
+  cohere_command_r_plus:
+    release_date: 2024-04-04
+  davinci-002 (GPT-3):
+    release_date: 2020-05-28
+  deepseek_deepseek_r1:
+    release_date: 2025-01-20
+  deepseek_v3:
+    release_date: 2024-12-26
+  deepseek_v3_03_24_2025:
+    release_date: 2025-03-24
+  google_gemini_1_5_flash_002:
+    release_date: 2024-06-12
+  google_gemini_1_5_pro_002:
+    release_date: 2024-06-12
+  google_gemini_2_0_flash_001:
+    release_date: 2025-02-05
+  google_gemini_2_5_pro_exp:
+    release_date: 2025-03-28
+  google_gemini_pro_vision:
+    release_date: 2024-02-15
+  meta_llama_3_3_instruct_turbo_70b:
+    release_date: 2024-04-18
+  meta_llama_4_maverick:
+    release_date: 2025-04-05
+  meta_llama_4_scout:
+    release_date: 2025-04-04
+  mistral_large_11_2024:
+    release_date: 2024-11
+  mistral_small_02_2024:
+    release_date: 2024-02
+  mistral_small_3_1_03_2025:
+    release_date: unknown
+  o1-preview (elicited):
+    release_date: 2024-09-12
+  openai_gpt_2:
+    release_date: 2019-02-14
+  openai_gpt_3_5:
+    release_date: 2022-03-15
+  openai_gpt_4_0125:
+    release_date: 2024-01-25
+  openai_gpt_4_0314:
+    release_date: 2023-03-14
+  openai_gpt_4_0613:
+    release_date: 2023-06-13
+  openai_gpt_4_turbo:
+    release_date: 2024-04-09
+  openai_gpt_4_1106:
+    release_date: 2023-11-06
+  openai_gpt_4_vision:
+    release_date: 2023-11-06
+  openai_gpt_4o:
+    release_date: 2024-05-13
+  openai_gpt_4o_2024_05_13:
+    release_date: 2024-05-13
+  openai_gpt_4o_2024_08_06:
+    release_date: 2024-08-06
+  openai_gpt_4o_2024_11_20:
+    release_date: 2024-11-20
+  openai_gpt_4o_mini:
+    release_date: 2024-07-18
+  openai_o1:
+    release_date: 2024-12-05
+  openai_o1_preview:
+    release_date: 2024-09-12
+  openai_o3_mini:
+    release_date: 2025-01-31
+  qwen_2_5_vl_72b:
+    release_date: 2024-09-19
+  qwen_vl_max_0809:
+    release_date: unknown
+  xai_grok_2:
+    release_date: 2024-08-13
+  xai_grok_3_beta:
+    release_date: 2025-02-18
+  xai_grok_3_mini_fast_beta_high_reasoning:
+    release_date: unknown
+  xai_grok_3_mini_fast_beta_low_reasoning:
+    release_date: unknown

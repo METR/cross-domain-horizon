@@ -21,7 +21,6 @@ Estimate the time horizon of AIs over time on various domains like knowledge and
 
 - [ ] OSWorld updated data
 - [ ] TheAgentCompany? but no human baselines
-- [ ] model aliases
 - [ ] compare HCAST estimated horizon to actual horizon
 - [ ] aggregating benchmarks into categories
 - [ ] visual understanding benchmark

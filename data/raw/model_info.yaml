@@ -125,10 +125,16 @@ model_info:
     release_date: 2024-09-12
   openai_o3_mini:
     release_date: 2025-01-31
+  openai_cua:
+    release_date: 2025-01-23
   qwen_2_5_vl_72b:
     release_date: 2024-09-19
   qwen_vl_max_0809:
     release_date: unknown
+  ui_tars_1_5:
+    release_date: 2025-04-17
+  ui_tars_72b_dpo:
+    release_date: 2025-04-17
   xai_grok_2:
     release_date: 2024-08-13
   xai_grok_3_beta:

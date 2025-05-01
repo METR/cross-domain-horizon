@@ -243,6 +243,8 @@ def plot_lines_over_time(df):
             x_line_date = mdates.num2date(x_line_num)
             y_line = 10**y_line_log
 
+            ax.plot(x_line_date, y_line, color=color, linestyle='--', linewidth=2, label=f"_{bench}_trend")
+
     ax.set_yscale('log')
 
     ax.set_xlabel("Model Release Date")

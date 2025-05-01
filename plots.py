@@ -162,7 +162,6 @@ def plot_lines_over_time(df):
         print("Warning: No valid 'release_date' data found. Skipping lines over time plot.")
         return
 
-    # Filter out rows with missing release dates or zero/negative horizons for plotting
     plot_df = df.dropna(subset=['release_date']).copy()
     plot_df = plot_df[plot_df['horizon'] > 0] # Log scale needs positive values
 
@@ -172,9 +171,8 @@ def plot_lines_over_time(df):
 
     # Convert horizon to minutes and add log horizon
     plot_df['horizon_minutes'] = plot_df['horizon'] / 60.0
-    plot_df['log_horizon_minutes'] = np.log10(plot_df['horizon_minutes']) # Use log10 for easier interpretation if needed
+    plot_df['log_horizon_minutes'] = np.log10(plot_df['horizon_minutes'])
 
-    # Convert release_date to numerical format for regression calculations
     plot_df['release_date_num'] = mdates.date2num(plot_df['release_date'])
 
     # Identify frontier models for each benchmark
@@ -192,14 +190,11 @@ def plot_lines_over_time(df):
         if frontier_indices:
             plot_df.loc[frontier_indices, 'is_frontier'] = True
 
-    # Plotting with Matplotlib
     fig, ax = plt.subplots(figsize=(14, 8))
 
-    # Use seaborn's color palette for consistency
     palette = sns.color_palette(n_colors=len(benchmarks))
     benchmark_colors = {bench: color for bench, color in zip(benchmarks, palette)}
 
-    # Plot all points and frontier regression lines per benchmark
     for bench in benchmarks:
         bench_data = plot_df[plot_df['benchmark'] == bench]
         color = benchmark_colors[bench]
@@ -211,7 +206,7 @@ def plot_lines_over_time(df):
             non_frontier_data['release_date'], # Use datetime objects for x-axis plotting
             non_frontier_data['horizon_minutes'],
             color=color,
-            marker='o', # Explicitly circle
+            marker='o',
             label=f"{bench}", # Main label for legend
             alpha=0.6,
             s=50,
@@ -221,43 +216,35 @@ def plot_lines_over_time(df):
 
         # Plot frontier points (diamonds)
         ax.scatter(
-            frontier_data['release_date'], # Use datetime objects for x-axis plotting
+            frontier_data['release_date'],
             frontier_data['horizon_minutes'],
             color=color,
-            marker='D', # Diamond for frontier
+            marker='D',
             label=f"_{bench}_frontier", # Hidden label for legend
-            alpha=0.9, # Slightly more opaque
-            s=70,      # Slightly larger
+            alpha=0.9,
+            s=70,
             edgecolor='k',
             linewidth=0.5
         )
 
 
         # Fit and plot regression line using only frontier points
-        if len(frontier_data) >= 2: # Need at least two points for a line
+        if len(frontier_data) >= 2:
             # Perform linear regression on numerical date vs log horizon
             X = frontier_data['release_date_num'].values
             Y_log = frontier_data['log_horizon_minutes'].values
 
-            # Fit linear model: log(horizon) = slope * date_num + intercept
             coeffs = np.polyfit(X, Y_log, 1)
             poly = np.poly1d(coeffs)
 
-            # Generate points for the regression line spanning the frontier date range
             x_line_num = np.linspace(X.min(), X.max(), 100)
             y_line_log = poly(x_line_num)
 
-            # Convert back for plotting: numerical dates to datetime, log horizon to linear horizon
             x_line_date = mdates.num2date(x_line_num)
-            y_line = 10**y_line_log # Convert back from log10
+            y_line = 10**y_line_log
 
-            ax.plot(x_line_date, y_line, color=color, linestyle='--', linewidth=2, label=f"_{bench}_trend") # Hidden label
-
-
-    # Set y-axis to log scale
     ax.set_yscale('log')
 
-    # Formatting the plot
     ax.set_xlabel("Model Release Date")
     ax.set_ylabel("Horizon (minutes, log scale)")
     ax.set_title("Model Horizon vs. Release Date (Log Scale, Trend on Frontier)")
@@ -269,20 +256,17 @@ def plot_lines_over_time(df):
     ax.xaxis.set_minor_locator(mdates.MonthLocator(bymonth=[1, 4, 7, 10]))
     fig.autofmt_xdate(rotation=45, ha='right') # Auto-format dates (includes rotation)
 
-    # Create a legend, potentially combining labels if it gets too crowded
+    # Create a legend
     handles, labels = ax.get_legend_handles_labels()
-    # Simple approach: show all labels. Might need adjustment if too many benchmarks.
     ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(1.05, 1), loc='upper left')
 
     plt.tight_layout(rect=[0, 0, 0.85, 1]) # Adjust layout for legend
 
-    # Ensure output directory exists
     os.makedirs(os.path.dirname(LINES_PLOT_OUTPUT_FILE), exist_ok=True)
 
-    # Save the plot
     plt.savefig(LINES_PLOT_OUTPUT_FILE)
     print(f"Lines over time plot saved to {LINES_PLOT_OUTPUT_FILE}")
-    plt.close(fig) # Close the specific figure
+    plt.close(fig)
 
 def main():
     # Load all data initially using wrangle

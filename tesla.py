@@ -6,7 +6,7 @@ import os # Import os for directory creation
 
 
 INPUT_FILE = pathlib.Path("data/raw/tesla_fsd_tracker.toml")
-OUTPUT_DIR = pathlib.Path("horizons")
+OUTPUT_DIR = pathlib.Path("data/horizons")
 OUTPUT_FILE = OUTPUT_DIR / "tesla_driving.csv"
 MILES_PER_MINUTE_RATE = 0.5 # Keep this, might be useful later, though not directly in CSV
 

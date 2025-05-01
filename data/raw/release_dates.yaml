@@ -20,3 +20,13 @@ date:
   o1-preview: 2024-09-12
   GPT-2: 2019-02-14
   GPT-4 0613: 2023-06-13
+  "10.10.x": "2022-02-01" # Based on FSD Beta 10.10
+  "10.11.x": "2022-04-03" # Based on FSD Beta 10.11.2
+  "10.12.x": "2022-05-18" # Based on FSD Beta 10.12
+  "10.69.x": "2022-08-21" # Based on FSD Beta 10.69
+  "11.3.x": "2023-02-14" # Based on FSD Beta 11.3
+  "11.4.x": "2023-04-17" # Based on FSD Beta 11.4
+  "12.3.x": "2024-03-12" # Based on FSD Beta 12.3
+  "12.5.x": "2024-10-01" # Based on FSD Beta 12.5.4.1 (update 2024.32.10)
+  "12.6.x": "2024-12-31" # Based on FSD Beta 12.6 (update 2024.45.25.10)
+  "13.2.x": "2024-12-01" # Based on FSD Beta 13.2

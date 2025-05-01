@@ -203,22 +203,37 @@ def plot_lines_over_time(df):
     for bench in benchmarks:
         bench_data = plot_df[plot_df['benchmark'] == bench]
         color = benchmark_colors[bench]
+        frontier_data = bench_data[bench_data['is_frontier']]
+        non_frontier_data = bench_data[~bench_data['is_frontier']]
 
-        # Plot all points for the benchmark
+        # Plot non-frontier points (circles)
         ax.scatter(
-            bench_data['release_date'], # Use datetime objects for x-axis plotting
-            bench_data['horizon_minutes'],
+            non_frontier_data['release_date'], # Use datetime objects for x-axis plotting
+            non_frontier_data['horizon_minutes'],
             color=color,
-            label=f"{bench} (all models)",
+            marker='o', # Explicitly circle
+            label=f"{bench}", # Main label for legend
             alpha=0.6,
             s=50,
             edgecolor='k', # Add edge color for better visibility
             linewidth=0.5
         )
 
-        # Fit and plot regression line using only frontier points
-        frontier_data = bench_data[bench_data['is_frontier']]
+        # Plot frontier points (diamonds)
+        ax.scatter(
+            frontier_data['release_date'], # Use datetime objects for x-axis plotting
+            frontier_data['horizon_minutes'],
+            color=color,
+            marker='D', # Diamond for frontier
+            label=f"_{bench}_frontier", # Hidden label for legend
+            alpha=0.9, # Slightly more opaque
+            s=70,      # Slightly larger
+            edgecolor='k',
+            linewidth=0.5
+        )
 
+
+        # Fit and plot regression line using only frontier points
         if len(frontier_data) >= 2: # Need at least two points for a line
             # Perform linear regression on numerical date vs log horizon
             X = frontier_data['release_date_num'].values
@@ -236,19 +251,7 @@ def plot_lines_over_time(df):
             x_line_date = mdates.num2date(x_line_num)
             y_line = 10**y_line_log # Convert back from log10
 
-            ax.plot(x_line_date, y_line, color=color, linestyle='--', linewidth=2, label=f"{bench} (frontier trend)")
-        elif not frontier_data.empty:
-            # Mark frontier points if only one exists, or too few for trend
-             ax.scatter(
-                frontier_data['release_date'],
-                frontier_data['horizon_minutes'],
-                color=color,
-                marker='X', # Different marker for single/non-trend frontier points
-                s=100,      # Larger size
-                label=f"{bench} (frontier point)",
-                edgecolor='k',
-                linewidth=1
-             )
+            ax.plot(x_line_date, y_line, color=color, linestyle='--', linewidth=2, label=f"_{bench}_trend") # Hidden label
 
 
     # Set y-axis to log scale

@@ -11,6 +11,56 @@ HORIZONS_DIR = os.path.join(DATA_DIR, 'horizons') # New constant for horizons di
 RELEASE_DATES_FILE = os.path.join(DATA_DIR, 'raw', 'model_info.yaml') # Path to release dates
 MIN_HORIZON_THRESHOLD_SECONDS = 10 * 60  # 10 minutes
 
+def load_release_dates(release_dates_file):
+    """Loads model release dates and handles aliases from a YAML file."""
+    try:
+        with open(release_dates_file, 'r') as f:
+            release_data = yaml.safe_load(f)
+            model_info = release_data.get('model_info', {})
+            if not model_info:
+                error_msg = f"Error: No 'model_info' key found or empty in {release_dates_file}. Cannot proceed."
+                print(error_msg)
+                raise ValueError(error_msg)
+
+        all_releases = []
+        for model, data in model_info.items():
+            release_date = None
+            aliases = []
+            if isinstance(data, dict):
+                release_date = data.get('release_date')
+                aliases = data.get('aliases', [])
+            else: # Assume data is the release date string itself
+                release_date = data
+
+            if release_date:
+                # Add the main model
+                all_releases.append({'model': model, 'release_date': release_date})
+                # Add aliases with the same release date
+                for alias in aliases:
+                    all_releases.append({'model': alias, 'release_date': release_date})
+            else:
+                 print(f"Warning: Missing release_date for model: {model} in {release_dates_file}")
+
+
+        if not all_releases:
+            raise ValueError(f"Warning: No release dates found after processing {release_dates_file}")
+
+        release_df = pd.DataFrame(all_releases)
+        # Attempt to convert 'release_date' to datetime, handling potential 'unknown' values
+        release_df['release_date'] = pd.to_datetime(release_df['release_date'], errors='coerce')
+
+        return release_df
+
+    except FileNotFoundError:
+        error_msg = f"Error: Release dates file not found at {release_dates_file}. Cannot proceed."
+        print(error_msg)
+        raise
+    except Exception as e:
+        error_msg = f"An unexpected error occurred while loading release dates from {release_dates_file}: {e}. Cannot proceed."
+        print(error_msg)
+        raise e
+
+
 def load_data(data_dir):
     """Loads horizon data and merges release dates."""
     # --- Load Horizon Data ---
@@ -51,25 +101,8 @@ def load_data(data_dir):
 
     # --- Load and Merge Release Dates ---
     try:
-        with open(RELEASE_DATES_FILE, 'r') as f:
-            release_data = yaml.safe_load(f)
-            # Extract the 'date' dictionary
-            release_dates_dict = release_data.get('model_info', {})
-            if not release_dates_dict:
-                 # Print error and raise if date key is missing or empty
-                 error_msg = f"Error: No 'model_info' key found or empty in {RELEASE_DATES_FILE}. Cannot proceed."
-                 print(error_msg)
-                 raise ValueError(error_msg)
-                 # horizon_df['release_date'] = pd.NaT
-                 # return horizon_df
-
-        # Flatten nested 'release_date' values if present
-        release_df = pd.DataFrame(
-            [(m, (d.get('release_date') if isinstance(d, dict) else d))
-             for m, d in release_dates_dict.items()],
-            columns=['model', 'release_date']
-        )
-        release_df['release_date'] = pd.to_datetime(release_df['release_date'], errors='coerce')
+        # Call the new function to load release dates
+        release_df = load_release_dates(RELEASE_DATES_FILE)
 
         # Merge with horizon data
         merged_df = pd.merge(horizon_df, release_df, on='model', how='left')
@@ -77,13 +110,20 @@ def load_data(data_dir):
         # Check for models without release dates after merge
         missing_dates = merged_df[merged_df['release_date'].isna()]['model'].unique()
         if len(missing_dates) > 0:
-            print(f"Warning: Missing release dates for models: {list(missing_dates)}")
+            # Filter out models that genuinely had 'unknown' or unparseable dates in the YAML
+            # We only want to warn about models present in horizon data but *completely missing* from release info
+            models_in_release_info = set(release_df['model'])
+            truly_missing = [m for m in missing_dates if m not in models_in_release_info]
+            if truly_missing:
+                print(f"Warning: Missing release dates for models present in horizon data but not found in {RELEASE_DATES_FILE}: {list(truly_missing)}")
+
 
         return merged_df
     except Exception as e:
-        # Print error and raise for any other unexpected issues
-        error_msg = f"An unexpected error occurred while loading/merging release dates: {e}. Cannot proceed."
-        print(error_msg)
+        # Error handling for issues during the load_release_dates call or merge
+        print(f"An error occurred during release date loading or merging: {e}")
+        # Depending on requirements, you might want to return the horizon_df without dates,
+        # or raise the exception. Raising is generally better if dates are critical.
         raise e
 
 

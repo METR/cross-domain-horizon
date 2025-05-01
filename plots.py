@@ -61,96 +61,6 @@ def plot_horizons(df, sorted_models):
     plt.close() # Close the plot to free memory
 
 
-
-def plot_scatter(df):
-    """Generates and saves a scatter plot comparing AIME and GPQA horizons."""
-    if df.empty:
-        print("No data loaded for scatter plot.")
-        return
-
-    # Pivot data: models as index, benchmarks as columns
-    pivot_df = df.pivot(index='model', columns='benchmark', values='horizon')
-
-    # Check if 'aime' and 'gpqa' columns exist
-    required_cols = ['aime', 'gpqa']
-    if not all(col in pivot_df.columns for col in required_cols):
-        print(f"Warning: Missing required benchmarks for scatter plot ({required_cols}). Skipping scatter plot.")
-        return
-
-    # Filter for models present in both and with non-zero horizon
-    scatter_data = pivot_df[required_cols].dropna()
-    scatter_data = scatter_data[(scatter_data['aime'] > 0) & (scatter_data['gpqa'] > 0)].copy()
-
-    if scatter_data.empty:
-        print("No models found with valid horizons for both AIME and GPQA. Skipping scatter plot.")
-        return
-        
-    # Apply log transformation manually
-    scatter_data['aime_log'] = np.log10(scatter_data['aime'])
-    scatter_data['gpqa_log'] = np.log10(scatter_data['gpqa'])
-
-    plt.figure(figsize=(9, 8))
-
-    # Use regplot on the log-transformed data
-    ax = sns.regplot(
-        data=scatter_data, 
-        x='aime_log', 
-        y='gpqa_log', 
-        scatter_kws={'s': 50, 'alpha': 0.7},
-        line_kws={'color': 'orange', 'lw': 2, 'label': 'Trendline (log-log)'}
-    )
-
-    # Determine limits for y=x line and axes in log space
-    min_log = min(scatter_data['aime_log'].min(), scatter_data['gpqa_log'].min()) - 0.1
-    max_log = max(scatter_data['aime_log'].max(), scatter_data['gpqa_log'].max()) + 0.1
-    ax.plot([min_log, max_log], [min_log, max_log], color='red', linestyle='--', lw=1, label='y=x')
-
-    # Set limits in log space
-    ax.set_xlim(min_log, max_log)
-    ax.set_ylim(min_log, max_log)
-
-    # Add labels and title for log axes
-    ax.set_xlabel("AIME Horizon (seconds, log scale)") # Clarify log scale
-    ax.set_ylabel("GPQA Horizon (seconds, log scale)") # Clarify log scale
-    ax.set_title("AIME vs GPQA Horizon (Log-Log Scale)")
-    
-    # --- Manual Tick Formatting --- 
-    # Define potential ticks in original scale (seconds)
-    potential_ticks_sec = np.array([1, 10, 30, 60, 180, 300, 600, 1800, 3600, 7200, 10800])
-    potential_ticks_labels = ['1s', '10s', '30s', '1m', '3m', '5m', '10m', '30m', '1h', '2h', '3h']
-    
-    # Filter ticks to be within the plotted range (in log10 space)
-    actual_ticks_log = np.log10(potential_ticks_sec)
-    valid_ticks_mask = (actual_ticks_log >= min_log) & (actual_ticks_log <= max_log)
-    
-    tick_positions = actual_ticks_log[valid_ticks_mask]
-    tick_labels = [potential_ticks_labels[i] for i, valid in enumerate(valid_ticks_mask) if valid]
-
-    # Set ticks and labels manually
-    ax.set_xticks(tick_positions)
-    ax.set_yticks(tick_positions)
-    ax.set_xticklabels(tick_labels)
-    ax.set_yticklabels(tick_labels)
-    ax.minorticks_off() # Turn off minor ticks which might look weird with manual major ticks
-    # --- End Manual Tick Formatting --- 
-
-    # Add text labels for points using log coordinates
-    texts = []
-    for i, point in scatter_data.iterrows():
-        texts.append(plt.text(point['aime_log'], point['gpqa_log'], i, fontsize=8))
-    
-    adjustText.adjust_text(texts, arrowprops=dict(arrowstyle='-', color='gray', lw=0.5))
-
-    ax.grid(True, which="both", ls="--", linewidth=0.5)
-    ax.legend()
-    plt.tight_layout()
-
-    # Save the plot
-    os.makedirs(os.path.dirname(SCATTER_PLOT_OUTPUT_FILE), exist_ok=True)
-    plt.savefig(SCATTER_PLOT_OUTPUT_FILE)
-    print(f"Scatter plot saved to {SCATTER_PLOT_OUTPUT_FILE}")
-    plt.close()
-
 def plot_lines_over_time(df):
     """Generates and saves a scatter plot of horizon vs. release date with trendlines fitted in log space to frontier models."""
     if df.empty:
@@ -289,10 +199,6 @@ def main():
     filtered_df, sorted_models = wrangle.filter_and_sort_models(all_df.copy()) # Use copy to avoid modifying original
     # Generate and save the bar plot
     plot_horizons(filtered_df, sorted_models)
-
-    # --- Scatter Plot --- 
-    # Generate and save the scatter plot using the original loaded data
-    plot_scatter(all_df.copy()) # Use copy
 
     # --- Lines Over Time Plot ---
     # Generate and save the lines over time plot using the original loaded data

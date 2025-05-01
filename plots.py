@@ -10,7 +10,7 @@ import matplotlib.ticker as mticker # Import ticker
 # Import wrangle functions and constants
 import wrangle
 
-BAR_PLOT_OUTPUT_FILE = 'plots/all.png'
+BAR_PLOT_OUTPUT_FILE = 'plots/all_bar.png'
 SCATTER_PLOT_OUTPUT_FILE = 'plots/scatter.png' # New output file
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
 
@@ -57,6 +57,8 @@ def plot_horizons(df, sorted_models):
     plt.savefig(BAR_PLOT_OUTPUT_FILE)
     print(f"Bar plot saved to {BAR_PLOT_OUTPUT_FILE}")
     plt.close() # Close the plot to free memory
+
+
 
 def plot_scatter(df):
     """Generates and saves a scatter plot comparing AIME and GPQA horizons."""

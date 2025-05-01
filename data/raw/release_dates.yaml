@@ -12,11 +12,46 @@ date:
   GPT-4 1106: 2023-11-06
   GPT-4 0125: 2024-01-25
   davinci-002 (GPT-3): 2020-05-28
-  gpt-3.5-turbo-instruct: 2022-03-15
-  o1: 2024-12-05
-  o1-preview: 2024-09-12
-  GPT-2: 2019-02-14
-  GPT-4 0613: 2023-06-13
+  openai_gpt_3_5: 2022-03-15
+  openai_o1: 2024-12-05
+  openai_o1_preview: 2024-09-12
+  openai_gpt_2: 2019-02-14
+  openai_gpt_4_0613: 2023-06-13
+  openai_gpt_4o_2024_08_06: 2024-08-06
+  openai_gpt_4o_2024_11_20: 2024-11-20
+  qwen_2_5_vl_72b: 2024-09-19
+  cogagent_9b: 2024-12-20
+  openai_gpt_4_vision: 2023-11-06
+  google_gemini_pro_vision: 2024-02-15
+  google_gemini_1_5_pro_002: 2024-06-12
+  openai_gpt_4o: 2024-05-13
+  openai_gpt_4o_mini: 2024-07-18
+  qwen_vl_max_0809: unknown
+  cogagent: 2023-12-15
+  openai_o3_mini: 2025-01-31
+  google_gemini_2_5_pro_exp: 2025-03-28
+  xai_grok_3_mini_fast_beta_high_reasoning: unknown
+  deepseek_deepseek_r1: 2025-01-20
+  xai_grok_3_mini_fast_beta_low_reasoning: unknown
+  xai_grok_3_beta: 2025-02-18
+  anthropic_claude_3_7_sonnet_thinking: unknown
+  deepseek_v3_03_24_2025: 2025-03-24
+  google_gemini_2_0_flash_001: 2025-02-05
+  deepseek_v3: 2024-12-26
+  meta_llama_4_maverick: 2025-04-05
+  meta_llama_4_scout: 2025-04-04
+  google_gemini_1_5_flash_002: 2024-06-12
+  meta_llama_3_3_instruct_turbo_70b: 2024-04-18
+  xai_grok_2: 2024-08-13
+  mistral_large_11_2024: 2024-11
+  mistral_small_02_2024: 2024-02
+  anthropic_claude_3_5_haiku_latest: 2024-10
+  mistral_small_3_1_03_2025: unknown
+  ai21_jamba_1_6_mini: 2025-03-06
+  ai21_jamba_1_6_large: 2025-03-06
+  openai_gpt_4o_2024_05_13: 2024-05-13
+  cohere_command_r_plus: 2024-04-04
+  cohere_command_a: 2025-03-13
   "10.10.x": "2022-02-01" # Based on FSD Beta 10.10
   "10.11.x": "2022-04-03" # Based on FSD Beta 10.11.2
   "10.12.x": "2022-05-18" # Based on FSD Beta 10.12

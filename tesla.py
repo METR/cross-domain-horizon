@@ -1,4 +1,5 @@
 import sys
+import math
 import pathlib
 import csv
 import datetime
@@ -15,10 +16,16 @@ OUTPUT_HWY_FILE = OUTPUT_DIR / "tesla_fsd_hwy.csv"
 CITY_MPH = 30
 HWY_MPH = 60
 
+SEPARATE_PATCH_VERSIONS = [
+    "13.2.8",
+]
+
 def extract_minor_version(version):
     """Extract minor version (e.g., '13.2.x') from full version string."""
     parts = version.split('.')
-    if len(parts) >= 2:
+    if version in SEPARATE_PATCH_VERSIONS:
+        return version
+    elif len(parts) >= 2:
         return f"{parts[0]}.{parts[1]}.x"
     return version
 
@@ -40,8 +47,8 @@ def load_and_process_tesla_data(input_path):
             minor_versions = defaultdict(lambda: {
                 'city_miles': 0,
                 'hwy_miles': 0,
-                'city_miles_to_de': 0,
-                'hwy_miles_to_de': 0,
+                'city_de_count': 0,
+                'hwy_de_count': 0,
                 'earliest_date': None,
                 'versions': []
             })
@@ -73,8 +80,8 @@ def load_and_process_tesla_data(input_path):
                 data['hwy_miles'] += hwy_miles
                 
                 # For miles to DE, we'll use weighted averages later
-                data['city_miles_to_de'] += city_miles_to_de * city_miles
-                data['hwy_miles_to_de'] += hwy_miles_to_de * hwy_miles
+                data['city_de_count'] += 0 if city_miles == 0 else city_miles / city_miles_to_de
+                data['hwy_de_count'] += 0 if hwy_miles == 0 else hwy_miles / hwy_miles_to_de
                 
                 # Track earliest date
                 if data['earliest_date'] is None or date < data['earliest_date']:
@@ -93,8 +100,8 @@ def load_and_process_tesla_data(input_path):
     processed_data = {}
     for minor_version, data in minor_versions.items():
         if data['city_miles'] > 0 and data['hwy_miles'] > 0:
-            city_miles_to_de = data['city_miles_to_de'] / data['city_miles']
-            hwy_miles_to_de = data['hwy_miles_to_de'] / data['hwy_miles']
+            city_miles_to_de = data['city_miles'] / data['city_de_count'] if data['city_de_count'] > 1 else float('nan')
+            hwy_miles_to_de = data['hwy_miles'] / data['hwy_de_count'] if data['hwy_de_count'] > 1 else float('nan')
             
             # Convert miles to minutes based on speed
             city_minutes = city_miles_to_de / CITY_MPH * 60
@@ -106,8 +113,8 @@ def load_and_process_tesla_data(input_path):
                 'hwy_miles': data['hwy_miles'],
                 'city_miles_to_de': city_miles_to_de,
                 'hwy_miles_to_de': hwy_miles_to_de,
-                'city_minutes': int(city_minutes),
-                'hwy_minutes': int(hwy_minutes)
+                'city_minutes': int(city_minutes) if not math.isnan(city_minutes) else None,
+                'hwy_minutes': int(hwy_minutes) if not math.isnan(hwy_minutes) else None
             }
     
     return processed_data

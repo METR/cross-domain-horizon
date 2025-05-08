@@ -100,8 +100,8 @@ def load_and_process_tesla_data(input_path):
     processed_data = {}
     for minor_version, data in minor_versions.items():
         if data['city_miles'] > 0 and data['hwy_miles'] > 0:
-            city_miles_to_de = data['city_miles'] / data['city_de_count'] if data['city_de_count'] > 1 else float('nan')
-            hwy_miles_to_de = data['hwy_miles'] / data['hwy_de_count'] if data['hwy_de_count'] > 1 else float('nan')
+            city_miles_to_de = data['city_miles'] / data['city_de_count'] if data['city_de_count'] > 10 else float('nan')
+            hwy_miles_to_de = data['hwy_miles'] / data['hwy_de_count'] if data['hwy_de_count'] > 10 else float('nan')
             
             # Convert miles to minutes based on speed
             city_minutes = city_miles_to_de / CITY_MPH * 60

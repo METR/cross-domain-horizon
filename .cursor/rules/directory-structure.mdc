@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+"Raw" data, e.g. scraped from websites, goes in data/raw
+Scores (percent scores on benchmarks for each model) go in data/scores
+Calculated horizons go in data/horizons
+
+Other interim data (pre horizon calculations) goes in data/interim
+
+Plots go in plots

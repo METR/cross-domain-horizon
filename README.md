@@ -25,3 +25,9 @@ Estimate the time horizon of AIs over time on various domains like knowledge and
 - [ ] compare HCAST estimated horizon to actual horizon
 - [ ] aggregating benchmarks into categories
 - [ ] visual understanding benchmark
+- [ ] upgrade to use quantiles rather than individual lengths
+- [ ] upgrade to use 
+- [ ] amc12?
+
+plan for Video-MME:
+- 

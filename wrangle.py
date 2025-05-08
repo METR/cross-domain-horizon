@@ -71,7 +71,7 @@ def load_data(data_dir):
     if not csv_files:
         print(f"Warning: No CSV files found in {horizons_dir}")
         # Return empty DataFrame with all expected columns
-        return pd.DataFrame(columns=['model', 'benchmark', 'horizon', 'release_date'])
+        raise ValueError("No data loaded after processing CSV files.")
 
     for csv_path in csv_files:
         benchmark_name = os.path.basename(csv_path).replace('.csv', '') # Extract benchmark from filename
@@ -84,8 +84,10 @@ def load_data(data_dir):
                 # Convert horizon from minutes to seconds
                 df['horizon'] = df['horizon'] * 60
                 df['benchmark'] = benchmark_name
-                # Select only necessary columns
-                all_data.append(df[['model', 'benchmark', 'horizon']])
+                if 'release_date' in df.columns:
+                    all_data.append(df[['model', 'benchmark', 'horizon', 'release_date']])
+                else:
+                    all_data.append(df[['model', 'benchmark', 'horizon']])
             else:
                 print(f"Warning: Skipping {csv_path}. Missing 'model' or 'horizon' column.")
         except Exception as e:
@@ -95,36 +97,36 @@ def load_data(data_dir):
     if not all_data:
         print("Warning: No data loaded after processing CSV files.")
         # Return empty DataFrame with all expected columns
-        return pd.DataFrame(columns=['model', 'benchmark', 'horizon', 'release_date'])
+        raise ValueError("No data loaded after processing CSV files.")
 
     horizon_df = pd.concat(all_data, ignore_index=True)
 
+
     # --- Load and Merge Release Dates ---
-    try:
-        # Call the new function to load release dates
-        release_df = load_release_dates(RELEASE_DATES_FILE)
+    # Call the new function to load release dates
+    release_df = load_release_dates(RELEASE_DATES_FILE)
 
-        # Merge with horizon data
-        merged_df = pd.merge(horizon_df, release_df, on='model', how='left')
+    # Merge with horizon data
+    merged_df = pd.merge(horizon_df, release_df, on='model', how='left')
+    merged_df['release_date'] = merged_df['release_date_x'].fillna(merged_df['release_date_y'])
+    merged_df = merged_df.drop(columns=['release_date_x', 'release_date_y'])
+    
+    # Convert release dates to yyyy-mm-dd format (strip time component)
+    merged_df['release_date'] = pd.to_datetime(merged_df['release_date']).dt.date
+    
+    print(f"Number of models with release dates: {merged_df['release_date'].count()} / {len(merged_df)}")
 
-        # Check for models without release dates after merge
-        missing_dates = merged_df[merged_df['release_date'].isna()]['model'].unique()
-        if len(missing_dates) > 0:
-            # Filter out models that genuinely had 'unknown' or unparseable dates in the YAML
-            # We only want to warn about models present in horizon data but *completely missing* from release info
-            models_in_release_info = set(release_df['model'])
-            truly_missing = [m for m in missing_dates if m not in models_in_release_info]
-            if truly_missing:
-                print(f"Warning: Missing release dates for models present in horizon data but not found in {RELEASE_DATES_FILE}: {list(truly_missing)}")
+    # Check for models without release dates after merge
+    missing_dates = merged_df[merged_df['release_date'].isna()]['model'].unique()
+    if len(missing_dates) > 0:
+        # Filter out models that genuinely had 'unknown' or unparseable dates in the YAML
+        # We only want to warn about models present in horizon data but *completely missing* from release info
+        models_in_release_info = set(release_df['model'])
+        truly_missing = [m for m in missing_dates if m not in models_in_release_info]
+        if truly_missing:
+            print(f"Warning: Missing release dates for models present in horizon data but not found in {RELEASE_DATES_FILE}: {list(truly_missing)}")
 
-
-        return merged_df
-    except Exception as e:
-        # Error handling for issues during the load_release_dates call or merge
-        print(f"An error occurred during release date loading or merging: {e}")
-        # Depending on requirements, you might want to return the horizon_df without dates,
-        # or raise the exception. Raising is generally better if dates are critical.
-        raise e
+    return merged_df
 
 
 def filter_and_sort_models(df):

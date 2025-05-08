@@ -1,24 +1,4 @@
 model_info:
-  10.10.x:
-    release_date: '2022-02-01'
-  10.11.x:
-    release_date: '2022-04-03'
-  10.12.x:
-    release_date: '2022-05-18'
-  10.69.x:
-    release_date: '2022-08-21'
-  11.3.x:
-    release_date: '2023-02-14'
-  11.4.x:
-    release_date: '2023-04-17'
-  12.3.x:
-    release_date: '2024-03-12'
-  12.5.x:
-    release_date: '2024-10-01'
-  12.6.x:
-    release_date: '2024-12-31'
-  13.2.x:
-    release_date: '2024-12-01'
   anthropic_claude_3_sonnet:
     release_date: 2024-03-04
   ai21_jamba_1_6_large:

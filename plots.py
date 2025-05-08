@@ -188,7 +188,15 @@ def main():
         return
     
     # Write raw data to CSV
+    # Get release dates for each model (assuming one release date per model)
+    release_dates = all_df[['model', 'release_date']].drop_duplicates().set_index('model')
+    
+    # Create pivot table for horizons
     pivot_df = all_df.pivot(index='model', columns='benchmark', values='horizon')
+    
+    # Join with release dates
+    pivot_df = pivot_df.join(release_dates)
+    
     pivot_df.reset_index(inplace=True)
     os.makedirs(os.path.dirname('data/all_data.csv'), exist_ok=True)
     pivot_df.to_csv('data/all_data.csv', index=False)

@@ -11,7 +11,7 @@ Estimate the time horizon of AIs over time on various domains like knowledge and
 
 ### Usage
 
-* Run benchmark-specific .py files to load scores for each dataset.
+* Run benchmark-specific .py files to load scores for each dataset. Some also calculate horizons.
 
 * Run calculate_horizons.py to estimate time horizons for each dataset
 

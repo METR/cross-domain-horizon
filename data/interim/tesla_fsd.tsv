@@ -1,4 +1,4 @@
-minor_version	date	city_miles	hwy_miles	city_miles_to_de	hwy_miles_to_de
+minor_version	release_date	city_miles	hwy_miles	city_miles_to_de	hwy_miles_to_de
 10.3.x	2021-10-25	537.0	166.0	4.0	166.0
 10.4.x	2021-11-08	706.0	275.0	3.0	275.0
 10.5.x	2021-11-23	793.0	209.0	7.0	209.0

@@ -101,7 +101,7 @@ def load_and_process_tesla_data(input_path):
             hwy_minutes = hwy_miles_to_de / HWY_MPH * 60
             
             processed_data[minor_version] = {
-                'date': data['earliest_date'],
+                'release_date': data['earliest_date'],
                 'city_miles': data['city_miles'],
                 'hwy_miles': data['hwy_miles'],
                 'city_miles_to_de': city_miles_to_de,
@@ -118,17 +118,17 @@ def save_interim_data(processed_data, output_path):
     
     try:
         with open(output_path, 'w', newline='') as tsvfile:
-            fieldnames = ['minor_version', 'date', 'city_miles', 'hwy_miles', 
+            fieldnames = ['minor_version', 'release_date', 'city_miles', 'hwy_miles', 
                          'city_miles_to_de', 'hwy_miles_to_de']
             writer = csv.DictWriter(tsvfile, fieldnames=fieldnames, delimiter='\t')
             
             writer.writeheader()
             # Sort by date before writing
-            sorted_versions = sorted(processed_data.items(), key=lambda x: x[1]['date'])
+            sorted_versions = sorted(processed_data.items(), key=lambda x: x[1]['release_date'])
             for version, data in sorted_versions:
                 writer.writerow({
                     'minor_version': version,
-                    'date': data['date'],
+                    'release_date': data['release_date'],
                     'city_miles': data['city_miles'],
                     'hwy_miles': data['hwy_miles'],
                     'city_miles_to_de': data['city_miles_to_de'],
@@ -144,18 +144,18 @@ def save_horizon_data(processed_data, city_output_path, hwy_output_path):
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     
     # Sort by date
-    sorted_versions = sorted(processed_data.items(), key=lambda x: x[1]['date'])
+    sorted_versions = sorted(processed_data.items(), key=lambda x: x[1]['release_date'])
     
     try:
         # Save city data
         with open(city_output_path, 'w', newline='') as csvfile:
-            fieldnames = ['date', 'model', 'horizon']
+            fieldnames = ['release_date', 'model', 'horizon']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             
             writer.writeheader()
             for version, data in sorted_versions:
                 writer.writerow({
-                    'date': data['date'],
+                    'release_date': data['release_date'],
                     'model': version,
                     'horizon': data['city_minutes']
                 })
@@ -163,13 +163,13 @@ def save_horizon_data(processed_data, city_output_path, hwy_output_path):
         
         # Save highway data
         with open(hwy_output_path, 'w', newline='') as csvfile:
-            fieldnames = ['date', 'model', 'horizon']
+            fieldnames = ['release_date', 'model', 'horizon']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             
             writer.writeheader()
             for version, data in sorted_versions:
                 writer.writerow({
-                    'date': data['date'],
+                    'release_date': data['release_date'],
                     'model': version,
                     'horizon': data['hwy_minutes']
                 })

@@ -19,6 +19,7 @@ Estimate the time horizon of AIs over time on various domains like knowledge and
 
 ### TODO
 
+- [ ] Change critical disengagement to disengagement
 - [ ] OSWorld updated data
 - [ ] TheAgentCompany? but no human baselines
 - [ ] compare HCAST estimated horizon to actual horizon

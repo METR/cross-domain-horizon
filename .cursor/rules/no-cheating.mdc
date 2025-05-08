@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Don't rewrite tests to pass
+Prefer to error on unexpected data; do not do workarounds to avoid errors
+Don't write too many comments, 1 per 10 lines is usually enough
+Prefer to delete code rather than commenting it out

@@ -118,7 +118,7 @@ def plot_lines_over_time(df):
             color=color,
             marker='o',
             label=f"{bench}", # Main label for legend
-            alpha=0.6,
+            alpha=0.2,
             s=50,
             edgecolor='k', # Add edge color for better visibility
             linewidth=0.5

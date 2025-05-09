@@ -9,7 +9,7 @@ MODELS_TO_INCLUDE = {
 
 MODELS_TO_ADD = {
     # https://deepmind.google/technologies/gemini/pro/
-    "google_gemini_2_5_pro_exp": 0.848,
+    "google_gemini_2_5_pro_exp": 84.8,
 }
 
 CHANCE_ACCURACY = 0.25
@@ -28,7 +28,7 @@ def extract_video_mme_scores():
     data_lines = lines[3:]
     
     # Process the data
-    i = 4
+    i = 0
     while i < len(data_lines):
         # Look for lines that start with a number followed by a tab
         line = data_lines[i].strip()
@@ -36,19 +36,19 @@ def extract_video_mme_scores():
         parts = line.split('\t')
 
         if len(parts) >= 2:
-            model_name_part = parts[1].strip()
+            model_name = parts[1].strip()
             
         score_line = data_lines[i + 3].strip()
         score_line = score_line.split('\t')
         score = float(score_line[-7]) # 7th from last
-        model_scores[model_name_part] = score
+        model_scores[model_name] = score
         i += 4
-    
-    for target_model, model_id in MODELS_TO_INCLUDE.items():
-        if model_name_part in model_scores:
-            scores[model_id] = model_scores[model_name_part]
+    print(model_scores)
+    for model_alias, model_id in MODELS_TO_INCLUDE.items():
+        if model_alias in model_scores:
+            scores[model_id] = model_scores[model_alias]
         else:
-            raise ValueError(f"Could not find a match for {target_model}")
+            raise ValueError(f"Could not find a match for {model_alias}")
     
     return scores
 
@@ -62,7 +62,7 @@ def generate_toml_file(scores):
         
         f.write("[scores]\n")
         for model_id, score in scores.items():
-            f.write(f"{model_id} = \"{score}\"\n")
+            f.write(f"{model_id} = \"{score}%\"\n")
 
 
 def generate_benchmark_file(output_filename="data/benchmarks/video_mme.toml", input_csv_path="data/raw/video_mme_duration.csv"):

@@ -25,6 +25,8 @@ import argparse
 DEFAULT_SLOPE = 0.6
 DEFAULT_CHANCE_ACCURACY = 0.0
 
+BENCHMARKS = ["gpqa", "aime", "osworld", "video_mme"]
+
 @dataclass
 class BenchmarkSpec:
     n_questions: int
@@ -166,13 +168,13 @@ def process_dataset(dataset_name: str) -> None:
     df.to_csv(output_file, index=False, float_format='%.4f')
     print(f"Horizons for {dataset_name} saved to {output_file}")
 
-benchmarks = ["gpqa", "aime", "osworld"]
+
 
 def main(data_path: str) -> None:
     if data_path == "all":
-        for benchmark in benchmarks:
+        for benchmark in BENCHMARKS:
             process_dataset(benchmark)
-    elif data_path in benchmarks:
+    elif data_path in BENCHMARKS:
         process_dataset(data_path)
     else:
         print(f"Error: Invalid data_path '{data_path}'")
@@ -183,7 +185,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--data-path",
         type=str,
-        choices=benchmarks + ["all"],
+        choices=BENCHMARKS + ["all"],
         default="all",
         help="Specify the dataset to process ('gpqa', 'aime', or 'all'). Default is 'all'."
     )

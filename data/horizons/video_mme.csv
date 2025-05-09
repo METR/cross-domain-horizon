@@ -1,0 +1,8 @@
+model,horizon,score
+google_gemini_1_5_pro_002,1035.2290,63.3000
+google_gemini_1_5_flash_002,1035.2290,63.3000
+llava_v1_14b,1035.2290,63.3000
+openai_gpt_4o,1035.2290,63.3000
+qwen_2_5_vl_72b,1035.2290,63.3000
+openai_gpt_4_vision,1035.2290,63.3000
+google_gemini_2_5_pro_exp,0.4360,0.8480

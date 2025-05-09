@@ -150,6 +150,28 @@ def plot_lines_over_time(df):
             x_line_num = np.linspace(X.min(), X.max(), 100)
             y_line_log = poly(x_line_num)
 
+            # Calculate doubling rate (slope in doublings per year)
+            # The slope of log10(y) vs. x gives us log10(2) per unit x
+            # To convert to doublings per year, divide by log10(2)
+            doubling_rate = coeffs[0] * 365 / np.log10(2)  # Convert from per day to per year
+            
+            # Add text with doubling rate near the middle of the line
+            mid_point_idx = len(x_line_num) // 2
+            mid_x_num = x_line_num[mid_point_idx]
+            mid_y = 10**y_line_log[mid_point_idx]
+            
+            # Format the doubling rate with appropriate sign
+            if doubling_rate > 0:
+                rate_text = f"+{doubling_rate:.1f} doublings/year"
+            else:
+                rate_text = f"{doubling_rate:.1f} doublings/year"
+                
+            # Convert numerical date to datetime for text positioning
+            mid_x = mdates.num2date(mid_x_num)
+            
+            ax.text(mid_x, mid_y * 1.1, rate_text, fontsize=8, color=color, 
+                   ha='center', va='bottom', bbox=dict(facecolor='white', alpha=0.7, pad=2))
+
             x_line_date = mdates.num2date(x_line_num)
             y_line = 10**y_line_log
 

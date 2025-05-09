@@ -24,10 +24,9 @@ Estimate the time horizon of AIs over time on various domains like knowledge and
 - [ ] TheAgentCompany? but no human baselines
 - [ ] compare HCAST estimated horizon to actual horizon
 - [ ] aggregating benchmarks into categories
-- [ ] visual understanding benchmark
+- [ ] second visual understanding benchmark: UCF101
 - [ ] upgrade to use quantiles rather than individual lengths
-- [ ] upgrade to use 
-- [ ] amc12?
+- [ ] easier math benchmark like amc8?
 
 plan for Video-MME:
 - 

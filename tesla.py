@@ -9,8 +9,7 @@ INPUT_FILE = pathlib.Path("data/raw/tesla_fsd.tsv")
 INTERIM_DIR = pathlib.Path("data/interim")
 INTERIM_FILE = INTERIM_DIR / "tesla_fsd.tsv"
 OUTPUT_DIR = pathlib.Path("data/horizons")
-OUTPUT_CITY_FILE = OUTPUT_DIR / "tesla_fsd_city.csv"
-OUTPUT_HWY_FILE = OUTPUT_DIR / "tesla_fsd_hwy.csv"
+OUTPUT_FILE = OUTPUT_DIR / "tesla_fsd.csv"
 
 # Speed constants for converting miles to minutes
 CITY_MPH = 30
@@ -100,8 +99,8 @@ def load_and_process_tesla_data(input_path):
     processed_data = {}
     for minor_version, data in minor_versions.items():
         if data['city_miles'] > 0 and data['hwy_miles'] > 0:
-            city_miles_to_de = data['city_miles'] / data['city_de_count'] if data['city_de_count'] > 10 else float('nan')
-            hwy_miles_to_de = data['hwy_miles'] / data['hwy_de_count'] if data['hwy_de_count'] > 10 else float('nan')
+            city_miles_to_de = data['city_miles'] / data['city_de_count'] if data['city_de_count'] > 5 else float('nan')
+            hwy_miles_to_de = data['hwy_miles'] / data['hwy_de_count'] if data['hwy_de_count'] > 5 else float('nan')
             
             # Convert miles to minutes based on speed
             city_minutes = city_miles_to_de / CITY_MPH * 60
@@ -146,41 +145,32 @@ def save_interim_data(processed_data, output_path):
         print(f"Error writing to TSV file {output_path}: {e}", file=sys.stderr)
         sys.exit(1)
 
-def save_horizon_data(processed_data, city_output_path, hwy_output_path):
+def save_horizon_data(processed_data, output_path):
     """Save horizon data to CSV files."""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    def harmonic_mean(a, b):
+        return 2 * a * b / (a + b) if a and b else None
     
     # Sort by date
     sorted_versions = sorted(processed_data.items(), key=lambda x: x[1]['release_date'])
     
     try:
         # Save city data
-        with open(city_output_path, 'w', newline='') as csvfile:
+        with open(output_path, 'w', newline='') as csvfile:
             fieldnames = ['release_date', 'model', 'horizon']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             
             writer.writeheader()
             for version, data in sorted_versions:
+                horizon = harmonic_mean(data["city_minutes"], data["hwy_minutes"])
                 writer.writerow({
                     'release_date': data['release_date'],
                     'model': version,
-                    'horizon': data['city_minutes']
+                    'horizon': horizon
                 })
-        print(f"Successfully wrote city horizon data to {city_output_path}")
+        print(f"Successfully wrote horizon data to {output_path}")
         
-        # Save highway data
-        with open(hwy_output_path, 'w', newline='') as csvfile:
-            fieldnames = ['release_date', 'model', 'horizon']
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            
-            writer.writeheader()
-            for version, data in sorted_versions:
-                writer.writerow({
-                    'release_date': data['release_date'],
-                    'model': version,
-                    'horizon': data['hwy_minutes']
-                })
-        print(f"Successfully wrote highway horizon data to {hwy_output_path}")
     except IOError as e:
         print(f"Error writing to CSV files: {e}", file=sys.stderr)
         sys.exit(1)
@@ -188,4 +178,4 @@ def save_horizon_data(processed_data, city_output_path, hwy_output_path):
 if __name__ == "__main__":
     processed_data = load_and_process_tesla_data(INPUT_FILE)
     save_interim_data(processed_data, INTERIM_FILE)
-    save_horizon_data(processed_data, OUTPUT_CITY_FILE, OUTPUT_HWY_FILE)
+    save_horizon_data(processed_data, OUTPUT_FILE)

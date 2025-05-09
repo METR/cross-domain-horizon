@@ -1,7 +1,7 @@
 MODELS_TO_INCLUDE = {
     "Gemini 1.5 Pro": "google_gemini_1_5_pro_002",
     "Gemini 1.5 Flash": "google_gemini_1_5_flash_002",
-    "LLaVA-Video": "llava_v1_14b",
+    "LLaVA-Video": "bytedance_llava_video_72b_qwen2",
     "GPT-4o": "openai_gpt_4o",
     "Qwen2-VL": "qwen_2_5_vl_72b",
     "GPT-4V": "openai_gpt_4_vision"

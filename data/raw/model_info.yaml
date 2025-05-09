@@ -22,6 +22,8 @@ model_info:
       - anthropic_claude_3_7_sonnet_nothinking
   anthropic_claude_3_opus:
     release_date: 2024-03-04
+  bytedance_llava_video_72b_qwen2:
+    release_date: 2024-09-02
   cogagent:
     release_date: 2023-12-15
   cogagent_9b:

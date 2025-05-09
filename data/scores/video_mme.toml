@@ -5,7 +5,7 @@ source = "https://video-mme.github.io/"
 [scores]
 google_gemini_1_5_pro_002 = "81.3%"
 google_gemini_1_5_flash_002 = "75.0%"
-llava_v1_14b = "76.9%"
+bytedance_llava_video_72b_qwen2 = "76.9%"
 openai_gpt_4o = "77.2%"
 qwen_2_5_vl_72b = "77.8%"
 openai_gpt_4_vision = "63.3%"

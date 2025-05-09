@@ -100,7 +100,7 @@ def plot_lines_over_time(df):
         if frontier_indices:
             plot_df.loc[frontier_indices, 'is_frontier'] = True
 
-    fig, ax = plt.subplots(figsize=(14, 8))
+    fig, ax = plt.subplots(figsize=(12, 8))
 
     palette = sns.color_palette(n_colors=len(benchmarks))
     benchmark_colors = {bench: color for bench, color in zip(benchmarks, palette)}
@@ -184,16 +184,15 @@ def plot_lines_over_time(df):
                 first_frontier_point = frontier_data_sorted.iloc[0]
                 last_frontier_point = frontier_data_sorted.iloc[-1]
 
-                texts.append(ax.text(first_frontier_point['release_date'],
-                                     first_frontier_point['horizon_minutes'],
-                                     first_frontier_point['model'],
-                                     fontsize=8, color=color))
-                # Only add last point label if it's different from the first
-                if len(frontier_data_sorted) > 1:
-                    texts.append(ax.text(last_frontier_point['release_date'],
-                                         last_frontier_point['horizon_minutes'],
-                                         last_frontier_point['model'],
+                def text_label(point):
+                    texts.append(ax.text(point['release_date'],
+                                         point['horizon_minutes'],
+                                         point['model'].split('_',1)[-1],
                                          fontsize=8, color=color))
+
+                text_label(first_frontier_point)
+                if len(frontier_data_sorted) > 1:
+                    text_label(last_frontier_point)
 
     ax.set_yscale('log')
 
@@ -217,7 +216,7 @@ def plot_lines_over_time(df):
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(1.05, 1), loc='upper left')
 
-    plt.tight_layout(rect=[0, 0, 0.85, 1]) # Adjust layout for legend
+    plt.tight_layout() # Adjust layout for legend
 
     os.makedirs(os.path.dirname(LINES_PLOT_OUTPUT_FILE), exist_ok=True)
 

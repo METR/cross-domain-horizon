@@ -105,6 +105,7 @@ def plot_lines_over_time(df):
     palette = sns.color_palette(n_colors=len(benchmarks))
     benchmark_colors = {bench: color for bench, color in zip(benchmarks, palette)}
 
+    texts = [] # Initialize list to store text objects for adjustText
     for bench in benchmarks:
         bench_data = plot_df[plot_df['benchmark'] == bench]
         color = benchmark_colors[bench]
@@ -137,7 +138,6 @@ def plot_lines_over_time(df):
             linewidth=0.5
         )
 
-
         # Fit and plot regression line using only frontier points
         if len(frontier_data) >= 2:
             # Perform linear regression on numerical date vs log horizon
@@ -155,6 +155,24 @@ def plot_lines_over_time(df):
 
             ax.plot(x_line_date, y_line, color=color, linestyle='--', linewidth=2, label=f"_{bench}_trend")
 
+            # Add text labels for first and last frontier points
+            if not frontier_data.empty:
+                # Sort frontier_data by release date to ensure first and last are correct
+                frontier_data_sorted = frontier_data.sort_values('release_date')
+                first_frontier_point = frontier_data_sorted.iloc[0]
+                last_frontier_point = frontier_data_sorted.iloc[-1]
+
+                texts.append(ax.text(first_frontier_point['release_date'],
+                                     first_frontier_point['horizon_minutes'],
+                                     first_frontier_point['model'],
+                                     fontsize=8, color=color))
+                # Only add last point label if it's different from the first
+                if len(frontier_data_sorted) > 1:
+                    texts.append(ax.text(last_frontier_point['release_date'],
+                                         last_frontier_point['horizon_minutes'],
+                                         last_frontier_point['model'],
+                                         fontsize=8, color=color))
+
     ax.set_yscale('log')
 
     ax.set_xlabel("Model Release Date")
@@ -167,6 +185,11 @@ def plot_lines_over_time(df):
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
     ax.xaxis.set_minor_locator(mdates.MonthLocator(bymonth=[1, 4, 7, 10]))
     fig.autofmt_xdate(rotation=45, ha='right') # Auto-format dates (includes rotation)
+
+    # Adjust text to prevent overlap
+    if texts:
+        adjustText.adjust_text(texts, ax=ax,
+                               arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
 
     # Create a legend
     handles, labels = ax.get_legend_handles_labels()

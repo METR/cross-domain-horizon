@@ -19,14 +19,22 @@ Estimate the time horizon of AIs over time on various domains like knowledge and
 
 ### TODO
 
+P0-- blocking internal review
 - [x] Change critical disengagement to disengagement
-- [ ] OSWorld updated data
-- [ ] TheAgentCompany? but no human baselines
+- [x] OSWorld updated data
 - [ ] compare HCAST estimated horizon to actual horizon
+- plot includes saturation points (90th %ile task)
+
+P1-- blocking publication
 - [ ] aggregating benchmarks into categories
 - [ ] second visual understanding benchmark: UCF101
-- [ ] upgrade to use quantiles rather than individual lengths
 - [ ] easier math benchmark like amc8?
+
+P2-- nice to have
+
+P3-- low priority
+- [ ] TheAgentCompany? but no human baselines
+- [ ] upgrade to use quantiles rather than individual lengths
 
 plan for Video-MME:
 - 

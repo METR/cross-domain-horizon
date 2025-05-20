@@ -1,14 +1,25 @@
 import pandas as pd
 from pathlib import Path
+from utils import make_toml
+import pandas as pd
+import json
 
 # Define paths
 source_dir = Path("data/hcast_r_s")
-source_file = source_dir / "horizons_raw.csv"
+source_horizons_file = source_dir / "horizons_raw.csv"
+source_task_len_file = Path("data/raw/hcast_r_s_filtered_runs.jsonl")
+
 output_dir = Path("data/horizons")
-output_file = output_dir / "hcast_r_s.csv"
+output_full_horizons_file = output_dir / "hcast_r_s_full_method.csv"
+
+output_scores_file = Path("data/scores") / "hcast_r_s.toml"
+
+output_benchmarks_dir = Path("data/benchmarks")
+output_benchmarks_file = output_benchmarks_dir / "hcast_r_s.toml"
 
 # Ensure output directory exists
 output_dir.mkdir(parents=True, exist_ok=True)
+output_benchmarks_dir.mkdir(parents=True, exist_ok=True)
 
 # Define the mapping for agent names to standardized model names
 name_mapping = {
@@ -30,10 +41,10 @@ name_mapping = {
 }
 
 # Read the raw CSV
-df_raw = pd.read_csv(source_file)
+df_raw = pd.read_csv(source_horizons_file)
 
 # Select and rename columns
-df_processed = df_raw[["agent", "p50"]].copy()
+df_processed = df_raw[["agent", "p50", "average"]].copy()
 df_processed.rename(columns={"agent": "model", "p50": "horizon"}, inplace=True)
 
 # Apply the name mapping
@@ -55,6 +66,39 @@ if not unmapped.empty:
 df_processed["horizon"] = pd.to_numeric(df_processed["horizon"])
 
 # Write the processed data to the new CSV
-df_processed.to_csv(output_file, index=False)
+df_processed[["model", "horizon"]].to_csv(output_full_horizons_file, index=False)
 
-print(f"Successfully processed '{source_file}' and saved to '{output_file}'")
+scores_str = '\n'.join([f'{r["model"]} = "{r["average"]:.2%}"' for i, r in df_processed.iterrows()])
+
+
+scores_toml = f"""
+source = "metr"
+
+[scores]
+{scores_str}
+"""
+
+with open(output_scores_file, "w") as f:
+    f.write(scores_toml)
+
+print(f"Successfully processed '{source_horizons_file}' and saved to '{output_full_horizons_file}'")
+
+df_task_len = pd.read_json(source_task_len_file, lines=True)
+
+first_every_task = df_task_len.groupby("task_id").first().reset_index()["human_minutes"]
+
+print(f"Number of tasks: {len(first_every_task)}")
+
+lengths = sorted(round(x, 4) for x in first_every_task.tolist())
+
+# make toml
+toml_str = make_toml(
+    benchmark_name="hcast_r_s",
+    n_questions=len(first_every_task),
+    chance_accuracy=0.0,
+    lengths=lengths,
+)
+
+# write toml
+with open(output_benchmarks_file, "w") as f:
+    f.write(toml_str)

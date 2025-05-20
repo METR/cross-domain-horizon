@@ -1,0 +1,18 @@
+
+source = "metr"
+
+[scores]
+anthropic_claude_3_opus = "37.75%"
+anthropic_claude_3_5_sonnet_latest = "52.70%"
+anthropic_claude_3_5_sonnet_old = "47.68%"
+anthropic_claude_3_7_sonnet = "59.97%"
+openai_gpt_2 = "10.16%"
+openai_gpt_4_0125 = "35.17%"
+openai_gpt_4_0314 = "36.11%"
+openai_gpt_4_1106 = "40.43%"
+openai_gpt_4_turbo = "36.74%"
+openai_gpt_4o_2024_05_13 = "40.76%"
+openai_davinci_002 = "16.28%"
+openai_gpt_3_5_turbo_instruct = "21.57%"
+openai_o1 = "55.93%"
+openai_o1_preview = "49.44%"

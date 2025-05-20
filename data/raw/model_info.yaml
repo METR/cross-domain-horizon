@@ -32,8 +32,10 @@ model_info:
     release_date: 2025-03-13
   cohere_command_r_plus:
     release_date: 2024-04-04
-  davinci-002 (GPT-3):
+  openai_davinci_002:
     release_date: 2020-05-28
+    aliases:
+      - davinci-002 (GPT-3)
   deepseek_deepseek_r1:
     release_date: 2025-01-20
   deepseek_v3:
@@ -76,6 +78,8 @@ model_info:
     release_date: 2019-02-14
   openai_gpt_3_5:
     release_date: 2022-03-15
+    aliases:
+      - openai_gpt_3_5_turbo_instruct
   openai_gpt_4_0125:
     release_date: 2024-01-25
   openai_gpt_4_0314:

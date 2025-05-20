@@ -25,7 +25,7 @@ import argparse
 DEFAULT_SLOPE = 0.6
 DEFAULT_CHANCE_ACCURACY = 0.0
 
-BENCHMARKS = ["gpqa", "aime", "osworld", "video_mme"]
+BENCHMARKS = ["gpqa", "aime", "osworld", "video_mme", "hcast_r_s"]
 
 @dataclass
 class BenchmarkSpec:

@@ -1,14 +1,21 @@
-import yaml
+# %%
 
-with open('data/raw/release_dates.yaml', 'r') as file:
-    data = yaml.safe_load(file)
+import toml
+import numpy as np
 
+# Read the TOML file
+with open("data/benchmarks/hcast_r_s.toml", "r") as f:
+    data = toml.load(f)
 
-out_dict = {}
-for model, date in data['model_info'].items():
-    out_dict[model] = {
-        'release_date': date,
-    }
+# Get the lengths array
+lengths = data["lengths"]
 
-with open('data/raw/model_info.yaml', 'w') as file:
-    yaml.dump(out_dict, file)
+# Calculate percentiles (10th through 90th in multiples of 10)
+percentiles = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+results = np.percentile(lengths, percentiles)
+
+# Print the results
+for p, value in zip(percentiles, results):
+    print(f"{p}th percentile: {value:.4f}")
+
+# %%

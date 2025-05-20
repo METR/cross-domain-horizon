@@ -121,7 +121,7 @@ def plot_lines_over_time(df, output_file, show_benchmarks=None):
             non_frontier_data['horizon_minutes'],
             color=color,
             marker='o',
-            label=f"{bench}", # Main label for legend
+            label=f"_{bench}_nonfrontier", # Main label for legend
             alpha=0.2,
             s=50,
             edgecolor='k', # Add edge color for better visibility
@@ -134,7 +134,7 @@ def plot_lines_over_time(df, output_file, show_benchmarks=None):
             frontier_data['horizon_minutes'],
             color=color,
             marker='D',
-            label=f"_{bench}_frontier", # Hidden label for legend
+            label=f"{bench}", # Hidden label for legend
             alpha=0.9,
             s=70,
             edgecolor='k',

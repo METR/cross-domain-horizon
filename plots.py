@@ -61,7 +61,7 @@ def plot_horizons(df, sorted_models):
     plt.close() # Close the plot to free memory
 
 
-def plot_lines_over_time(df, output_file, show_benchmarks=None):
+def plot_lines_over_time(df, output_file, show_benchmarks=None, hide_benchmarks=None):
     """Generates and saves a scatter plot of horizon vs. release date with trendlines fitted in log space to frontier models."""
     if df.empty:
         print("No data loaded for lines over time plot.")
@@ -107,9 +107,13 @@ def plot_lines_over_time(df, output_file, show_benchmarks=None):
 
     texts = [] # Initialize list to store text objects for adjustText
 
+
+    if hide_benchmarks:
+        benchmarks = [bench for bench in benchmarks if bench not in hide_benchmarks]
+    if show_benchmarks:
+        benchmarks = [bench for bench in benchmarks if bench in show_benchmarks]
+
     for bench in benchmarks:
-        if show_benchmarks and bench not in show_benchmarks:
-            continue
         bench_data = plot_df[plot_df['benchmark'] == bench]
         color = benchmark_colors[bench]
         frontier_data = bench_data[bench_data['is_frontier']]
@@ -257,7 +261,7 @@ def main():
 
     # --- Lines Over Time Plot ---
     # Generate and save the lines over time plot using the original loaded data
-    plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE) # Use copy
+    plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, hide_benchmarks=["hcast_r_s_full_method"]) # Use copy
     plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"])
 
 if __name__ == "__main__":

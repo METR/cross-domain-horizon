@@ -7,7 +7,7 @@ import json
 # Define paths
 source_dir = Path("data/hcast_r_s")
 source_horizons_file = source_dir / "horizons_raw.csv"
-source_task_len_file = Path("data/raw/hcast_r_s_filtered_runs.jsonl")
+source_runs_file = Path("data/raw/hcast_r_s_filtered_runs.jsonl")
 
 output_dir = Path("data/horizons")
 output_full_horizons_file = output_dir / "hcast_r_s_full_method.csv"
@@ -38,13 +38,17 @@ name_mapping = {
     "human": "human",
     "o1": "openai_o1",
     "o1-preview": "openai_o1_preview",
+    "o3": "openai_o3",
+    "o4-mini": "openai_o4_mini",
 }
 
 # Read the raw CSV
 df_raw = pd.read_csv(source_horizons_file)
 
+
+print(df_raw.columns)
 # Select and rename columns
-df_processed = df_raw[["agent", "p50", "average"]].copy()
+df_processed = df_raw[["agent", "p50"]].copy()
 df_processed.rename(columns={"agent": "model", "p50": "horizon"}, inplace=True)
 
 # Apply the name mapping
@@ -68,24 +72,45 @@ df_processed["horizon"] = pd.to_numeric(df_processed["horizon"])
 # Write the processed data to the new CSV
 df_processed[["model", "horizon"]].to_csv(output_full_horizons_file, index=False)
 
-scores_str = '\n'.join([f'{r["model"]} = "{r["average"]:.2%}"' for i, r in df_processed.iterrows()])
+
+def make_scores_toml(df_runs):
+    df_scores = df_runs.copy()
+    df_scores["success_weight"] = df_scores["equal_task_weight"] * df_scores["score_binarized"]
+    df_scores["total_weight"] = df_scores["equal_task_weight"]
+
+    df_scores = df_scores[df_scores["alias"] != "human"]
+
+    df_scores = df_scores.groupby("alias").agg({
+        "success_weight": "sum",
+        "total_weight": "sum",
+    })
+
+    df_scores["average"] = df_scores["success_weight"] / df_scores["total_weight"]
+
+    df_scores["model"] = df_scores.index.map(name_mapping)
+
+    print(df_scores)
+
+    scores_str = '\n'.join([f'{r["model"]} = "{r["average"]:.2%}"' for i, r in df_scores.iterrows()])
 
 
-scores_toml = f"""
-source = "metr"
+    scores_toml = f"""source = "metr"
 
 [scores]
 {scores_str}
-"""
+    """
+    return scores_toml
 
+df_runs = pd.read_json(source_runs_file, lines=True)
+
+scores_toml = make_scores_toml(df_runs)
 with open(output_scores_file, "w") as f:
     f.write(scores_toml)
 
 print(f"Successfully processed '{source_horizons_file}' and saved to '{output_full_horizons_file}'")
 
-df_task_len = pd.read_json(source_task_len_file, lines=True)
 
-first_every_task = df_task_len.groupby("task_id").first().reset_index()["human_minutes"]
+first_every_task = df_runs.groupby("task_id").first().reset_index()["human_minutes"]
 
 print(f"Number of tasks: {len(first_every_task)}")
 

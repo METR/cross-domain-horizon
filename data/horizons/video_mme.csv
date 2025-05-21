@@ -1,8 +1,8 @@
 model,horizon,score
-google_gemini_2_5_pro_exp,5642.3996,84.8000
-google_gemini_1_5_pro_002,4026.4899,81.3000
-qwen_2_5_vl_72b,2961.0966,77.8000
-openai_gpt_4o,2827.3976,77.2000
-bytedance_llava_video_72b_qwen2,2753.7646,76.9000
-google_gemini_1_5_flash_002,2389.7509,75.0000
-openai_gpt_4_vision,1035.2290,63.3000
+google_gemini_2_5_pro_exp,94.0393,84.8000
+google_gemini_1_5_pro_002,67.1086,81.3000
+qwen_2_5_vl_72b,49.3524,77.8000
+openai_gpt_4o,47.1221,77.2000
+bytedance_llava_video_72b_qwen2,45.8957,76.9000
+google_gemini_1_5_flash_002,39.8288,75.0000
+openai_gpt_4_vision,17.2538,63.3000

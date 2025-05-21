@@ -154,6 +154,7 @@ def save_horizon_data(processed_data, output_path):
     
     # Sort by date
     sorted_versions = sorted(processed_data.items(), key=lambda x: x[1]['release_date'])
+    print(sorted_versions)
     
     try:
         # Save city data
@@ -163,7 +164,10 @@ def save_horizon_data(processed_data, output_path):
             
             writer.writeheader()
             for version, data in sorted_versions:
-                horizon = harmonic_mean(data["city_minutes"], data["hwy_minutes"])
+                mtbf = harmonic_mean(data["city_minutes"], data["hwy_minutes"])
+
+                # MTBF is time until 1/e success rate, we want 1/2
+                horizon = mtbf * math.log(2) if mtbf else None
                 writer.writerow({
                     'release_date': data['release_date'],
                     'model': version,

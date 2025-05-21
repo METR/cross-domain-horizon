@@ -80,8 +80,9 @@ def generate_benchmark_file(output_filename="data/benchmarks/video_mme.toml", in
     with open(input_csv_path, 'r', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            min_duration_s = int(row['min_duration_s'])
-            max_duration_s = int(row['max_duration_s'])
+            # Convert seconds to minutes
+            min_duration_s = int(row['min_duration_s']) / 60
+            max_duration_s = int(row['max_duration_s']) / 60
             count = int(row['counts'])
 
             total_questions += count
@@ -106,7 +107,7 @@ def generate_benchmark_file(output_filename="data/benchmarks/video_mme.toml", in
         f.write(f"n_questions = {total_questions}\n")
         f.write(f"chance_accuracy = {CHANCE_ACCURACY}\n")
         # Format lengths similar to the gpqa.toml example
-        lengths_str = ", ".join(f"{length:.1f}" for length in all_lengths)
+        lengths_str = ", ".join(f"{length:.3f}" for length in all_lengths)
         f.write(f"lengths = [ {lengths_str}, ]\n")
     
     print(f"Generated benchmark file: {output_filename} with {total_questions} questions.")

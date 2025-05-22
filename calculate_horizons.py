@@ -105,7 +105,7 @@ def estimate_horizon(score: int, bspec: BenchmarkSpec, n_iterations=100, min_hor
         expected = expected_score(horizon, bspec=bspec)
         
         # If the expected score is close enough to the target, return the horizon
-        if abs(expected - score) < 0.1:
+        if abs(expected - score) < 0.01:
             return horizon
         
         # Binary search in log space

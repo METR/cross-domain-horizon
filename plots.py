@@ -61,7 +61,10 @@ def plot_horizons(df, sorted_models):
     plt.close() # Close the plot to free memory
 
 
-def plot_lines_over_time(df, output_file, show_benchmarks=None, hide_benchmarks=None):
+def plot_lines_over_time(df, output_file,
+                         show_benchmarks=None,
+                         hide_benchmarks=None,
+                         only_frontier=True):
     """Generates and saves a scatter plot of horizon vs. release date with trendlines fitted in log space to frontier models."""
     if df.empty:
         print("No data loaded for lines over time plot.")
@@ -120,17 +123,18 @@ def plot_lines_over_time(df, output_file, show_benchmarks=None, hide_benchmarks=
         non_frontier_data = bench_data[~bench_data['is_frontier']]
 
         # Plot non-frontier points (circles)
-        ax.scatter(
-            non_frontier_data['release_date'], # Use datetime objects for x-axis plotting
-            non_frontier_data['horizon_minutes'],
-            color=color,
-            marker='o',
-            label=f"_{bench}_nonfrontier", # Main label for legend
-            alpha=0.2,
-            s=50,
-            edgecolor='k', # Add edge color for better visibility
-            linewidth=0.5
-        )
+        if not only_frontier:
+            ax.scatter(
+                non_frontier_data['release_date'], # Use datetime objects for x-axis plotting
+                non_frontier_data['horizon_minutes'],
+                color=color,
+                marker='o',
+                label=f"_{bench}_nonfrontier", # Main label for legend
+                alpha=0.2,
+                s=50,
+                edgecolor='k', # Add edge color for better visibility
+                linewidth=0.5
+            )
 
         # Plot frontier points (diamonds)
         ax.scatter(

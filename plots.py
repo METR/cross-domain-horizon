@@ -1,14 +1,15 @@
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import os
+import adjustText
+import argparse
 import glob
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 import numpy as np
-import adjustText # Import adjustText
-import matplotlib.ticker as mticker # Import ticker
-import matplotlib.dates as mdates # Add date formatting import
-import toml
+import os
+import pandas as pd
 import pathlib
+import seaborn as sns
+import toml
 
 import wrangle
 
@@ -245,6 +246,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file
     df is a dataframe holding horizon data for all models on all benchmarks.
     """
 
+
     def get_benchmark_data(benchmarks_path) -> dict[str, list[float]]:
         """
         Loads benchmark data from a folder of TOML files, reads the "lengths" key from each file, and returns a dictionary of benchmark name to list of lengths.
@@ -253,17 +255,28 @@ def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file
         for file in os.listdir(benchmarks_path):
             if file.endswith('.toml'):
                 with open(os.path.join(benchmarks_path, file), 'r') as f:
-                    benchmark_data[file.replace('.toml', '')] = toml.load(f)['lengths']
+                    benchmark_data[file.replace('.toml', '')] = toml.load(f)
         return benchmark_data
     
+    length_to_color_map = {
+        "baseline": "blue",
+        "estimated": "grey",
+        "default": "black"
+    }
+
     benchmark_data = get_benchmark_data(benchmarks_path)
 
     # Create a DataFrame for seaborn
     lengths_df = pd.DataFrame([
-        {'length': length, 'benchmark': benchmark}
-        for benchmark, lengths in benchmark_data.items()
-        for length in lengths
+        {'length': length, 'benchmark': benchmark, 'length_type': data.get('length_type', "default")}
+        for benchmark, data in benchmark_data.items()
+        for length in data['lengths']
     ])
+    lengths_df['length_type'] = pd.Categorical(lengths_df['length_type'], categories=length_to_color_map.keys(), ordered=True)
+
+    print("\nRandom sample of lengths_df:")
+    print(lengths_df.sample(n=10, random_state=42))
+    print()
 
     benchmarks = lengths_df['benchmark'].unique().tolist()
     lengths_df.sort_values(by='benchmark', inplace=True)
@@ -271,7 +284,8 @@ def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file
     plt.figure(figsize=(10, 6))
     sns.boxplot(data=lengths_df, y='length', x='benchmark', whis=(10, 90),
                 showfliers=False, width=0.3, fill=False, color='black', zorder=2, linewidth=2)
-    sns.stripplot(data=lengths_df, y='length', x='benchmark', size=3, color='blue', zorder=1, alpha=0.3)
+    sns.stripplot(data=lengths_df, y='length', x='benchmark', size=3, hue='length_type', zorder=1, alpha=0.3,
+                  palette=length_to_color_map.values(), legend=False)
 
     # plot a diamond for the frontier (max horizon) model on each benchmark
     s_frontier = df.groupby('benchmark', as_index=True)["horizon"].max()
@@ -284,10 +298,10 @@ def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file
         plt.scatter(benchmark, horizon, color='darkred', edgecolor='black', marker='D', s=100, zorder=3, **kwargs)
         kwargs = {}
 
-    # Add a legend item for the boxplot quantiles
+    # Legend
     plt.plot([], [], color='black', linewidth=2, label="Quantiles (10/25/50/75/90%)")
-
-    # legend
+    plt.scatter([], [], color='blue', marker='o', s=20, label="Individual task")
+    plt.scatter([], [], color='grey', marker='o', s=20, label="Individual task (estimated)")
     plt.legend()
 
 
@@ -299,6 +313,36 @@ def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file
     print(f"Benchmark lengths plot saved to {output_file}")
 
 def main():
+    parser = argparse.ArgumentParser(description='Generate various plots for model analysis')
+    parser.add_argument('--all', action='store_true', help='Generate all plots')
+    parser.add_argument('--lines', action='store_true', help='Generate lines over time plot')
+    parser.add_argument('--hcast', action='store_true', help='Generate hcast comparison plot')
+    parser.add_argument('--lengths', action='store_true', help='Generate benchmark lengths plot')
+    args = parser.parse_args()
+
+    plots_to_make = []
+    if args.all:
+        plots_to_make = ["lines", "hcast", "lengths", "bar"]
+    elif args.lines:
+        plots_to_make += ["lines"]
+    elif args.hcast:
+        plots_to_make += ["hcast"]
+    elif args.lengths:
+        plots_to_make += ["lengths"]
+
+    # If no arguments provided, default to --all
+    if not any(vars(args).values()):
+        args.all = True
+
+    # Load all data initially using wrangle
+    all_df = wrangle.load_data(wrangle.DATA_DIR)
+    if all_df.empty:
+        print("No data loaded. Exiting.")
+        return
+
+    # Write raw data to CSV
+
+    
     # Load all data initially using wrangle
     all_df = wrangle.load_data(wrangle.DATA_DIR)
     if all_df.empty:
@@ -321,19 +365,22 @@ def main():
     print("Raw data written to data/all_data.csv")
 
     # --- Bar Plot --- 
-    # Filter and sort for the bar plot using wrangle
-    filtered_df, sorted_models = wrangle.filter_and_sort_models(all_df.copy()) # Use copy to avoid modifying original
-    # Generate and save the bar plot
-    plot_horizons(filtered_df, sorted_models)
+    if "bar" in plots_to_make:
+        # Filter and sort for the bar plot using wrangle
+        filtered_df, sorted_models = wrangle.filter_and_sort_models(all_df.copy()) # Use copy to avoid modifying original
+        # Generate and save the bar plot
+        plot_horizons(filtered_df, sorted_models)
 
     # --- Lines Over Time Plot ---
-    # Generate and save the lines over time plot using the original loaded data
-    plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, hide_benchmarks=["hcast_r_s_full_method"]) # Use copy
-    plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"])
+    if "lines" in plots_to_make:
+        # Generate and save the lines over time plot using the original loaded data
+        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, hide_benchmarks=["hcast_r_s_full_method"]) # Use copy
+        plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"])
 
 
     # --- Benchmark Task Lengths Plot ---
-    plot_benchmarks(all_df, BENCHMARKS_PATH, BENCHMARK_TASK_LENGTHS_OUTPUT_FILE)
+    if "lengths" in plots_to_make:
+        plot_benchmarks(all_df, BENCHMARKS_PATH, BENCHMARK_TASK_LENGTHS_OUTPUT_FILE)
 
 if __name__ == "__main__":
     main()

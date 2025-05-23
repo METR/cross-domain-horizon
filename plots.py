@@ -7,13 +7,16 @@ import numpy as np
 import adjustText # Import adjustText
 import matplotlib.ticker as mticker # Import ticker
 import matplotlib.dates as mdates # Add date formatting import
+import toml
 
-# Import wrangle functions and constants
 import wrangle
+
+BENCHMARKS_PATH = 'data/benchmarks'
 
 BAR_PLOT_OUTPUT_FILE = 'plots/all_bar.png'
 SCATTER_PLOT_OUTPUT_FILE = 'plots/scatter.png' # New output file
 LINES_PLOT_OUTPUT_FILE = 'plots/lines_over_time.png' # New output file for lines plot
+BENCHMARK_TASK_LENGTHS_OUTPUT_FILE = 'plots/benchmark_task_lengths.png'
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
 
 def plot_horizons(df, sorted_models):
@@ -235,6 +238,53 @@ def plot_lines_over_time(df, output_file,
     print(f"Lines over time plot saved to {output_file}")
     plt.close(fig)
 
+
+def plot_benchmarks(benchmarks_path, output_file):
+    def get_benchmark_data(benchmarks_path) -> dict[str, list[float]]:
+        """
+        Loads benchmark data from a folder of TOML files, reads the "lengths" key from each file, and returns a dictionary of benchmark name to list of lengths.
+        """
+        benchmark_data = {}
+        for file in os.listdir(benchmarks_path):
+            if file.endswith('.toml'):
+                with open(os.path.join(benchmarks_path, file), 'r') as f:
+                    benchmark_data[file.replace('.toml', '')] = toml.load(f)['lengths']
+        return benchmark_data
+    
+    benchmark_data = get_benchmark_data(benchmarks_path)
+
+    # Create a DataFrame for seaborn
+    lengths_df = pd.DataFrame([
+        {'length': length, 'benchmark': benchmark}
+        for benchmark, lengths in benchmark_data.items()
+        for length in lengths
+    ])
+
+    benchmarks = lengths_df['benchmark'].unique().tolist()
+
+    
+    plt.figure(figsize=(10, 6))
+    sns.stripplot(data=lengths_df, y='length', x='benchmark', size=2)
+    # Horizontal lines for 10th and 90th percentiles on each benchmark
+    y_min = lengths_df.groupby('benchmark')['length'].quantile(0.1)
+    y_median = lengths_df.groupby('benchmark')['length'].quantile(0.5)
+    y_max = lengths_df.groupby('benchmark')['length'].quantile(0.9)
+
+    for benchmark, (min_val, median_val, max_val) in zip(y_min.index, zip(y_min, y_median, y_max)):
+        benchmark_index = benchmarks.index(benchmark)
+        xmin, xmax = (benchmark_index + 0.3) / len(benchmarks), (benchmark_index + 0.7) / len(benchmarks)
+        plt.axhline(min_val, color='black', xmin=xmin, xmax=xmax, linestyle='--', linewidth=2)
+        plt.axhline(median_val, color='black', xmin=xmin, xmax=xmax, linestyle='-', linewidth=2)
+        plt.axhline(max_val, color='black', xmin=xmin, xmax=xmax, linestyle='--', linewidth=2)
+
+
+    plt.yscale('log')
+    plt.ylabel('Length (minutes)')
+    plt.xlabel('Benchmark')
+    plt.title('Task Lengths By Benchmark')
+    plt.savefig(output_file)
+    print(f"Benchmark lengths plot saved to {output_file}")
+
 def main():
     # Load all data initially using wrangle
     all_df = wrangle.load_data(wrangle.DATA_DIR)
@@ -267,6 +317,10 @@ def main():
     # Generate and save the lines over time plot using the original loaded data
     plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, hide_benchmarks=["hcast_r_s_full_method"]) # Use copy
     plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"])
+
+
+    # --- Benchmark Task Lengths Plot ---
+    plot_benchmarks(BENCHMARKS_PATH, BENCHMARK_TASK_LENGTHS_OUTPUT_FILE)
 
 if __name__ == "__main__":
     main()

@@ -8,6 +8,7 @@ import adjustText # Import adjustText
 import matplotlib.ticker as mticker # Import ticker
 import matplotlib.dates as mdates # Add date formatting import
 import toml
+import pathlib
 
 import wrangle
 
@@ -239,7 +240,11 @@ def plot_lines_over_time(df, output_file,
     plt.close(fig)
 
 
-def plot_benchmarks(benchmarks_path, output_file):
+def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file: pathlib.Path):
+    """
+    df is a dataframe holding horizon data for all models on all benchmarks.
+    """
+
     def get_benchmark_data(benchmarks_path) -> dict[str, list[float]]:
         """
         Loads benchmark data from a folder of TOML files, reads the "lengths" key from each file, and returns a dictionary of benchmark name to list of lengths.
@@ -261,21 +266,21 @@ def plot_benchmarks(benchmarks_path, output_file):
     ])
 
     benchmarks = lengths_df['benchmark'].unique().tolist()
+    lengths_df.sort_values(by='benchmark', inplace=True)
 
-    
     plt.figure(figsize=(10, 6))
-    sns.stripplot(data=lengths_df, y='length', x='benchmark', size=2)
-    # Horizontal lines for 10th and 90th percentiles on each benchmark
-    y_min = lengths_df.groupby('benchmark')['length'].quantile(0.1)
-    y_median = lengths_df.groupby('benchmark')['length'].quantile(0.5)
-    y_max = lengths_df.groupby('benchmark')['length'].quantile(0.9)
+    sns.boxplot(data=lengths_df, y='length', x='benchmark', whis=(10, 90),
+                showfliers=False, width=0.2, fill=True, color='grey', zorder=2, linewidth=2, boxprops=dict(alpha=0.5))
+    sns.stripplot(data=lengths_df, y='length', x='benchmark', size=3, color='blue', zorder=1, alpha=0.3)
 
-    for benchmark, (min_val, median_val, max_val) in zip(y_min.index, zip(y_min, y_median, y_max)):
-        benchmark_index = benchmarks.index(benchmark)
-        xmin, xmax = (benchmark_index + 0.3) / len(benchmarks), (benchmark_index + 0.7) / len(benchmarks)
-        plt.axhline(min_val, color='black', xmin=xmin, xmax=xmax, linestyle='--', linewidth=2)
-        plt.axhline(median_val, color='black', xmin=xmin, xmax=xmax, linestyle='-', linewidth=2)
-        plt.axhline(max_val, color='black', xmin=xmin, xmax=xmax, linestyle='--', linewidth=2)
+    # plot a diamond for the frontier (max horizon) model on each benchmark
+    s_frontier = df.groupby('benchmark', as_index=True)["horizon"].max()
+    s_frontier /= 60 # Convert to minutes
+
+    s_frontier = s_frontier[s_frontier.index.isin(benchmarks)]
+    
+    for benchmark, horizon in s_frontier.items():
+        plt.scatter(benchmark, horizon, color='darkred', edgecolor='black', marker='D', s=100, zorder=3)
 
 
     plt.yscale('log')
@@ -320,7 +325,7 @@ def main():
 
 
     # --- Benchmark Task Lengths Plot ---
-    plot_benchmarks(BENCHMARKS_PATH, BENCHMARK_TASK_LENGTHS_OUTPUT_FILE)
+    plot_benchmarks(all_df, BENCHMARKS_PATH, BENCHMARK_TASK_LENGTHS_OUTPUT_FILE)
 
 if __name__ == "__main__":
     main()

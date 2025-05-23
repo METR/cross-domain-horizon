@@ -33,8 +33,8 @@ probabilities = [(i + 1) / (n_tasks + 1) for i in range(n_tasks)]
 # scipy.stats.lognorm uses s=sigma and scale=exp(mu)
 sampled_times = lognorm.ppf(probabilities, s=sigma, scale=math.exp(mu))
 
-# Format the times to one decimal place
-formatted_times = [f"{t:.1f}" for t in sampled_times]
+# Format the times to 3 decimal places
+formatted_times = [f"{t:.3f}" for t in sampled_times]
 
 # Ensure the output directory exists
 os.makedirs(output_dir, exist_ok=True)

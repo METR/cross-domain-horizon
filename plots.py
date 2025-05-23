@@ -270,7 +270,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file
 
     plt.figure(figsize=(10, 6))
     sns.boxplot(data=lengths_df, y='length', x='benchmark', whis=(10, 90),
-                showfliers=False, width=0.2, fill=True, color='grey', zorder=2, linewidth=2, boxprops=dict(alpha=0.5))
+                showfliers=False, width=0.3, fill=False, color='black', zorder=2, linewidth=2)
     sns.stripplot(data=lengths_df, y='length', x='benchmark', size=3, color='blue', zorder=1, alpha=0.3)
 
     # plot a diamond for the frontier (max horizon) model on each benchmark
@@ -279,8 +279,13 @@ def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file
 
     s_frontier = s_frontier[s_frontier.index.isin(benchmarks)]
     
+    kwargs = {"label": f"Frontier (max horizon)"}
     for benchmark, horizon in s_frontier.items():
-        plt.scatter(benchmark, horizon, color='darkred', edgecolor='black', marker='D', s=100, zorder=3)
+        plt.scatter(benchmark, horizon, color='darkred', edgecolor='black', marker='D', s=100, zorder=3, **kwargs)
+        kwargs = {}
+
+    # legend
+    plt.legend()
 
 
     plt.yscale('log')

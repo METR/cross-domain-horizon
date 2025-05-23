@@ -284,6 +284,9 @@ def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file
         plt.scatter(benchmark, horizon, color='darkred', edgecolor='black', marker='D', s=100, zorder=3, **kwargs)
         kwargs = {}
 
+    # Add a legend item for the boxplot quantiles
+    plt.plot([], [], color='black', linewidth=2, label="Quantiles (10/25/50/75/90%)")
+
     # legend
     plt.legend()
 

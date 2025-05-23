@@ -274,10 +274,6 @@ def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file
     ])
     lengths_df['length_type'] = pd.Categorical(lengths_df['length_type'], categories=length_to_color_map.keys(), ordered=True)
 
-    print("\nRandom sample of lengths_df:")
-    print(lengths_df.sample(n=10, random_state=42))
-    print()
-
     benchmarks = lengths_df['benchmark'].unique().tolist()
     lengths_df.sort_values(by='benchmark', inplace=True)
 

@@ -3,8 +3,8 @@ import math
 import toml
 
 # Constants
-DATA_DIR = pathlib.Path("data/aime")
-DATASET_OUTPUT_FILE = DATA_DIR / "dataset.toml"
+DATA_DIR = pathlib.Path("data/benchmarks")
+DATASET_OUTPUT_FILE = DATA_DIR / "aime.toml"
 N_EXAMS = 4
 QUESTIONS_PER_EXAM = 15
 TOTAL_TIME_PER_EXAM = 180  # minutes

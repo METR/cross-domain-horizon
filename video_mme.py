@@ -109,6 +109,7 @@ def generate_benchmark_file(output_filename="data/benchmarks/video_mme.toml", in
         # Format lengths similar to the gpqa.toml example
         lengths_str = ", ".join(f"{length:.3f}" for length in all_lengths)
         f.write(f"lengths = [ {lengths_str}, ]\n")
+        f.write(f"length_type = \"estimate\"\n")
     
     print(f"Generated benchmark file: {output_filename} with {total_questions} questions.")
 

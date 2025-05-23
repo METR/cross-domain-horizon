@@ -35,6 +35,7 @@ data = {
     "n_questions": total_questions,
     "chance_accuracy": CHANCE_ACCURACY,
     "lengths": all_times,
+    "length_type": "estimate",
 }
 
 # Ensure output directory exists

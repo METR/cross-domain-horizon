@@ -122,6 +122,7 @@ toml_str = make_toml(
     n_questions=len(first_every_task),
     chance_accuracy=0.0,
     lengths=lengths,
+    length_type="baseline",
 )
 
 # write toml

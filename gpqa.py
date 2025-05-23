@@ -51,7 +51,8 @@ def write_dataset_toml(output_path: Path, n_questions: int,
     output_data = {
         "n_questions": n_questions,
         "chance_accuracy": chance_accuracy,
-        "lengths": lengths  # TOML library handles None as null
+        "lengths": lengths,  # TOML library handles None as null
+        "length_type": "baseline",
     }
     try:
         output_path.parent.mkdir(parents=True, exist_ok=True)

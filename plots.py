@@ -260,7 +260,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file
     
     length_to_color_map = {
         "baseline": "blue",
-        "estimated": "grey",
+        "estimate": "grey",
         "default": "black"
     }
 

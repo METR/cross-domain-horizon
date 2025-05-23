@@ -2,6 +2,7 @@ import numpy as np
 from scipy.stats import lognorm
 import math
 import os
+import toml
 
 # OSWorld Benchmark Parameters
 # Source: Figure 4 and Table 6 from the provided image context.
@@ -34,18 +35,21 @@ probabilities = [(i + 1) / (n_tasks + 1) for i in range(n_tasks)]
 sampled_times = lognorm.ppf(probabilities, s=sigma, scale=math.exp(mu))
 
 # Format the times to 3 decimal places
-formatted_times = [f"{t:.3f}" for t in sampled_times]
+times = [float(round(t, 3)) for t in sampled_times]
 
 # Ensure the output directory exists
 os.makedirs(output_dir, exist_ok=True)
 
+data = {
+    "n_questions": n_tasks,
+    "chance_accuracy": 0.0,
+    "lengths": times,
+    "length_type": "estimate",
+}
+
+
 # Write output to the specified file
 with open(output_filename, 'w') as f:
-    f.write(f"n_questions = {n_tasks}\n")
-    # chance_accuracy is not provided in the source data, so it's omitted.
-    f.write("lengths = [")
-    # Join the formatted times with commas and spaces
-    f.write(", ".join(formatted_times))
-    f.write("]\n")
+    toml.dump(data, f)
 
 print(f"Successfully generated {output_filename}")

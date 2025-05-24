@@ -18,24 +18,16 @@ import numpy as np
 import pandas as pd
 import pathlib
 from typing import Iterator
-from dataclasses import dataclass
 import tomllib
 import argparse
+
+from mle import sigmoid, beta_nlog_likelihood, estimate_params_mle, ModelParams, BenchmarkSpec
 
 DEFAULT_SLOPE = 0.6
 DEFAULT_CHANCE_ACCURACY = 0.0
 
 BENCHMARKS = ["gpqa", "aime", "osworld", "video_mme", "hcast_r_s"]
 
-@dataclass
-class BenchmarkSpec:
-    n_questions: int
-    lengths: list[int]
-    chance_accuracy: float
-
-def sigmoid(horizon, task_len, slope, chance_accuracy) -> np.ndarray:
-    result = 1 / (1 + np.exp(slope * (-np.log2(horizon) + np.log2(task_len))))
-    return chance_accuracy + (1 - chance_accuracy) * result
 
 def expected_score(horizon: float, bspec: BenchmarkSpec, slope: float = DEFAULT_SLOPE):
     """
@@ -119,7 +111,7 @@ def estimate_horizon(score: int, bspec: BenchmarkSpec, n_iterations=100, min_hor
     result = np.exp(log_horizon)
     return result
 
-def estimate_horizons(scores: dict[str, int], bspec: BenchmarkSpec) -> dict[str, float]:
+def estimate_horizons(scores: dict[str, int], bspec: BenchmarkSpec, mle: bool) -> dict[str, float]:
     """
     Estimates time horizon for each model given score and question lengths in minutes
 
@@ -132,11 +124,14 @@ def estimate_horizons(scores: dict[str, int], bspec: BenchmarkSpec) -> dict[str,
 
     result = {}
     for model, score in scores.items():
-        result[model] = estimate_horizon(score, bspec=bspec)
+        if mle:
+            result[model] = estimate_params_mle(score, bspec=bspec)
+        else:
+            result[model] = estimate_horizon(score, bspec=bspec)
     return result
     
 
-def process_dataset(dataset_name: str) -> None:
+def process_dataset(dataset_name: str, mle: bool) -> None:
     """Processes a single dataset (e.g., 'gpqa', 'aime')."""
     dataset_file = pathlib.Path(f"data/benchmarks/{dataset_name}.toml")
     scores_file = pathlib.Path(f"data/scores/{dataset_name}.toml")
@@ -150,6 +145,7 @@ def process_dataset(dataset_name: str) -> None:
     with open(scores_file, "rb") as f:
         scores_data = tomllib.load(f)
 
+    # TODO edit this for more than one split
     n_questions = int(data["n_questions"])
     score_percent = scores_data["scores"]
     score_percent = {k: float(v.strip("%")) for k, v in score_percent.items()}
@@ -158,7 +154,7 @@ def process_dataset(dataset_name: str) -> None:
     assert len(lengths) == n_questions
 
     bspec = BenchmarkSpec(n_questions=n_questions, lengths=lengths, chance_accuracy=DEFAULT_CHANCE_ACCURACY)
-    horizons = estimate_horizons(scores, bspec=bspec)
+    horizons = estimate_horizons(scores, bspec=bspec, mle=mle)
     df = pd.DataFrame({
         'model': list(horizons.keys()),
         'horizon': list(horizons.values()),
@@ -170,12 +166,12 @@ def process_dataset(dataset_name: str) -> None:
 
 
 
-def main(data_path: str) -> None:
+def main(data_path: str, mle: bool) -> None:
     if data_path == "all":
         for benchmark in BENCHMARKS:
-            process_dataset(benchmark)
+            process_dataset(benchmark, mle=mle)
     elif data_path in BENCHMARKS:
-        process_dataset(data_path)
+        process_dataset(data_path, mle=mle)
     else:
         print(f"Error: Invalid data_path '{data_path}'")
 
@@ -189,5 +185,10 @@ if __name__ == "__main__":
         default="all",
         help="Specify the dataset to process ('gpqa', 'aime', or 'all'). Default is 'all'."
     )
+    parser.add_argument(
+        "--mle",
+        action="store_true",
+        help="Use MLE to estimate horizons"
+    )
     args = parser.parse_args()
-    main(data_path=args.data_path)
+    main(data_path=args.data_path, mle=args.mle)

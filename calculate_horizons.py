@@ -33,21 +33,21 @@ class BenchmarkSpec:
     lengths: list[int]
     chance_accuracy: float
 
-def sigmoid(horizon, x, slope, chance_accuracy) -> np.ndarray:
-    result = 1 / (1 + np.exp(slope * (-np.log2(horizon) + np.log2(x))))
+def sigmoid(horizon, task_len, slope, chance_accuracy) -> np.ndarray:
+    result = 1 / (1 + np.exp(slope * (-np.log2(horizon) + np.log2(task_len))))
     return chance_accuracy + (1 - chance_accuracy) * result
 
-def expected_score(horizon: float, bspec: BenchmarkSpec):
+def expected_score(horizon: float, bspec: BenchmarkSpec, slope: float = DEFAULT_SLOPE):
     """
     Gets expected score that horizon `horizon` will produce
     Input:
     - horizon: float
     - lengths: list of ints
     """
-    probs_for_horizon = sigmoid(horizon, bspec.lengths, DEFAULT_SLOPE, bspec.chance_accuracy)
+    probs_for_horizon = sigmoid(horizon, bspec.lengths, slope, bspec.chance_accuracy)
     return np.sum(probs_for_horizon)
 
-    
+
 def initial_estimate(score: int, bspec: BenchmarkSpec):
     """
     Estimates the horizon as the value of h for which

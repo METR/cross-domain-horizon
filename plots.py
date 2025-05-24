@@ -21,6 +21,15 @@ LINES_PLOT_OUTPUT_FILE = 'plots/lines_over_time.png' # New output file for lines
 BENCHMARK_TASK_LENGTHS_OUTPUT_FILE = 'plots/benchmark_task_lengths.png'
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
 
+def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.25):
+    """Add a watermark to the current plot or specified axes."""
+    if ax is None:
+        ax = plt.gca()
+    
+    ax.text(0.5, 0.5, text, transform=ax.transAxes, 
+            fontsize=80, color='gray', alpha=alpha,
+            ha='center', va='center', rotation=45, zorder=0)
+
 def plot_horizons(df, sorted_models):
     """Generates and saves the grouped bar plot."""
     if df.empty or not sorted_models:
@@ -56,6 +65,8 @@ def plot_horizons(df, sorted_models):
     plt.xticks(rotation=75, ha='right') # Rotate more if many models
     plt.legend(title='Benchmark', bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.tight_layout(rect=[0, 0, 0.85, 1]) # Adjust layout to make space for legend
+
+    add_watermark(ax)
 
     # Ensure output directory exists
     os.makedirs(os.path.dirname(BAR_PLOT_OUTPUT_FILE), exist_ok=True)
@@ -189,7 +200,7 @@ def plot_lines_over_time(df, output_file,
                    ha='center', va='bottom', bbox=dict(facecolor='white', alpha=0.7, pad=2))
 
             x_line_date = mdates.num2date(x_line_num)
-            y_line = 10**y_line_log
+            y_line = 10.0**y_line_log
 
             ax.plot(x_line_date, y_line, color=color, linestyle='--', linewidth=2, label=f"_{bench}_trend")
 
@@ -211,6 +222,7 @@ def plot_lines_over_time(df, output_file,
                     text_label(last_frontier_point)
 
     ax.set_yscale('log')
+    ax.yaxis.set_major_formatter(mticker.StrMethodFormatter('{x}'))
 
     ax.set_xlabel("Model Release Date")
     ax.set_ylabel("Horizon (minutes, log scale)")
@@ -231,6 +243,8 @@ def plot_lines_over_time(df, output_file,
     # Create a legend
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+    add_watermark(ax)
 
     plt.tight_layout() # Adjust layout for legend
 
@@ -305,6 +319,9 @@ def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file
     plt.ylabel('Length (minutes)')
     plt.xlabel('Benchmark')
     plt.title('Task Lengths By Benchmark')
+    
+    add_watermark()
+    
     plt.savefig(output_file)
     print(f"Benchmark lengths plot saved to {output_file}")
 
@@ -317,7 +334,7 @@ def main():
     args = parser.parse_args()
 
     plots_to_make = []
-    if args.all:
+    if args.all or not any(vars(args).values()):
         plots_to_make = ["lines", "hcast", "lengths", "bar"]
     elif args.lines:
         plots_to_make += ["lines"]

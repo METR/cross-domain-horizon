@@ -34,8 +34,13 @@ total_questions = n * N_EXAMS
 data = {
     "n_questions": total_questions,
     "chance_accuracy": CHANCE_ACCURACY,
-    "lengths": all_times,
     "length_type": "estimate",
+}
+
+data["splits"] = {
+    "all": {
+        "lengths": all_times,
+    }
 }
 
 # Ensure output directory exists

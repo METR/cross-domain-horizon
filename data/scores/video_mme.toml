@@ -1,12 +1,113 @@
-# VideoMME benchmark scores (%)
-# Note: Scores represent overall performance with subtitles
 source = "https://video-mme.github.io/"
 
-[scores]
-google_gemini_1_5_pro_002 = "81.3%"
-google_gemini_1_5_flash_002 = "75.0%"
-bytedance_llava_video_72b_qwen2 = "76.9%"
-openai_gpt_4o = "77.2%"
-qwen_2_5_vl_72b = "77.8%"
-openai_gpt_4_vision = "63.3%"
-google_gemini_2_5_pro_exp = "84.8%"
+[splits.short]
+google_gemini_1_5_pro_002 = 84.5
+AdaReTaKe = 82.8
+qwen_2_5_vl_72b = 82.2
+openai_gpt_4o = 82.8
+bytedance_llava_video_72b_qwen2 = 82.8
+google_gemini_1_5_flash_002 = 79.8
+"Oryx-1.5" = 80.6
+"InternVL2.5" = 83.2
+ViLAMP = 81.2
+Aria = 78.3
+LinVT = 80.1
+TPO = 78.7
+"VideoLLaMA 3" = 80.2
+LiveCC = 76.6
+QuoTA = 79.0
+NVILA = 77.6
+VideoChat-Flash = 76.6
+LLaVA-OneVision = 79.3
+"GPT-4o mini" = 74.9
+ReTaKe = 74.3
+ByteVideoLLM = 77.1
+mPLUG-Owl3 = 72.8
+"MiniCPM-o 2.6" = 78.3
+"VideoLLaMA 2" = 72.0
+"MiniCPM-V 2.6" = 73.5
+openai_gpt_4_vision = 73.2
+
+[splits.med]
+google_gemini_1_5_pro_002 = 81.0
+AdaReTaKe = 79.7
+qwen_2_5_vl_72b = 76.8
+openai_gpt_4o = 76.6
+bytedance_llava_video_72b_qwen2 = 75.6
+google_gemini_1_5_flash_002 = 74.7
+"Oryx-1.5" = 74.3
+"InternVL2.5" = 74.1
+ViLAMP = 71.2
+Aria = 71.7
+LinVT = 68.7
+TPO = 69.4
+"VideoLLaMA 3" = 69.6
+LiveCC = 70.3
+QuoTA = 68.0
+NVILA = 69.0
+VideoChat-Flash = 63.8
+LLaVA-OneVision = 66.9
+"GPT-4o mini" = 68.3
+ReTaKe = 69.3
+ByteVideoLLM = 69.1
+mPLUG-Owl3 = 66.9
+"MiniCPM-o 2.6" = 69.1
+"VideoLLaMA 2" = 63.0
+"MiniCPM-V 2.6" = 61.1
+openai_gpt_4_vision = 59.7
+
+[splits.long]
+google_gemini_1_5_pro_002 = 77.4
+AdaReTaKe = 76.4
+qwen_2_5_vl_72b = 74.3
+openai_gpt_4o = 72.1
+bytedance_llava_video_72b_qwen2 = 72.5
+google_gemini_1_5_flash_002 = 68.8
+"Oryx-1.5" = 69.9
+"InternVL2.5" = 64.8
+ViLAMP = 68.1
+Aria = 66.3
+LinVT = 63.3
+TPO = 66.4
+"VideoLLaMA 3" = 61.0
+LiveCC = 64.1
+QuoTA = 62.9
+NVILA = 63.3
+VideoChat-Flash = 63.3
+LLaVA-OneVision = 62.4
+"GPT-4o mini" = 63.4
+ReTaKe = 62.9
+ByteVideoLLM = 60.2
+mPLUG-Owl3 = 64.5
+"MiniCPM-o 2.6" = 56.3
+"VideoLLaMA 2" = 59.0
+"MiniCPM-V 2.6" = 56.3
+openai_gpt_4_vision = 56.9
+
+[splits.all]
+google_gemini_1_5_pro_002 = 81.3
+AdaReTaKe = 79.6
+qwen_2_5_vl_72b = 77.8
+openai_gpt_4o = 77.2
+bytedance_llava_video_72b_qwen2 = 76.9
+google_gemini_1_5_flash_002 = 75.0
+"Oryx-1.5" = 74.9
+"InternVL2.5" = 74.0
+ViLAMP = 73.5
+Aria = 72.1
+LinVT = 71.7
+TPO = 71.5
+"VideoLLaMA 3" = 70.3
+LiveCC = 70.3
+QuoTA = 70.0
+NVILA = 70.0
+VideoChat-Flash = 69.7
+LLaVA-OneVision = 69.6
+"GPT-4o mini" = 68.9
+ReTaKe = 68.9
+ByteVideoLLM = 68.8
+mPLUG-Owl3 = 68.1
+"MiniCPM-o 2.6" = 67.9
+"VideoLLaMA 2" = 64.7
+"MiniCPM-V 2.6" = 63.7
+openai_gpt_4_vision = 63.3

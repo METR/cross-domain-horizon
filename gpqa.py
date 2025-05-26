@@ -100,8 +100,16 @@ def main():
 
     # Write dataset metadata output file
     print(f"\nWriting dataset metadata to {DATASET_OUTPUT_FILE}...")
-    write_dataset_toml(DATASET_OUTPUT_FILE, n_questions, lengths, CHANCE_ACCURACY)
-    
+
+    data = dict(
+        n_questions=n_questions,
+        chance_accuracy=CHANCE_ACCURACY,
+        splits=dict(all=dict(lengths=lengths)),
+        length_type="baseline",
+    )
+    with open(DATASET_OUTPUT_FILE, "w") as f:
+        toml.dump(data, f)
+
     print(f"\nSuccessfully created {DATASET_OUTPUT_FILE}")
 
 if __name__ == "__main__":

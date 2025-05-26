@@ -18,7 +18,7 @@ for i, row in enumerate(ds):
 
 
 scores_data = dict(
-    source=source,
+    source="https://huggingface.co/datasets/nlile/math_benchmark_test_saturation",
     splits=dict(all=scores)
 )
 

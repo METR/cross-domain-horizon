@@ -164,7 +164,6 @@ def process_dataset(dataset_name: str) -> None:
     bspec = BenchmarkSpec(name=dataset_name, chance_accuracy=chance_accuracy, splits=split_specs)
     print(f"Estimating horizons for {dataset_name} {'with MLE' if use_mle else 'with binsearch'}")
     horizons = estimate_horizons(scores, bspec=bspec, mle=use_mle)
-    print(horizons)
 
     df = pd.DataFrame({
         'model': list(horizons.keys()),

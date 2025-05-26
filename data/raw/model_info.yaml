@@ -105,6 +105,8 @@ model_info:
     release_date: 2024-11-20
   openai_gpt_4o_mini:
     release_date: 2024-07-18
+    aliases:
+      - "GPT-4o mini"
   openai_o1:
     release_date: 2024-12-05
   openai_o1_preview:

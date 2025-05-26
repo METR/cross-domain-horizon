@@ -258,6 +258,8 @@ def plot_lines_over_time(df, output_file,
 def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file: pathlib.Path):
     """
     df is a dataframe holding horizon data for all models on all benchmarks.
+
+    TODO this should have multiple boxplots "within" each scatter plot, one for each split.
     """
 
 
@@ -284,7 +286,8 @@ def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file
     lengths_df = pd.DataFrame([
         {'length': length, 'benchmark': benchmark, 'length_type': data.get('length_type', "default")}
         for benchmark, data in benchmark_data.items()
-        for length in data['lengths']
+        for split_name, split_data in data['splits'].items()
+        for length in split_data['lengths']
     ])
     lengths_df['length_type'] = pd.Categorical(lengths_df['length_type'], categories=length_to_color_map.keys(), ordered=True)
 

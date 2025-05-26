@@ -14,12 +14,18 @@ from collections import namedtuple
 class ModelParams:
     horizon: float
     slope: float | None
+    slope_method: str | None = None
+
+@dataclass
+class SplitSpec:
+    lengths: list[int]
+    scores: dict[str, float]
 
 @dataclass
 class BenchmarkSpec:
-    n_questions: int
-    lengths: list[int]
+    name: str
     chance_accuracy: float
+    splits: dict[str, SplitSpec]
 
 def sigmoid(horizon, task_len, slope, chance_accuracy) -> np.ndarray:
     result = 1 / (1 + np.exp(slope * (-np.log2(horizon) + np.log2(task_len))))
@@ -27,12 +33,12 @@ def sigmoid(horizon, task_len, slope, chance_accuracy) -> np.ndarray:
 
 
 # Log-likelihood for one model
-def beta_nlog_likelihood(h, slope, observed_scores:dict[str, float], t_tasks_per_split:dict[str, float], chance_accuracy):
+def beta_nlog_likelihood(params, model_name, observed_scores:dict[str, float], task_lengths:dict[str, float], chance_accuracy):
+    h, slope = params
     ll = 0
     for split_idx, score in observed_scores.items():
         # Expected score for this split
-        predicted_scores = sigmoid(h, t_tasks_per_split[split_idx], slope, chance_accuracy)
-
+        predicted_scores = sigmoid(h, task_lengths[split_idx], slope, chance_accuracy)
         mu = np.mean(predicted_scores)
         var = np.mean(predicted_scores * (1 - predicted_scores)) / len(predicted_scores)
     
@@ -47,9 +53,10 @@ def beta_nlog_likelihood(h, slope, observed_scores:dict[str, float], t_tasks_per
         beta = (1 - mu) * common_factor
         
         ll += beta_dist.logpdf(score, alpha, beta)
+    print(observed_scores, ll)
     return -ll
 
-def estimate_params_mle(observed_scores, bspec: BenchmarkSpec):
+def estimate_params_mle(model_name: str, bspec: BenchmarkSpec):
     """
     Uses MLE, specifically scipy.optimize.minimize, to find the horizon
     and slope consistent with the observed scores
@@ -57,8 +64,11 @@ def estimate_params_mle(observed_scores, bspec: BenchmarkSpec):
     Consider:
     log parametrizing slope
     """
-    t_tasks_per_split = {split_idx: len(bspec.lengths) for split_idx in observed_scores.keys()}
-    chance_accuracy = bspec.chance_accuracy
-    result = minimize(beta_nlog_likelihood, x0=[1.0, 1.0], args=(observed_scores, t_tasks_per_split, chance_accuracy))
-    return ModelParams(horizon=result.x[0], slope=result.x[1])
+    distinct_splits = {split_name: bspec.splits[split_name] for split_name in bspec.splits.keys() if split_name != "all"}
 
+    task_lengths = {split_name: split.lengths for split_name, split in distinct_splits.items()}
+    observed_scores = {split_name: split.scores[model_name] for split_name, split in distinct_splits.items()}
+    chance_accuracy = bspec.chance_accuracy
+ 
+    result = minimize(beta_nlog_likelihood, x0=[1.0, 1.0], args=(model_name, observed_scores, task_lengths, chance_accuracy))
+    return ModelParams(horizon=float(result.x[0]), slope=float(result.x[1]), slope_method="mle")

@@ -21,7 +21,7 @@ from typing import Iterator
 import tomllib
 import argparse
 
-from mle import sigmoid, beta_nlog_likelihood, estimate_params_mle, ModelParams, BenchmarkSpec
+from mle import sigmoid, beta_nlog_likelihood, estimate_params_mle, ModelParams, BenchmarkSpec, SplitSpec
 
 DEFAULT_SLOPE = 0.6
 DEFAULT_CHANCE_ACCURACY = 0.0
@@ -36,8 +36,8 @@ def expected_score(horizon: float, bspec: BenchmarkSpec, slope: float = DEFAULT_
     - horizon: float
     - lengths: list of ints
     """
-    probs_for_horizon = sigmoid(horizon, bspec.lengths, slope, bspec.chance_accuracy)
-    return np.sum(probs_for_horizon)
+    probs_for_horizon = sigmoid(horizon, bspec.splits["all"].lengths, slope, bspec.chance_accuracy)
+    return np.mean(probs_for_horizon)
 
 
 def initial_estimate(score: int, bspec: BenchmarkSpec):
@@ -45,10 +45,10 @@ def initial_estimate(score: int, bspec: BenchmarkSpec):
     Estimates the horizon as the value of h for which
     a model would get score `score` with horizon h
     """
-    lengths = sorted(bspec.lengths)
-    return lengths[min(len(lengths) - 1, score)]
+    lengths = sorted(bspec.splits["all"].lengths)
+    return lengths[min(len(lengths) - 1, int(score))]
 
-def estimate_horizon(score: int, bspec: BenchmarkSpec, n_iterations=100, min_horizon=None, max_horizon=None):
+def estimate_horizon_binsearch(score: int, bspec: BenchmarkSpec, n_iterations=100, min_horizon=None, max_horizon=None):
     """
     Estimates the horizon as the value of h for which
     a model would get mean score `score` with horizon h
@@ -69,7 +69,7 @@ def estimate_horizon(score: int, bspec: BenchmarkSpec, n_iterations=100, min_hor
     Returns:
         Estimated horizon or nan if horizon is outside bounds
     """
-    lengths = bspec.lengths
+    lengths = bspec.splits["all"].lengths
     # Set default bounds if not provided
     if min_horizon is None:
         min_horizon = 0.1 * min(lengths)
@@ -89,7 +89,7 @@ def estimate_horizon(score: int, bspec: BenchmarkSpec, n_iterations=100, min_hor
     max_expected = expected_score(max_horizon, bspec=bspec)
     
     if score < min_expected or score > max_expected:
-        return float('nan')
+        return ModelParams(horizon=float('nan'), slope=DEFAULT_SLOPE)
     
     for _ in range(n_iterations):
         # Convert from log space to calculate expected score
@@ -98,7 +98,7 @@ def estimate_horizon(score: int, bspec: BenchmarkSpec, n_iterations=100, min_hor
         
         # If the expected score is close enough to the target, return the horizon
         if abs(expected - score) < 0.01:
-            return horizon
+            break
         
         # Binary search in log space
         if expected < score:
@@ -108,8 +108,7 @@ def estimate_horizon(score: int, bspec: BenchmarkSpec, n_iterations=100, min_hor
             log_max = log_horizon
             log_horizon = (log_min + log_horizon) / 2
             
-    result = np.exp(log_horizon)
-    return result
+    return ModelParams(horizon=float(np.exp(log_horizon)), slope=DEFAULT_SLOPE)
 
 def estimate_horizons(scores: dict[str, int], bspec: BenchmarkSpec, mle: bool) -> dict[str, float]:
     """
@@ -120,18 +119,16 @@ def estimate_horizons(scores: dict[str, int], bspec: BenchmarkSpec, mle: bool) -
     - lengths: 
     """
 
-    assert all(0 <= score <= bspec.n_questions for score in scores.values())
-
     result = {}
     for model, score in scores.items():
         if mle:
-            result[model] = estimate_params_mle(score, bspec=bspec)
+            result[model] = estimate_params_mle(model, bspec=bspec)
         else:
-            result[model] = estimate_horizon(score, bspec=bspec)
+            result[model] = estimate_horizon_binsearch(score, bspec=bspec)
     return result
     
 
-def process_dataset(dataset_name: str, mle: bool) -> None:
+def process_dataset(dataset_name: str) -> None:
     """Processes a single dataset (e.g., 'gpqa', 'aime')."""
     dataset_file = pathlib.Path(f"data/benchmarks/{dataset_name}.toml")
     scores_file = pathlib.Path(f"data/scores/{dataset_name}.toml")
@@ -146,32 +143,46 @@ def process_dataset(dataset_name: str, mle: bool) -> None:
         scores_data = tomllib.load(f)
 
     # TODO edit this for more than one split
-    n_questions = int(data["n_questions"])
-    score_percent = scores_data["scores"]
-    score_percent = {k: float(v.strip("%")) for k, v in score_percent.items()}
-    scores = {k: round(score * n_questions / 100) for k, score in score_percent.items()}
-    lengths = data["lengths"]
-    assert len(lengths) == n_questions
+    assert "splits" in data, f"Ill-formatted dataset file {dataset_file}"
+    assert "splits" in scores_data, f"Ill-formatted scores file {scores_file}"
 
-    bspec = BenchmarkSpec(n_questions=n_questions, lengths=lengths, chance_accuracy=DEFAULT_CHANCE_ACCURACY)
-    horizons = estimate_horizons(scores, bspec=bspec, mle=mle)
+    chance_accuracy = data["chance_accuracy"]
+    split_specs = {}
+
+    use_mle = (len(data["splits"]) > 1)
+    for split_name, split_data in data["splits"].items():
+        if split_name == "all" and use_mle:
+            continue
+        lengths = split_data["lengths"]
+        scores = scores_data["splits"][split_name]
+        scores = {k: float(v) / 100 for k, v in scores.items()}
+        assert all(0 <= score <= 1 for score in scores.values())
+        n_questions = len(lengths)
+        split_specs[split_name] = SplitSpec(lengths=lengths, scores=scores)
+
+
+    bspec = BenchmarkSpec(name=dataset_name, chance_accuracy=chance_accuracy, splits=split_specs)
+    print(f"Estimating horizons for {dataset_name} {'with MLE' if use_mle else 'with binsearch'}")
+    horizons = estimate_horizons(scores, bspec=bspec, mle=use_mle)
+    print(horizons)
+
     df = pd.DataFrame({
         'model': list(horizons.keys()),
-        'horizon': list(horizons.values()),
-        'score': [score_percent[m] for m in horizons.keys()]
+        'horizon': [h.horizon for h in horizons.values()],
+        'slope': [h.slope for h in horizons.values()],
     })
-    df = df.sort_values('score', ascending=False)
+    df = df.sort_values('horizon', ascending=False)
     df.to_csv(output_file, index=False, float_format='%.4f')
     print(f"Horizons for {dataset_name} saved to {output_file}")
 
 
 
-def main(data_path: str, mle: bool) -> None:
+def main(data_path: str) -> None:
     if data_path == "all":
         for benchmark in BENCHMARKS:
-            process_dataset(benchmark, mle=mle)
+            process_dataset(benchmark)
     elif data_path in BENCHMARKS:
-        process_dataset(data_path, mle=mle)
+        process_dataset(data_path)
     else:
         print(f"Error: Invalid data_path '{data_path}'")
 
@@ -185,10 +196,5 @@ if __name__ == "__main__":
         default="all",
         help="Specify the dataset to process ('gpqa', 'aime', or 'all'). Default is 'all'."
     )
-    parser.add_argument(
-        "--mle",
-        action="store_true",
-        help="Use MLE to estimate horizons"
-    )
     args = parser.parse_args()
-    main(data_path=args.data_path, mle=args.mle)
+    main(data_path=args.data_path)

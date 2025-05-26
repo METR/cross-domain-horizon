@@ -1,8 +1,27 @@
-model,horizon,score
-google_gemini_2_5_pro_exp,93.9470,84.8000
-google_gemini_1_5_pro_002,67.1536,81.3000
-qwen_2_5_vl_72b,49.3439,77.8000
-openai_gpt_4o,47.1466,77.2000
-bytedance_llava_video_72b_qwen2,45.8877,76.9000
-google_gemini_1_5_flash_002,39.8497,75.0000
-openai_gpt_4_vision,17.2518,63.3000
+model,horizon,slope
+AdaReTaKe,12855.8303,0.0905
+google_gemini_1_5_pro_002,5434.7851,0.1119
+qwen_2_5_vl_72b,2212.5641,0.1038
+bytedance_llava_video_72b_qwen2,670.8975,0.1246
+openai_gpt_4o,622.1872,0.1287
+Aria,115.5909,0.1301
+TPO,87.2185,0.1355
+InternVL2.5,61.3912,0.2113
+NVILA,44.5837,0.1525
+LinVT,38.7082,0.1847
+QuoTA,35.7733,0.1747
+LLaVA-OneVision,30.1659,0.1843
+VideoLLaMA 3,29.7710,0.2084
+VideoChat-Flash,28.4000,0.1446
+ByteVideoLLM,27.1616,0.1764
+MiniCPM-o 2.6,17.5000,0.2302
+openai_gpt_4_vision,8.0753,0.1719
+ViLAMP,-112.4087,93.8656
+google_gemini_1_5_flash_002,-1332.6585,-0.9852
+Oryx-1.5,-1606.4356,2.5657
+MiniCPM-V 2.6,-3932.6675,-9111.9531
+mPLUG-Owl3,-4229.3037,-5094.4720
+VideoLLaMA 2,-5441.6147,-10791.7071
+ReTaKe,-7160.9738,-9808.1270
+LiveCC,-9411.4839,-16348.4016
+GPT-4o mini,-10173.2392,-16836.9928

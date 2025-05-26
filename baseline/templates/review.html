@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Review Answer - AI Benchmark Baselining{% endblock %}
+
+{% block content %}
+<div class="question-container">
+    <h2>Review Your Answer</h2>
+    <p class="text-muted">Time taken: {{ time_taken }} seconds</p>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5>Your Answer</h5>
+                </div>
+                <div class="card-body">
+                    <div class="math-content">
+                        {{ user_answer | safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5>Correct Solution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="math-content">
+                        {{ question.solution | safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>Original Problem</h5>
+        </div>
+        <div class="card-body">
+            <div class="math-content">
+                {{ question.problem | safe }}
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <h4>Was your answer correct?</h4>
+        <form method="POST" action="{{ url_for('mark_result') }}" class="d-inline">
+            <button type="submit" name="result" value="correct" class="btn btn-success btn-lg me-3">
+                ✓ Correct
+            </button>
+            <button type="submit" name="result" value="incorrect" class="btn btn-danger btn-lg me-3">
+                ✗ Incorrect
+            </button>
+            <button type="submit" name="result" value="skip" class="btn btn-secondary btn-lg">
+                ⏭ Skip
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

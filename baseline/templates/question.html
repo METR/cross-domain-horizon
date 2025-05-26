@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Question {{ question_num }} - AI Benchmark Baselining{% endblock %}
+
+{% block content %}
+<div class="timer" id="timer">Time: 00:00</div>
+
+<div class="question-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Question {{ question_num }} of {{ total_questions }}</h2>
+        <div class="progress" style="width: 200px;">
+            <div class="progress-bar" role="progressbar" style="width: {{ (question_num / total_questions * 100) }}%"
+                aria-valuenow="{{ question_num }}" aria-valuemin="0" aria-valuemax="{{ total_questions }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>Problem</h4>
+            {% if question.level %}
+            <small class="text-muted">Level: {{ question.level }}</small>
+            {% endif %}
+            {% if question.type %}
+            <small class="text-muted">| Subject: {{ question.type }}</small>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <div class="math-content">
+                {{ question.problem | safe }}
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('submit_answer') }}" class="mt-4">
+        <div class="mb-3">
+            <label for="answer" class="form-label">Your Answer</label>
+            <textarea class="form-control" id="answer" name="answer" rows="4" placeholder="Enter your solution here..."
+                required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Answer</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let startTime = Date.now();
+
+    function updateTimer() {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        document.getElementById('timer').textContent =
+            `Time: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    setInterval(updateTimer, 1000);
+    updateTimer();
+</script>
+{% endblock %}

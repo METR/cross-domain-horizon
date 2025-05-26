@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Select Benchmark - AI Benchmark Baselining{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Start Benchmark</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('start_benchmark') }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Your Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="benchmark" class="form-label">Select Benchmark</label>
+                        <select class="form-select" id="benchmark" name="benchmark" required>
+                            <option value="">Choose a benchmark...</option>
+                            {% for key, benchmark in benchmarks.items() %}
+                            <option value="{{ key }}">{{ benchmark.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Start Benchmark</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h5>Instructions</h5>
+            <ul>
+                <li>Select a benchmark and enter your name to begin</li>
+                <li>For each question, you'll see the problem with rendered LaTeX</li>
+                <li>A timer will track how long you spend on each question</li>
+                <li>After submitting your answer, you'll see the correct solution</li>
+                <li>Mark whether your answer was correct or incorrect</li>
+                <li>Your results will be saved to a CSV file for analysis</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

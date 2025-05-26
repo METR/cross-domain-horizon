@@ -1,20 +1,20 @@
 source = "metr"
 
-[scores]
-anthropic_claude_3_opus = "52.65%"
-anthropic_claude_3_5_sonnet_latest = "65.04%"
-anthropic_claude_3_5_sonnet_old = "60.92%"
-anthropic_claude_3_7_sonnet = "72.33%"
-openai_gpt_2 = "17.30%"
-openai_gpt_4_0125 = "50.21%"
-openai_gpt_4_0314 = "51.49%"
-openai_gpt_4_1106 = "54.70%"
-openai_gpt_4_turbo = "51.85%"
-openai_gpt_4o_2024_05_13 = "55.30%"
-openai_davinci_002 = "28.04%"
-openai_gpt_3_5_turbo_instruct = "38.03%"
-openai_o1 = "69.59%"
-openai_o1_preview = "63.99%"
-openai_o3 = "63.47%"
-openai_o4_mini = "58.85%"
+[splits.all]
+anthropic_claude_3_opus = 52.65
+anthropic_claude_3_5_sonnet_latest = 65.04
+anthropic_claude_3_5_sonnet_old = 60.92
+anthropic_claude_3_7_sonnet = 72.33
+openai_gpt_2 = 17.30
+openai_gpt_4_0125 = 50.21
+openai_gpt_4_0314 = 51.49
+openai_gpt_4_1106 = 54.70
+openai_gpt_4_turbo = 51.85
+openai_gpt_4o_2024_05_13 = 55.30
+openai_davinci_002 = 28.04
+openai_gpt_3_5_turbo_instruct = 38.03
+openai_o1 = 69.59
+openai_o1_preview = 63.99
+openai_o3 = 63.47
+openai_o4_mini = 58.85
     

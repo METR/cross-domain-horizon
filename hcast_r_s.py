@@ -3,6 +3,7 @@ from pathlib import Path
 from utils import make_toml
 import pandas as pd
 import json
+import toml
 
 # Define paths
 source_dir = Path("data/hcast_r_s")
@@ -91,12 +92,11 @@ def make_scores_toml(df_runs):
 
     print(df_scores)
 
-    scores_str = '\n'.join([f'{r["model"]} = "{r["average"]:.2%}"' for i, r in df_scores.iterrows()])
-
+    scores_str = '\n'.join([f'{r["model"]} = {r["average"]*100:.2f}' for i, r in df_scores.iterrows()])
 
     scores_toml = f"""source = "metr"
 
-[scores]
+[splits.all]
 {scores_str}
     """
     return scores_toml
@@ -117,14 +117,14 @@ print(f"Number of tasks: {len(first_every_task)}")
 lengths = sorted(round(x, 4) for x in first_every_task.tolist())
 
 # make toml
-toml_str = make_toml(
+toml_data = dict(
     benchmark_name="hcast_r_s",
     n_questions=len(first_every_task),
     chance_accuracy=0.0,
-    lengths=lengths,
+    splits=dict(all=dict(lengths=lengths)),
     length_type="baseline",
 )
 
 # write toml
 with open(output_benchmarks_file, "w") as f:
-    f.write(toml_str)
+    toml.dump(toml_data, f)

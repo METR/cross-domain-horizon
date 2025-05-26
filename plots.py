@@ -19,6 +19,7 @@ BAR_PLOT_OUTPUT_FILE = 'plots/all_bar.png'
 SCATTER_PLOT_OUTPUT_FILE = 'plots/scatter.png' # New output file
 LINES_PLOT_OUTPUT_FILE = 'plots/lines_over_time.png' # New output file for lines plot
 BENCHMARK_TASK_LENGTHS_OUTPUT_FILE = 'plots/benchmark_task_lengths.png'
+LENGTH_DEPENDENCE_OUTPUT_FILE = 'plots/length_dependence.png'
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.25):
@@ -328,37 +329,57 @@ def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file
     plt.savefig(output_file)
     print(f"Benchmark lengths plot saved to {output_file}")
 
+
+def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
+    """
+    Plots the length dependence of the horizon.
+    """
+    fig, ax = plt.subplots(figsize=(10, 6))
+    add_watermark(ax)
+
+    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "tesla_fsd"]
+
+    df_to_use = df[df['benchmark'].isin(benchmarks_to_use)]
+
+
+    sns.scatterplot(data=df_to_use, y='horizon', x='slope', hue='benchmark', ax=ax)
+
+    
+
+    ax.set_xlim(0, 1)
+    ax.set_yscale('log')
+    ax.set_ylim(bottom=0.1)
+    ax.set_title("Length-dependence of each benchmark \n Higher slope --> more length-dependent")
+    ax.legend()
+
+    plt.savefig(output_file)
+    print(f"Length dependence plot saved to {output_file}")
+
 def main():
     parser = argparse.ArgumentParser(description='Generate various plots for model analysis')
     parser.add_argument('--all', action='store_true', help='Generate all plots')
     parser.add_argument('--lines', action='store_true', help='Generate lines over time plot')
     parser.add_argument('--hcast', action='store_true', help='Generate hcast comparison plot')
     parser.add_argument('--lengths', action='store_true', help='Generate benchmark lengths plot')
+    parser.add_argument('--length-dependence', action='store_true', help='Generate length dependence plot')
     args = parser.parse_args()
 
     plots_to_make = []
     if args.all or not any(vars(args).values()):
-        plots_to_make = ["lines", "hcast", "lengths", "bar"]
+        plots_to_make = ["lines", "hcast", "lengths", "bar", "length_dependence"]
     elif args.lines:
         plots_to_make += ["lines"]
     elif args.hcast:
         plots_to_make += ["hcast"]
     elif args.lengths:
         plots_to_make += ["lengths"]
+    elif args.length_dependence:
+        plots_to_make += ["length_dependence"]
 
     # If no arguments provided, default to --all
     if not any(vars(args).values()):
         args.all = True
 
-    # Load all data initially using wrangle
-    all_df = wrangle.load_data(wrangle.DATA_DIR)
-    if all_df.empty:
-        print("No data loaded. Exiting.")
-        return
-
-    # Write raw data to CSV
-
-    
     # Load all data initially using wrangle
     all_df = wrangle.load_data(wrangle.DATA_DIR)
     if all_df.empty:
@@ -397,6 +418,10 @@ def main():
     # --- Benchmark Task Lengths Plot ---
     if "lengths" in plots_to_make:
         plot_benchmarks(all_df, BENCHMARKS_PATH, BENCHMARK_TASK_LENGTHS_OUTPUT_FILE)
+
+    # --- Length Dependence Plot ---
+    if "length_dependence" in plots_to_make:
+        plot_length_dependence(all_df, LENGTH_DEPENDENCE_OUTPUT_FILE)
 
 if __name__ == "__main__":
     main()

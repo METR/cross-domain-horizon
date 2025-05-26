@@ -2,9 +2,7 @@ import pandas as pd
 import os
 import glob
 from scipy.stats import gmean
-import numpy as np
 import yaml
-from datetime import datetime
 
 DATA_DIR = 'data'
 HORIZONS_DIR = os.path.join(DATA_DIR, 'horizons') # New constant for horizons dir
@@ -75,21 +73,23 @@ def load_data(data_dir):
 
     for csv_path in csv_files:
         benchmark_name = os.path.basename(csv_path).replace('.csv', '') # Extract benchmark from filename
+        print(f"Loading {csv_path}")
         try:
             df = pd.read_csv(csv_path)
-            # Assuming columns are 'model', 'horizon' (in minutes)
-            if 'model' in df.columns and 'horizon' in df.columns:
-                # Fill missing horizons with 0 before converting
-                df['horizon'] = df['horizon'].fillna(0)
-                # Convert horizon from minutes to seconds
-                df['horizon'] = df['horizon'] * 60
-                df['benchmark'] = benchmark_name
-                if 'release_date' in df.columns:
-                    all_data.append(df[['model', 'benchmark', 'horizon', 'release_date']])
-                else:
-                    all_data.append(df[['model', 'benchmark', 'horizon']])
-            else:
-                print(f"Warning: Skipping {csv_path}. Missing 'model' or 'horizon' column.")
+
+            columns_to_use = ['model', 'horizon', 'slope', 'slope_method', 'release_date', 'benchmark']
+
+            for col in columns_to_use:
+                if col not in df.columns:
+                    df[col] = None
+
+            df['horizon'] = df['horizon'].fillna(0)
+            # Convert horizon from minutes to seconds
+            df['horizon'] = df['horizon'] * 60
+            df['benchmark'] = benchmark_name
+
+            all_data.append(df[columns_to_use])
+
         except Exception as e:
             print(f"Warning: Could not read {csv_path}. Error: {e}")
 
@@ -103,7 +103,6 @@ def load_data(data_dir):
 
 
     # --- Load and Merge Release Dates ---
-    # Call the new function to load release dates
     release_df = load_release_dates(RELEASE_DATES_FILE)
 
     # Merge with horizon data

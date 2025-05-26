@@ -1,9 +1,10 @@
 model,horizon,slope
-openai_o3_mini,89.6898,0.6000
+openai_o3,146.1033,0.6000
 google_gemini_2_5_pro_exp,89.6898,0.6000
 xai_grok_3_mini_fast_beta_high_reasoning,89.6898,0.6000
 xai_grok_3_beta,89.6898,0.6000
 anthropic_claude_3_7_sonnet_thinking,89.6898,0.6000
+openai_o3_mini,89.6898,0.6000
 deepseek_deepseek_r1,38.1846,0.6000
 openai_o1,33.7994,0.6000
 xai_grok_3_mini_fast_beta_low_reasoning,29.9178,0.6000

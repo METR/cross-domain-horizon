@@ -53,7 +53,6 @@ def beta_nlog_likelihood(params, model_name, observed_scores:dict[str, float], t
         beta = (1 - mu) * common_factor
         
         ll += beta_dist.logpdf(score, alpha, beta)
-    print(observed_scores, ll)
     return -ll
 
 def estimate_params_mle(model_name: str, bspec: BenchmarkSpec):
@@ -70,5 +69,5 @@ def estimate_params_mle(model_name: str, bspec: BenchmarkSpec):
     observed_scores = {split_name: split.scores[model_name] for split_name, split in distinct_splits.items()}
     chance_accuracy = bspec.chance_accuracy
  
-    result = minimize(beta_nlog_likelihood, x0=[1.0, 1.0], args=(model_name, observed_scores, task_lengths, chance_accuracy))
+    result = minimize(beta_nlog_likelihood, x0=[5.0, 0.5], bounds=[(None, None), (0, None)], args=(model_name, observed_scores, task_lengths, chance_accuracy))
     return ModelParams(horizon=float(result.x[0]), slope=float(result.x[1]), slope_method="mle")

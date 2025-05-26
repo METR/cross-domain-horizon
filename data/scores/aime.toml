@@ -1,9 +1,11 @@
 sources = [
 "https://www.vals.ai/benchmarks/aime-2025-04-11",
-"https://www.anthropic.com/news/claude-3-7-sonnet"
+"https://www.anthropic.com/news/claude-3-7-sonnet",
+"https://openai.com/index/introducing-o3-and-o4-mini/"
 ]
 
 [splits.all]
+openai_o3 = 90.25
 openai_o3_mini = 86.5
 google_gemini_2_5_pro_exp = 85.8
 xai_grok_3_mini_fast_beta_high_reasoning = 85.0

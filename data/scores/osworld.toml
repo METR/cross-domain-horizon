@@ -2,21 +2,21 @@
 # Note: Scores represent the highest reported percentage for each base model, potentially ignoring variations like step counts.
 source = "https://os-world.github.io/"
 
-[scores]
-ui_tars_1_5 = "42.5%"
-google_gemini_2_5_pro_exp = "41.4%"
-openai_cua = "38.1%"
-anthropic_claude_3_7_sonnet = "34.5%"
-ui_tars_72b_dpo = "24.6%"
-anthropic_claude_3_5_sonnet_latest = "22.0%"
-openai_gpt_4o_2024_11_20 = "17.04%" # aguvis 72B
-qwen_2_5_vl_72b = "8.8%"
-cogagent_9b = "8.12%"
-openai_gpt_4_vision = "7.69%"
-google_gemini_pro_vision = "5.8%"
-google_gemini_1_5_pro = "5.4%"
-openai_gpt_4o = "5.03%"
-openai_gpt_4o_mini = "3.77%"
-anthropic_claude_3_opus = "2.42%"
-qwen_vl_max_0809 = "2.42%"
-cogagent = "1.11%" 
+[splits.all]
+ui_tars_1_5 = 42.5
+google_gemini_2_5_pro_exp = 41.4
+openai_cua = 38.1
+anthropic_claude_3_7_sonnet = 34.5
+ui_tars_72b_dpo = 24.6
+anthropic_claude_3_5_sonnet_latest = 22.0
+openai_gpt_4o_2024_11_20 = 17.04 # aguvis 72B
+qwen_2_5_vl_72b = 8.8
+cogagent_9b = 8.12
+openai_gpt_4_vision = 7.69
+google_gemini_pro_vision = 5.8
+google_gemini_1_5_pro = 5.4
+openai_gpt_4o = 5.03
+openai_gpt_4o_mini = 3.77
+anthropic_claude_3_opus = 2.42
+qwen_vl_max_0809 = 2.42
+cogagent = 1.11 

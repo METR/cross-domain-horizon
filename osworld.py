@@ -40,13 +40,12 @@ times = [float(round(t, 3)) for t in sampled_times]
 # Ensure the output directory exists
 os.makedirs(output_dir, exist_ok=True)
 
-data = {
-    "n_questions": n_tasks,
-    "chance_accuracy": 0.0,
-    "lengths": times,
-    "length_type": "estimate",
-}
-
+data = dict(
+    n_questions=n_tasks,
+    chance_accuracy=0.0,
+    length_type="estimate",
+    splits=dict(all=dict(lengths=times)),
+)
 
 # Write output to the specified file
 with open(output_filename, 'w') as f:

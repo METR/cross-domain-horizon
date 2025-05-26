@@ -1,0 +1,115 @@
+source = "nlile/math_benchmark_test_saturation"
+
+[splits.all]
+"Gemini 2.0 Flash Experimental" = 89.7
+"Qwen2.5-Math-72B-Instruct (TIR,Greedy)" = 88.1
+"GPT-4 Turbo (MACM, w/code, voting)" = 87.92
+"Qwen2.5-Math-72B-Instruct (COT,Greedy)" = 85.9
+"Qwen2.5-Math-7B-Instruct (TIR,Greedy)" = 85.2
+"GPT-4-code model (CSV, w/ code, SC, k=16)" = 84.3
+"Qwen2-Math-72B-Instruct (greedy)" = 84.0
+"Qwen2.5-Math-7B-Instruct (COT,Greedy)" = 83.6
+"Qwen2.5-Math-1.5B-Instruct (TIR,Greedy)" = 79.9
+"OpenMath2-Llama3.1-70B (majority@256)" = 79.6
+"OpenMath2-Llama3.1-8B (majority@256)" = 76.1
+"Qwen2.5-Math-1.5B-Instruct (COT,Greedy)" = 75.8
+"GPT-4-code model (CSV, w/ code)" = 73.5
+"CR (GPT-4-turbo model, w/ code)" = 72.2
+"OpenMath2-Llama3.1-70B" = 71.9
+"LogicNet (with code interpreter)" = 71.2
+"Qwen2-72B-Instruct-Step-DPO (0-shot CoT, w/o code)" = 70.8
+"GPT-4-code model (w/ code)" = 69.7
+"OpenMath2-Llama3.1-8B" = 67.8
+"AlphaMath-7B-SBS@3" = 66.3
+"Minerva 62B (maj5@256)" = 64.9
+DAMOMath-7B = 64.5
+"MMOS-DeepSeekMath-7B (0-shot,k=50)" = 63.7
+"GPT-4-code model (w/o code)" = 60.8
+"OpenMath-CodeLlama-70B (w/ code, SC, k=50)" = 60.4
+"OpenMath-CodeLlama-34B (w/ code, SC, k=50)" = 60.2
+"ToRA-Code 34B model (w/ code, SC, k=50)" = 60.0
+"DeepSeekMATH-RL-7B (w/ code, greedy decoding)" = 58.8
+"OpenMath-Llama2-70B (w/ code, SC, k=50)" = 58.3
+"CR (GPT-4 model, w/o code)" = 58.0
+"OpenMath-CodeLlama-13B (w/ code, SC, k=50)" = 57.6
+"OpenMath-Mistral-7B (w/ code, SC, k=50)" = 57.2
+"ToRA 70B (w/ code, SC, k=50)" = 56.9
+"SKiC (GPT-4 model)" = 56.4
+"DART-Math-Llama3-70B-Prop2Diff (0-shot CoT, w/o code)" = 56.1
+"OpenMath-CodeLlama-7B (w/ code, SC, k=50)" = 55.6
+"MMOS-DeepSeekMath-7B (0-shot)" = 55.0
+"DART-Math-Llama3-70B-Uniform (0-shot CoT, w/o code)" = 54.9
+"PHP (GPT-4 model)" = 53.9
+"DART-Math-DSMath-7B-Prop2Diff (0-shot CoT, w/o code)" = 53.6
+"Gemini Ultra (4-shot)" = 53.2
+"DART-Math-DSMath-7B-Uniform (0-shot CoT, w/o code)" = 52.9
+"GPT-4 model (w/ code, PAL)" = 51.8
+"DeepSeekMATH-RL-7B (greedy decoding)" = 51.7
+"AlphaLLM (with MCTS)" = 51.0
+"ToRA-Code 34B (w/ code)" = 50.8
+"OpenMath-CodeLlama-70B (w/ code)" = 50.7
+"Minerva 540B (maj1@k, k=64)" = 50.3
+"ToRA 70B (w/ code)" = 49.7
+"MMOS-CODE-34B (0-shot)" = 49.5
+DeepSeekMath-7B-KPMath-Plus = 48.8
+"PaLM 2 (few-shot, k=4, SC)" = 48.8
+Llemma-34B-KPMath-Plus = 48.6
+"OpenMath-CodeLlama-34B (w/ code)" = 48.3
+"Shepherd + DeepSeek-67B (SFT on MetaMATH + PRM rerank, k=256)" = 48.1
+"ToRA-Code 13B (w/ code)" = 48.1
+"Minerva 8B (maj5@256)" = 47.6
+Mistral-7B-KPMath-Plus = 46.8
+"DART-Math-Llama3-8B-Prop2Diff (0-shot CoT, w/o code)" = 46.6
+"OpenMath-Llama2-70B (w/ code)" = 46.3
+"OpenMath-CodeLlama-13B (w/ code)" = 45.5
+"DART-Math-Mistral-7B-Prop2Diff (0-shot CoT, w/o code)" = 45.5
+"DART-Math-Llama3-8B-Uniform (0-shot CoT, w/o code)" = 45.3
+MathCoder-CL-34B = 45.2
+MathCoder-L-34B = 45.1
+MMIQC-72B = 45.0
+"ToRA-Code 7B (w/ code)" = 44.6
+"OpenMath-Mistral-7B (w/ code)" = 44.5
+"MMOS-CODE-7B (0-shot)" = 44.3
+"OpenMath-CodeLlama-7B (w/ code)" = 43.6
+"Shepherd+Mistral-7B (SFT on MetaMATH + PRM RL+ PRM rerank, k=256)" = 43.5
+"DART-Math-Mistral-7B-Uniform (0-shot CoT, w/o code)" = 43.5
+"Minerva 62B (maj1@k, k=64)" = 43.4
+"ToRA 13B (w/ code)" = 43.0
+GPT-4 = 42.5
+SFT-Mistral-7B = 41.8
+Llama2-13B-KPMath-Plus = 41.0
+"ToRA 7B (w/ code)" = 40.1
+MathCoder-CL-13B = 35.9
+MuggleMATH-70B = 35.6
+"PaLM 2 (few-shot, k=4, CoT)" = 34.3
+"Minerva 540B" = 33.6
+"Minerva 540B (5-shot)" = 33.6
+"Shepherd + Mistral-7B (SFT on MetaMATH + PRM RL)" = 33.0
+"WizardMath-7B-V1.1" = 33.0
+"Gemini Pro (4-shot)" = 32.6
+MuggleMATH-13B = 30.7
+MathCoder-CL-7B = 30.2
+MathCoder-L-13B = 29.9
+"Qwen2idae-16x14B (4-shot)" = 29.9
+"OpenChat-3.5-1210 7B" = 28.9
+"OpenChat-3.5 7B" = 28.6
+"Mixtral 8x7B (maj@4)" = 28.4
+"Minerva 62B (4-shot)" = 27.6
+"MetaMath 70B" = 26.0
+"MuggleMATH 7B" = 25.8
+"Minerva 8B (maj1@k, k=64)" = 25.4
+MathCoder-L-7B = 23.3
+"WizardMath-70B-V1.0" = 22.7
+"Camelidae-8×34B (4-shot)" = 22.6
+"MetaMath 13B" = 22.5
+"davinci-002 175B" = 19.1
+"Branch-Train-MiX 4x7B (sampling top-2 experts)" = 17.8
+"GAL 120B (5-shot)" = 16.6
+"LLaMA 33B-maj1@k" = 15.2
+"Minerva 8B" = 14.1
+"WizardMath-13B-V1.0" = 14.0
+"LLaMA 65B" = 10.6
+"GAL 30B (5-shot)" = 12.7
+"Mistral 7B (maj@4)" = 13.1
+"GAL 30B <work>" = 11.4
+"WizardMath-7B-V1.0" = 10.7

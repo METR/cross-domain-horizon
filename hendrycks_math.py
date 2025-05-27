@@ -18,8 +18,13 @@ ds = load_dataset(source)["train"]
 # Get the scores for each model
 scores = {}
 for i, row in enumerate(ds):
-    model = row["model"]
-    scores[model] = row["accuracy"]
+    # bsaelines have no code, so it's unfair to use code
+    if "w/ code" in row["model"]:
+        continue
+    parts = row["model"].split("(")
+    model_name = parts[0].strip()
+    value = row["accuracy"]
+    scores[model_name] = value if model_name not in scores else max(scores[model_name], value)
 
 scores_data = dict(
     source="https://huggingface.co/datasets/nlile/math_benchmark_test_saturation",
@@ -77,6 +82,7 @@ def lognormal_quantiles(df_level_stats: pd.DataFrame, num_questions: int, level:
     
     # Get quantiles
     quantiles = 2 ** scipy.stats.norm.ppf(np.linspace(0.5/num_questions, 1 - 0.5/num_questions, num_questions), mu, sigma)
+    quantiles = [x / 60 for x in quantiles]
     return quantiles
 
 lengths = {
@@ -92,7 +98,8 @@ assert len(all_lengths) == n_questions
 # should aggregate from all splits...
 benchmark_data = dict(
     n_questions=n_questions,
-    splits=dict(all=all_lengths)
+    chance_accuracy=0.0,
+    splits=dict(all=dict(lengths=all_lengths))
 )
 
 with open(BENCHMARK_FILE, "w") as f:

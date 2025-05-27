@@ -54,6 +54,8 @@ model_info:
     release_date: 2024-02
   google_gemini_2_0_flash_001:
     release_date: 2025-02-05
+    aliases:
+     - Gemini 2.0 Flash Experimental
   google_gemini_2_5_pro_exp:
     release_date: 2025-03-28
   google_gemini_pro_vision:
@@ -86,10 +88,14 @@ model_info:
     release_date: 2023-03-14
   openai_gpt_4_0613:
     release_date: 2023-06-13
+    aliases:
+      - "GPT-4-code model"
+      - "GPT-4-code model (CSV, w/ code, SC, k=16)"
   openai_gpt_4_turbo:
     release_date: 2024-04-09
     aliases:
       - openai_gpt_4_turbo_0409
+      - "GPT-4 Turbo (MACM, w/code, voting)"
   openai_gpt_4_1106:
     release_date: 2023-11-06
   openai_gpt_4_vision:

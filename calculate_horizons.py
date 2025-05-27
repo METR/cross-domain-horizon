@@ -21,12 +21,12 @@ from typing import Iterator
 import tomllib
 import argparse
 
-from mle import sigmoid, beta_nlog_likelihood, estimate_params_mle, ModelParams, BenchmarkSpec, SplitSpec
+from mle import sigmoid, estimate_params_mle, ModelParams, BenchmarkSpec, SplitSpec
 
 DEFAULT_SLOPE = 0.6
 DEFAULT_CHANCE_ACCURACY = 0.0
 
-BENCHMARKS = ["gpqa", "aime", "osworld", "video_mme", "hcast_r_s"]
+BENCHMARKS = ["gpqa", "aime", "osworld", "video_mme", "hcast_r_s", "hendrycks_math"]
 
 
 def expected_score(horizon: float, bspec: BenchmarkSpec, slope: float = DEFAULT_SLOPE):

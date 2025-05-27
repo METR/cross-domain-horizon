@@ -7,7 +7,12 @@
 
 <div class="question-container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Question {{ question_num }} of {{ total_questions }}</h2>
+        <div>
+            <h2>Question {{ question_num }} of {{ total_questions }}</h2>
+            {% if session.level %}
+            <small class="text-muted">Filtered to Level {{ session.level }}</small>
+            {% endif %}
+        </div>
         <div class="progress" style="width: 200px;">
             <div class="progress-bar" role="progressbar" style="width: {{ (question_num / total_questions * 100) }}%"
                 aria-valuenow="{{ question_num }}" aria-valuemin="0" aria-valuemax="{{ total_questions }}">

@@ -4,6 +4,7 @@ import pandas as pd
 import os
 import time
 import uuid
+import random
 from pathlib import Path
 
 app = Flask(__name__)
@@ -31,7 +32,8 @@ def start_benchmark():
     print("=== START BENCHMARK ROUTE CALLED ===")
     benchmark = request.form['benchmark']
     name = request.form['name']
-    print(f"Received benchmark: {benchmark}, name: {name}")
+    level = request.form.get('level', '')  # Get level, default to empty string
+    print(f"Received benchmark: {benchmark}, name: {name}, level: {level}")
     
     if not benchmark or not name:
         print("Missing benchmark or name, redirecting to index")
@@ -39,18 +41,37 @@ def start_benchmark():
     
     try:
         print(f"Loading dataset: {BENCHMARKS[benchmark]['dataset']}")
-        # Load dataset to verify it works, but don't store in session
+        # Load dataset to verify it works and filter by level if specified
         ds = load_dataset(BENCHMARKS[benchmark]['dataset'])
         split = BENCHMARKS[benchmark]['split']
-        dataset_length = len(ds[split])
+        
+        # Filter by level if specified
+        if level:
+            level_int = int(level)
+            filtered_indices = [i for i, item in enumerate(ds[split]) if item.get('level') == level_int]
+            print(f"Filtered to level {level}: {len(filtered_indices)} questions out of {len(ds[split])}")
+        else:
+            filtered_indices = list(range(len(ds[split])))
+            print(f"Using all levels: {len(filtered_indices)} questions")
+        
+        if not filtered_indices:
+            return f"No questions found for level {level}", 400
+        
+        dataset_length = len(filtered_indices)
         print(f"Dataset loaded successfully, using split: {split}, length: {dataset_length}")
         
         # Store only essential info in session (not the entire dataset)
         session['benchmark'] = benchmark
         session['name'] = name
+        session['level'] = level
         session['dataset_length'] = dataset_length
         session['current_question'] = 0
         session['start_time'] = None
+        
+        # Create a shuffled list of question indices for random selection
+        question_indices = filtered_indices.copy()
+        random.shuffle(question_indices)
+        session['question_indices'] = question_indices
         
         print(f"Session data stored, dataset has {dataset_length} questions")
         print("Redirecting to question route")
@@ -62,12 +83,13 @@ def start_benchmark():
 @app.route('/question')
 def question():
     print("=== QUESTION ROUTE CALLED ===")
-    if 'benchmark' not in session or 'dataset_length' not in session:
+    if 'benchmark' not in session or 'dataset_length' not in session or 'question_indices' not in session:
         print("No benchmark info in session, redirecting to index")
         return redirect(url_for('index'))
     
     current_idx = session['current_question']
     dataset_length = session['dataset_length']
+    question_indices = session['question_indices']
     benchmark = session['benchmark']
     print(f"Current question index: {current_idx}, dataset length: {dataset_length}")
     
@@ -75,11 +97,15 @@ def question():
         print("All questions completed, showing complete page")
         return render_template('complete.html')
     
+    # Get the random question index
+    random_question_idx = question_indices[current_idx]
+    print(f"Using random question index: {random_question_idx}")
+    
     # Load dataset and get current question
     try:
         ds = load_dataset(BENCHMARKS[benchmark]['dataset'])
         split = BENCHMARKS[benchmark]['split']
-        question_data = ds[split][current_idx]
+        question_data = ds[split][random_question_idx]
         session['start_time'] = time.time()
         print(f"Displaying question {current_idx + 1}, question keys: {list(question_data.keys())}")
         
@@ -100,12 +126,14 @@ def submit_answer():
     time_taken = time.time() - session['start_time']
     
     current_idx = session['current_question']
+    question_indices = session['question_indices']
+    random_question_idx = question_indices[current_idx]
     benchmark = session['benchmark']
     
     # Load current question data
     ds = load_dataset(BENCHMARKS[benchmark]['dataset'])
     split = BENCHMARKS[benchmark]['split']
-    question_data = ds[split][current_idx]
+    question_data = ds[split][random_question_idx]
     
     # Store the answer and time for the next step
     session['user_answer'] = user_answer

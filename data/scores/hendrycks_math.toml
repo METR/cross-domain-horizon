@@ -1,4 +1,4 @@
-source = "nlile/math_benchmark_test_saturation"
+source = "https://huggingface.co/datasets/nlile/math_benchmark_test_saturation"
 
 [splits.all]
 "Gemini 2.0 Flash Experimental" = 89.7

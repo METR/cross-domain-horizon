@@ -15,6 +15,6 @@ openai_davinci_002 = 28.04
 openai_gpt_3_5_turbo_instruct = 38.03
 openai_o1 = 69.59
 openai_o1_preview = 63.99
-openai_o3 = 63.47
-openai_o4_mini = 58.85
+openai_o3 = 77.66
+openai_o4_mini = 74.87
     

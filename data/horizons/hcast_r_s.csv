@@ -1,11 +1,11 @@
 model,horizon,slope
+openai_o3,117.6137,0.6000
+openai_o4_mini,77.7782,0.6000
 anthropic_claude_3_7_sonnet,63.2496,0.6000
 openai_o1,51.4349,0.6000
 anthropic_claude_3_5_sonnet_latest,27.6603,0.6000
 openai_o1_preview,27.6603,0.6000
-openai_o3,27.6603,0.6000
 anthropic_claude_3_5_sonnet_old,18.2918,0.6000
-openai_o4_mini,14.8750,0.6000
 openai_gpt_4_1106,9.8369,0.6000
 openai_gpt_4o_2024_05_13,9.8369,0.6000
 anthropic_claude_3_opus,7.9994,0.6000

@@ -52,7 +52,15 @@ def get_benchmark_data(benchmarks_path) -> dict[str, list[float]]:
         if file.endswith('.toml'):
             with open(os.path.join(benchmarks_path, file), 'r') as f:
                 benchmark_data[file.replace('.toml', '')] = toml.load(f)
-    return benchmark_data
+
+
+    result = pd.DataFrame([
+        {'length': length, 'benchmark': benchmark, 'length_type': data.get('length_type', "default")}
+        for benchmark, data in benchmark_data.items()
+        for split_name, split_data in data['splits'].items() if split_name != "all" or len(data['splits']) == 1
+        for length in split_data['lengths']
+    ])
+    return result
 
 def plot_horizons(df, sorted_models):
     """Generates and saves the grouped bar plot."""
@@ -102,7 +110,7 @@ def plot_horizons(df, sorted_models):
 
 
 def plot_lines_over_time(df, output_file,
-                         benchmark_data: dict[str, list[float]],
+                         benchmark_data: pd.DataFrame,
                          show_benchmarks=None,
                          hide_benchmarks=None,
                          only_frontier=True):
@@ -159,10 +167,14 @@ def plot_lines_over_time(df, output_file,
         benchmarks = [bench for bench in benchmarks if bench in show_benchmarks]
 
     for bench in benchmarks:
+        print(f"\n\nPlotting {bench}")
         bench_data = plot_df[plot_df['benchmark'] == bench]
         color = benchmark_colors[bench]
         frontier_data = bench_data[bench_data['is_frontier']]
         non_frontier_data = bench_data[~bench_data['is_frontier']]
+
+        length_data = benchmark_data[benchmark_data['benchmark'] == bench]
+        print(length_data.head())
 
         # Plot non-frontier points (circles)
         if not only_frontier:
@@ -296,12 +308,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
     }
 
     # Create a DataFrame for seaborn
-    lengths_df = pd.DataFrame([
-        {'length': length, 'benchmark': benchmark, 'length_type': data.get('length_type', "default")}
-        for benchmark, data in benchmark_data.items()
-        for split_name, split_data in data['splits'].items()
-        for length in split_data['lengths']
-    ])
+    lengths_df = benchmark_data.copy()
     lengths_df['length_type'] = pd.Categorical(lengths_df['length_type'], categories=length_to_color_map.keys(), ordered=True)
 
     benchmarks = lengths_df['benchmark'].unique().tolist()

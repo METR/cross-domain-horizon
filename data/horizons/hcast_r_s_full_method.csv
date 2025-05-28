@@ -13,3 +13,5 @@ openai_davinci_002,0.14886,0.653157
 openai_gpt_3_5_turbo_instruct,0.604514,0.76923
 openai_o1,39.206576,0.510703
 openai_o1_preview,22.221357,0.611026
+openai_o3,111.303394,0.571223
+openai_o4_mini,77.845828,0.591306

@@ -24,6 +24,7 @@ model_info:
     aliases:
       - anthropic_claude_3_7_sonnet_thinking
       - anthropic_claude_3_7_sonnet_nothinking
+      - "Claude 3.7 Sonnet"
   anthropic_claude_3_opus:
     release_date: 2024-03-04
   bytedance_llava_video_72b_qwen2:
@@ -77,7 +78,7 @@ model_info:
   google_palm_2:
     release_date: 2024-05-10
     aliases:
-      - "Palm 2"
+      - "PaLM 2"
   meta_llama_2_70b_chat:
     release_date: 2023-07-18
   meta_llama_3_70b:
@@ -134,6 +135,7 @@ model_info:
     aliases:
       - openai_gpt_4o_0513
       - openai_gpt_4o_2024_05_13
+      - "GPT-4o"
   openai_gpt_4o_2024_08_06:
     release_date: 2024-08-06
   openai_gpt_4o_2024_11_20:

@@ -32,6 +32,7 @@ plotting_aliases = {
     "anthropic_claude_3_7_sonnet": "Claude 3.7",
     "openai_gpt_2": "GPT-2",
     "davinci-002 175B": "GPT-3",
+    "ui_tars_1_5": "TARS 1.5",
 }
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.25):
@@ -141,7 +142,7 @@ def plot_lines_over_time(df, output_file,
     plot_df['is_frontier'] = False
     benchmarks = plot_df['benchmark'].unique()
     for bench in benchmarks:
-        print(bench)
+        print(f"Plotting {bench}")
         bench_df = plot_df[plot_df['benchmark'] == bench].sort_values(by=['release_date_num', 'horizon_minutes'], ascending=[True, False])
         max_horizon_so_far = -np.inf
         frontier_indices = []
@@ -167,7 +168,6 @@ def plot_lines_over_time(df, output_file,
         benchmarks = [bench for bench in benchmarks if bench in show_benchmarks]
 
     for bench in benchmarks:
-        print(f"\n\nPlotting {bench}")
         bench_data = plot_df[plot_df['benchmark'] == bench]
         color = benchmark_colors[bench]
         frontier_data = bench_data[bench_data['is_frontier']]
@@ -179,7 +179,6 @@ def plot_lines_over_time(df, output_file,
         if pd.isna(p2) or pd.isna(p98):
             p2 = 0
             p98 = 10**10
-        print(f"p2: {p2}, p98: {p98}")
 
         def scatter_points(data, label, **kwargs):
             ax.scatter(
@@ -197,9 +196,6 @@ def plot_lines_over_time(df, output_file,
         df_within = frontier_data[(frontier_data['horizon_minutes'] > p2) & (frontier_data['horizon_minutes'] < p98)]
         df_above = frontier_data[frontier_data['horizon_minutes'] > p98]
         df_below = frontier_data[frontier_data['horizon_minutes'] < p2]
-
-        print(frontier_data.head())
-        print(df_within.head())
 
         # Plot frontier points (diamonds)
         scatter_points(df_within, f"{bench}", marker='o', alpha=0.9, s=40, edgecolor='k', linewidth=0.5)
@@ -255,7 +251,6 @@ def plot_lines_over_time(df, output_file,
 
                 def text_label(point):
                     model_name = point['model']
-                    print(model_name)
                     if model_name in plotting_aliases:
                         model_name = plotting_aliases[model_name]
                     else:

@@ -13,8 +13,12 @@ model_info:
     release_date: 2024-03-13
   anthropic_claude_3_5_sonnet_latest:
     release_date: 2024-10-22
+    aliases:
+      - "Claude 3.6 Sonnet"
   anthropic_claude_3_5_sonnet_old:
     release_date: 2024-06-20
+    aliases:
+      - "Claude 3.5 Sonnet"
   anthropic_claude_3_7_sonnet:
     release_date: 2025-02-24
     aliases:
@@ -36,6 +40,8 @@ model_info:
     release_date: 2020-05-28
     aliases:
       - davinci-002 (GPT-3)
+      - "GPT-3 175B"
+      - "davinci-002 175B"
   deepseek_deepseek_r1:
     release_date: 2025-01-20
   deepseek_v3:
@@ -58,12 +64,20 @@ model_info:
      - Gemini 2.0 Flash Experimental
   google_gemini_2_5_pro_exp:
     release_date: 2025-03-28
+  google_gemini_pro:
+    release_date: 2023-12-13
+    aliases:
+      - "Gemini Pro"
   google_gemini_pro_vision:
     release_date: 2024-02-15
   google_minerva_62b:
     release_date: 2022-07-01
     aliases:
       - "Minerva 62B"
+  google_palm_2:
+    release_date: 2024-05-10
+    aliases:
+      - "Palm 2"
   meta_llama_2_70b_chat:
     release_date: 2023-07-18
   meta_llama_3_70b:
@@ -110,6 +124,7 @@ model_info:
     aliases:
       - openai_gpt_4_turbo_0409
       - "GPT-4 Turbo (MACM, w/code, voting)"
+      - "GPT-4 Turbo"
   openai_gpt_4_1106:
     release_date: 2023-11-06
   openai_gpt_4_vision:
@@ -129,10 +144,14 @@ model_info:
       - "GPT-4o mini"
   openai_o1:
     release_date: 2024-12-05
+    aliases:
+      - "o1"
   openai_o1_preview:
     release_date: 2024-09-12
   openai_o3_mini:
     release_date: 2025-01-31
+    aliases:
+      - "o3-mini-high"
   openai_cua:
     release_date: 2025-01-23
   openai_o3:

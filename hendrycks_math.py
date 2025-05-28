@@ -20,6 +20,9 @@ scores = {
     "GPT-3 175B": 5.2,
     "GPT-4o": 76.6,
     "Claude 3.5 Sonnet": 71.1,
+    "Claude 3.7 Sonnet": 96.2,
+    'o1': 96.4,
+    'o3-mini-high': 97.9,
 
 }
 for i, row in enumerate(ds):

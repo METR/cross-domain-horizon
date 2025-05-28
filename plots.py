@@ -23,6 +23,17 @@ BENCHMARK_TASK_LENGTHS_OUTPUT_FILE = 'plots/benchmark_task_lengths.png'
 LENGTH_DEPENDENCE_OUTPUT_FILE = 'plots/length_dependence.png'
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
 
+plotting_aliases = {
+    "google_gemini_1_5_pro_002": "Gemini 1.5 Pro",
+    "google_gemini_2_5_pro_exp": "Gemini 2.5 Pro",
+    "Gemini 2.0 Flash Experimental": "Gemini 2.0 Flash",
+    "openai_gpt_4_vision": "GPT-4 Vision",
+    "openai_gpt_3_5": "GPT-3.5",
+    "anthropic_claude_3_7_sonnet": "Claude 3.7",
+    "openai_gpt_2": "GPT-2",
+    "davinci-002 175B": "GPT-3",
+}
+
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.25):
     """Add a watermark to the current plot or specified axes."""
     if ax is None:
@@ -31,6 +42,17 @@ def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.25):
     ax.text(0.5, 0.5, text, transform=ax.transAxes, 
             fontsize=80, color='gray', alpha=alpha,
             ha='center', va='center', rotation=45, zorder=0)
+
+def get_benchmark_data(benchmarks_path) -> dict[str, list[float]]:
+    """
+    Loads benchmark data from a folder of TOML files, reads the "lengths" key from each file, and returns a dictionary of benchmark name to list of lengths.
+    """
+    benchmark_data = {}
+    for file in os.listdir(benchmarks_path):
+        if file.endswith('.toml'):
+            with open(os.path.join(benchmarks_path, file), 'r') as f:
+                benchmark_data[file.replace('.toml', '')] = toml.load(f)
+    return benchmark_data
 
 def plot_horizons(df, sorted_models):
     """Generates and saves the grouped bar plot."""
@@ -80,6 +102,7 @@ def plot_horizons(df, sorted_models):
 
 
 def plot_lines_over_time(df, output_file,
+                         benchmark_data: dict[str, list[float]],
                          show_benchmarks=None,
                          hide_benchmarks=None,
                          only_frontier=True):
@@ -102,7 +125,7 @@ def plot_lines_over_time(df, output_file,
 
     # Convert horizon to minutes and add log horizon
     plot_df['horizon_minutes'] = plot_df['horizon'] / 60.0
-    plot_df['log_horizon_minutes'] = np.log10(plot_df['horizon_minutes'])
+    plot_df['log2_horizon_minutes'] = np.log2(plot_df['horizon_minutes'])
 
     plot_df['release_date_num'] = mdates.date2num(plot_df['release_date'])
 
@@ -110,6 +133,7 @@ def plot_lines_over_time(df, output_file,
     plot_df['is_frontier'] = False
     benchmarks = plot_df['benchmark'].unique()
     for bench in benchmarks:
+        print(bench)
         bench_df = plot_df[plot_df['benchmark'] == bench].sort_values(by=['release_date_num', 'horizon_minutes'], ascending=[True, False])
         max_horizon_so_far = -np.inf
         frontier_indices = []
@@ -162,7 +186,7 @@ def plot_lines_over_time(df, output_file,
             marker='D',
             label=f"{bench}", # Hidden label for legend
             alpha=0.9,
-            s=70,
+            s=60,
             edgecolor='k',
             linewidth=0.5
         )
@@ -171,7 +195,7 @@ def plot_lines_over_time(df, output_file,
         if len(frontier_data) >= 2:
             # Perform linear regression on numerical date vs log horizon
             X = frontier_data['release_date_num'].values
-            Y_log = frontier_data['log_horizon_minutes'].values
+            Y_log = frontier_data['log2_horizon_minutes'].values
 
             coeffs = np.polyfit(X, Y_log, 1)
             poly = np.poly1d(coeffs)
@@ -180,20 +204,14 @@ def plot_lines_over_time(df, output_file,
             y_line_log = poly(x_line_num)
 
             # Calculate doubling rate (slope in doublings per year)
-            # The slope of log10(y) vs. x gives us log10(2) per unit x
-            # To convert to doublings per year, divide by log10(2)
-            doubling_rate = coeffs[0] * 365 / np.log10(2)  # Convert from per day to per year
+            doubling_rate = coeffs[0] * 365  # Convert from per day to per year
             
             # Add text with doubling rate near the middle of the line
             mid_point_idx = len(x_line_num) // 2
             mid_x_num = x_line_num[mid_point_idx]
-            mid_y = 10**y_line_log[mid_point_idx]
+            mid_y = 2**y_line_log[mid_point_idx]
             
-            # Format the doubling rate with appropriate sign
-            if doubling_rate > 0:
-                rate_text = f"+{doubling_rate:.1f} doublings/year"
-            else:
-                rate_text = f"{doubling_rate:.1f} doublings/year"
+            rate_text = f"{doubling_rate:.1f} doublings/year"
                 
             # Convert numerical date to datetime for text positioning
             mid_x = mdates.num2date(mid_x_num)
@@ -202,7 +220,7 @@ def plot_lines_over_time(df, output_file,
                    ha='center', va='bottom', bbox=dict(facecolor='white', alpha=0.7, pad=2))
 
             x_line_date = mdates.num2date(x_line_num)
-            y_line = 10.0**y_line_log
+            y_line = 2.0**y_line_log
 
             ax.plot(x_line_date, y_line, color=color, linestyle='--', linewidth=2, label=f"_{bench}_trend")
 
@@ -214,9 +232,15 @@ def plot_lines_over_time(df, output_file,
                 last_frontier_point = frontier_data_sorted.iloc[-1]
 
                 def text_label(point):
+                    model_name = point['model']
+                    print(model_name)
+                    if model_name in plotting_aliases:
+                        model_name = plotting_aliases[model_name]
+                    else:
+                        model_name = point['model'].split('_',1)[-1]
                     texts.append(ax.text(point['release_date'],
                                          point['horizon_minutes'],
-                                         point['model'].split('_',1)[-1],
+                                         model_name,
                                          fontsize=8, color=color))
 
                 text_label(first_frontier_point)
@@ -257,32 +281,19 @@ def plot_lines_over_time(df, output_file,
     plt.close(fig)
 
 
-def plot_benchmarks(df: pd.DataFrame, benchmarks_path: pathlib.Path, output_file: pathlib.Path):
+def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], output_file: pathlib.Path):
     """
     df is a dataframe holding horizon data for all models on all benchmarks.
 
     TODO this should have multiple boxplots "within" each scatter plot, one for each split.
     """
 
-
-    def get_benchmark_data(benchmarks_path) -> dict[str, list[float]]:
-        """
-        Loads benchmark data from a folder of TOML files, reads the "lengths" key from each file, and returns a dictionary of benchmark name to list of lengths.
-        """
-        benchmark_data = {}
-        for file in os.listdir(benchmarks_path):
-            if file.endswith('.toml'):
-                with open(os.path.join(benchmarks_path, file), 'r') as f:
-                    benchmark_data[file.replace('.toml', '')] = toml.load(f)
-        return benchmark_data
     
     length_to_color_map = {
         "baseline": "blue",
         "estimate": "grey",
         "default": "black"
     }
-
-    benchmark_data = get_benchmark_data(benchmarks_path)
 
     # Create a DataFrame for seaborn
     lengths_df = pd.DataFrame([
@@ -408,6 +419,8 @@ def main():
     pivot_df.to_csv('data/all_data.csv', index=False)
     print("Raw data written to data/all_data.csv")
 
+    benchmark_data = get_benchmark_data(BENCHMARKS_PATH)
+
     # --- Bar Plot --- 
     if "bar" in plots_to_make:
         # Filter and sort for the bar plot using wrangle
@@ -418,13 +431,13 @@ def main():
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:
         # Generate and save the lines over time plot using the original loaded data
-        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, hide_benchmarks=["hcast_r_s_full_method"]) # Use copy
-        plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"])
+        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, hide_benchmarks=["hcast_r_s_full_method"]) # Use copy
+        plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"])
 
 
     # --- Benchmark Task Lengths Plot ---
     if "lengths" in plots_to_make:
-        plot_benchmarks(all_df, BENCHMARKS_PATH, BENCHMARK_TASK_LENGTHS_OUTPUT_FILE)
+        plot_benchmarks(all_df, benchmark_data,BENCHMARK_TASK_LENGTHS_OUTPUT_FILE)
 
     # --- Length Dependence Plot ---
     if "length_dependence" in plots_to_make:

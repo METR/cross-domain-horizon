@@ -11,6 +11,7 @@ import matplotlib.patches as mpatches
 import pathlib
 import seaborn as sns
 import toml
+from scipy.interpolate import UnivariateSpline, PchipInterpolator
 
 import wrangle
 
@@ -202,20 +203,23 @@ def plot_lines_over_time(df, output_file,
         scatter_points(df_above, f"_{bench}_above", marker='P', alpha=0.9, s=30, edgecolor='k', linewidth=0.5)
         scatter_points(df_below, f"_{bench}_below", marker='$-$', alpha=0.9, s=30, edgecolor='k', linewidth=0.5)
 
-        # Fit and plot regression line using only frontier points
-        if len(frontier_data) >= 2:
-            # Perform linear regression on numerical date vs log horizon
-            X = frontier_data['release_date_num'].values
-            Y_log = frontier_data['log2_horizon_minutes'].values
+        densely_dotted = (0, (1, 1))
+        # Fit and plot smoothing spline using only frontier points
+        if len(frontier_data) >= 3:  # Need at least 3 points for spline
+            # Sort frontier data by release date for spline fitting
+            frontier_sorted = frontier_data.sort_values('release_date_num')
+            X = frontier_sorted['release_date_num'].values
+            Y_log = frontier_sorted['log2_horizon_minutes'].values
 
+            # Keep linear regression for doubling rate calculation
             coeffs = np.polyfit(X, Y_log, 1)
-            poly = np.poly1d(coeffs)
+            doubling_rate = coeffs[0] * 365  # Convert from per day to per year
+
+            # Use monotonic interpolation for display to prevent negative derivatives
+            spline = PchipInterpolator(X, Y_log)
 
             x_line_num = np.linspace(X.min(), X.max(), 100)
-            y_line_log = poly(x_line_num)
-
-            # Calculate doubling rate (slope in doublings per year)
-            doubling_rate = coeffs[0] * 365  # Convert from per day to per year
+            y_line_log = spline(x_line_num)
             
             # Add text with doubling rate near the middle of the line
             mid_point_idx = len(x_line_num) // 2
@@ -235,9 +239,7 @@ def plot_lines_over_time(df, output_file,
             mask_above = y_line > p98
             mask_below = y_line < p2
 
-
             # Plot each segment with appropriate style
-            densely_dotted = (0, (1, 1))
             ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', linewidth=2, label=f"_{bench}_trend")
             ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=2)
             ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=2)
@@ -270,7 +272,7 @@ def plot_lines_over_time(df, output_file,
     ax.set_xlabel("Model Release Date")
     ax.set_ylabel("Horizon (minutes, log scale)")
     ax.set_title("Model Horizon vs. Release Date (Log Scale, Trend on Frontier)")
-    ax.grid(True, which="both", ls="--", linewidth=0.5)
+    ax.grid(True, which="both", ls="--", linewidth=0.5, alpha=0.5)
 
     # Format x-axis dates
     ax.xaxis.set_major_locator(mdates.YearLocator())
@@ -285,7 +287,20 @@ def plot_lines_over_time(df, output_file,
 
     # Create a legend
     handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+
+    handle1, = ax.plot([], [], color='black', linestyle='-', linewidth=2, label="Range of task lengths\n in the benchmark")
+    handle2, = ax.plot([], [], color='black', linestyle=densely_dotted, linewidth=2, label="Above/below range")
+    handle3 = ax.scatter([], [], color='black', marker='o', alpha=0.9, s=40, edgecolor='k', linewidth=0.5, label="Models in range")
+    handle4 = ax.scatter([], [], color='black', marker='P', alpha=0.9, s=30, edgecolor='k', linewidth=0.5, label="Above range")
+    handle5 = ax.scatter([], [], color='black', marker='$-$', alpha=0.9, s=30, edgecolor='k', linewidth=0.5, label="Below range")
+    trend_legend = ax.legend(handles=[handle1, handle2, handle3, handle4, handle5], title="Markers", bbox_to_anchor=(1.05, 0.5), loc='upper left')
+    # ax.add_artist(trend_legend)
+
+    bench_legend = ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(1.05, 1), loc='upper left')
+    ax.add_artist(trend_legend)
+
+
 
     add_watermark(ax)
 

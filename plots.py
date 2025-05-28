@@ -24,10 +24,10 @@ LENGTH_DEPENDENCE_OUTPUT_FILE = 'plots/length_dependence.png'
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
 
 plotting_aliases = {
-    "google_gemini_1_5_pro_002": "Gemini 1.5 Pro",
-    "google_gemini_2_5_pro_exp": "Gemini 2.5 Pro",
-    "Gemini 2.0 Flash Experimental": "Gemini 2.0 Flash",
-    "openai_gpt_4_vision": "GPT-4 Vision",
+    "google_gemini_1_5_pro_002": "G 1.5 Pro",
+    "google_gemini_2_5_pro_exp": "G 2.5 Pro",
+    "Gemini 2.0 Flash Experimental": "G 2.0 Flash",
+    "openai_gpt_4_vision": "GPT-4V",
     "openai_gpt_3_5": "GPT-3.5",
     "anthropic_claude_3_7_sonnet": "Claude 3.7",
     "openai_gpt_2": "GPT-2",
@@ -173,35 +173,38 @@ def plot_lines_over_time(df, output_file,
         frontier_data = bench_data[bench_data['is_frontier']]
         non_frontier_data = bench_data[~bench_data['is_frontier']]
 
-        length_data = benchmark_data[benchmark_data['benchmark'] == bench]
-        print(length_data.head())
+        length_data = benchmark_data[benchmark_data['benchmark'] == bench]['length']
+        p2 = length_data.quantile(0.02)
+        p98 = length_data.quantile(0.98)
+        if pd.isna(p2) or pd.isna(p98):
+            p2 = 0
+            p98 = 10**10
+        print(f"p2: {p2}, p98: {p98}")
+
+        def scatter_points(data, label, **kwargs):
+            ax.scatter(
+                data['release_date'],
+                data['horizon_minutes'],
+                color=color,
+                label=label,
+                **kwargs
+            )
 
         # Plot non-frontier points (circles)
         if not only_frontier:
-            ax.scatter(
-                non_frontier_data['release_date'], # Use datetime objects for x-axis plotting
-                non_frontier_data['horizon_minutes'],
-                color=color,
-                marker='o',
-                label=f"_{bench}_nonfrontier", # Main label for legend
-                alpha=0.2,
-                s=50,
-                edgecolor='k', # Add edge color for better visibility
-                linewidth=0.5
-            )
+            scatter_points(non_frontier_data, f"_{bench}_nonfrontier", marker='o', alpha=0.2, s=30, edgecolor='k', linewidth=0.5)
+
+        df_within = frontier_data[(frontier_data['horizon_minutes'] > p2) & (frontier_data['horizon_minutes'] < p98)]
+        df_above = frontier_data[frontier_data['horizon_minutes'] > p98]
+        df_below = frontier_data[frontier_data['horizon_minutes'] < p2]
+
+        print(frontier_data.head())
+        print(df_within.head())
 
         # Plot frontier points (diamonds)
-        ax.scatter(
-            frontier_data['release_date'],
-            frontier_data['horizon_minutes'],
-            color=color,
-            marker='D',
-            label=f"{bench}", # Hidden label for legend
-            alpha=0.9,
-            s=60,
-            edgecolor='k',
-            linewidth=0.5
-        )
+        scatter_points(df_within, f"{bench}", marker='o', alpha=0.9, s=40, edgecolor='k', linewidth=0.5)
+        scatter_points(df_above, f"_{bench}_above", marker='P', alpha=0.9, s=30, edgecolor='k', linewidth=0.5)
+        scatter_points(df_below, f"_{bench}_below", marker='$-$', alpha=0.9, s=30, edgecolor='k', linewidth=0.5)
 
         # Fit and plot regression line using only frontier points
         if len(frontier_data) >= 2:
@@ -222,19 +225,26 @@ def plot_lines_over_time(df, output_file,
             mid_point_idx = len(x_line_num) // 2
             mid_x_num = x_line_num[mid_point_idx]
             mid_y = 2**y_line_log[mid_point_idx]
-            
-            rate_text = f"{doubling_rate:.1f} doublings/year"
-                
-            # Convert numerical date to datetime for text positioning
             mid_x = mdates.num2date(mid_x_num)
             
-            ax.text(mid_x, mid_y * 1.1, rate_text, fontsize=8, color=color, 
+            rate_text = f"{doubling_rate:.1f} dbl./yr"
+            ax.text(mid_x, mid_y * 1.1, rate_text, fontsize=10, color=color, 
                    ha='center', va='bottom', bbox=dict(facecolor='white', alpha=0.7, pad=2))
 
-            x_line_date = mdates.num2date(x_line_num)
+            x_line_date = np.array(mdates.num2date(x_line_num))
             y_line = 2.0**y_line_log
 
-            ax.plot(x_line_date, y_line, color=color, linestyle='--', linewidth=2, label=f"_{bench}_trend")
+            # Split the line into three segments based on p2 and p98
+            mask_within = (y_line >= p2) & (y_line <= p98)
+            mask_above = y_line > p98
+            mask_below = y_line < p2
+
+
+            # Plot each segment with appropriate style
+            densely_dotted = (0, (1, 1))
+            ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', linewidth=2, label=f"_{bench}_trend")
+            ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=2)
+            ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=2)
 
             # Add text labels for first and last frontier points
             if not frontier_data.empty:
@@ -253,14 +263,14 @@ def plot_lines_over_time(df, output_file,
                     texts.append(ax.text(point['release_date'],
                                          point['horizon_minutes'],
                                          model_name,
-                                         fontsize=8, color=color))
+                                         fontsize=10, color=color))
 
                 text_label(first_frontier_point)
-                if len(frontier_data_sorted) > 1:
-                    text_label(last_frontier_point)
+                text_label(last_frontier_point)
 
     ax.set_yscale('log')
     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter('{x}'))
+    ax.set_ylim(0.05, 1000)
 
     ax.set_xlabel("Model Release Date")
     ax.set_ylabel("Horizon (minutes, log scale)")

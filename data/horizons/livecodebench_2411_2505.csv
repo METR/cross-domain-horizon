@@ -1,0 +1,14 @@
+model,horizon,slope
+o4 mini,41.4233,2.6010
+grok 3 mini,36.7537,1.5561
+gemini 2.5 pro,36.4390,1.6875
+o3 mini 2025 01 31,34.7720,3.4273
+qwen3 235b a22b,31.3189,3.5670
+gemini 2.5 flash preview,29.3988,3.2362
+claude 3.7 sonnet,24.4636,2.5341
+claude 3.5 sonnet 20241022,16.6894,2.1741
+gpt 4o 2024 08 06,13.3647,2.4099
+gpt 4 turbo 2024 04 09,12.6014,2.5153
+gpt 4o mini 2024 07 18,12.5218,2.6267
+claude 3 haiku,10.1442,2.0383
+deepseek v3,8.5559,1.1870

@@ -1,0 +1,61 @@
+source = "https://livecodebench.github.io/leaderboard.html"
+
+[splits.short]
+"o4 mini" = 100.0
+"o3 mini 2025 01 31" = 100.0
+"gemini 2.5 pro" = 97.3
+"grok 3 mini" = 97.3
+"qwen3 235b a22b" = 100.0
+"gemini 2.5 flash preview" = 100.0
+"claude 3.7 sonnet" = 98.6
+"claude 3.5 sonnet 20241022" = 89.7
+"gpt 4o 2024 08 06" = 80.4
+"gpt 4o mini 2024 07 18" = 82.6
+"gpt 4 turbo 2024 04 09" = 78.9
+"deepseek v3" = 52.8
+"claude 3 haiku" = 65.7
+
+[splits.med]
+"o4 mini" = 84.1
+"o3 mini 2025 01 31" = 83.0
+"gemini 2.5 pro" = 76.1
+"grok 3 mini" = 72.7
+"qwen3 235b a22b" = 75.0
+"gemini 2.5 flash preview" = 63.6
+"claude 3.7 sonnet" = 54.5
+"claude 3.5 sonnet 20241022" = 32.7
+"gpt 4o 2024 08 06" = 23.9
+"gpt 4o mini 2024 07 18" = 14.7
+"gpt 4 turbo 2024 04 09" = 19.5
+"deepseek v3" = 20.2
+"claude 3 haiku" = 13.0
+
+[splits.long]
+"o4 mini" = 54.0
+"o3 mini 2025 01 31" = 41.3
+"gemini 2.5 pro" = 46.0
+"grok 3 mini" = 47.6
+"qwen3 235b a22b" = 35.7
+"gemini 2.5 flash preview" = 34.9
+"claude 3.7 sonnet" = 25.4
+"claude 3.5 sonnet 20241022" = 12.8
+"gpt 4o 2024 08 06" = 5.3
+"gpt 4o mini 2024 07 18" = 6.2
+"gpt 4 turbo 2024 04 09" = 4.5
+"deepseek v3" = 7.9
+"claude 3 haiku" = 4.4
+
+[splits.all]
+"o4 mini" = 75.0
+"o3 mini 2025 01 31" = 69.1
+"gemini 2.5 pro" = 68.4
+"grok 3 mini" = 68.1
+"qwen3 235b a22b" = 64.2
+"gemini 2.5 flash preview" = 60.4
+"claude 3.7 sonnet" = 53.1
+"claude 3.5 sonnet 20241022" = 38.6
+"gpt 4o 2024 08 06" = 30.3
+"gpt 4o mini 2024 07 18" = 28.4
+"gpt 4 turbo 2024 04 09" = 28.2
+"deepseek v3" = 23.2
+"claude 3 haiku" = 22.8

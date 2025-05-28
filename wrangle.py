@@ -35,7 +35,7 @@ def load_release_dates(release_dates_file):
                 all_releases.append({'model': model, 'release_date': release_date})
                 # Add aliases with the same release date
                 for alias in aliases:
-                    all_releases.append({'model': alias, 'release_date': release_date})
+                    all_releases.append({'model': alias.lower(), 'release_date': release_date})
             else:
                  print(f"Warning: Missing release_date for model: {model} in {release_dates_file}")
 
@@ -100,7 +100,7 @@ def load_data(data_dir):
         raise ValueError("No data loaded after processing CSV files.")
 
     horizon_df = pd.concat(all_data, ignore_index=True)
-
+    horizon_df['model'] = horizon_df['model'].str.lower()
 
     # --- Load and Merge Release Dates ---
     release_df = load_release_dates(RELEASE_DATES_FILE)

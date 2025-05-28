@@ -26,7 +26,7 @@ from mle import sigmoid, estimate_params_mle, ModelParams, BenchmarkSpec, SplitS
 DEFAULT_SLOPE = 0.6
 DEFAULT_CHANCE_ACCURACY = 0.0
 
-BENCHMARKS = ["gpqa", "aime", "osworld", "video_mme", "hcast_r_s", "hendrycks_math"]
+BENCHMARKS = ["gpqa", "aime", "osworld", "video_mme", "hcast_r_s", "hendrycks_math", "livecodebench_2411_2505"]
 
 
 def expected_score(horizon: float, bspec: BenchmarkSpec, slope: float = DEFAULT_SLOPE):
@@ -150,12 +150,13 @@ def process_dataset(dataset_name: str) -> None:
     split_specs = {}
 
     use_mle = (len(data["splits"]) > 1)
+    eps = 0.0001
     for split_name, split_data in data["splits"].items():
         if split_name == "all" and use_mle:
             continue
         lengths = split_data["lengths"]
         scores = scores_data["splits"][split_name]
-        scores = {k: float(v) / 100 for k, v in scores.items()}
+        scores = {k: min(1.0 - eps, max(eps, float(v) / 100)) for k, v in scores.items()}
         assert all(0 <= score <= 1 for score in scores.values())
         n_questions = len(lengths)
         split_specs[split_name] = SplitSpec(lengths=lengths, scores=scores)

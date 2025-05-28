@@ -31,7 +31,7 @@ plotting_aliases = {
     "openai_gpt_3_5": "GPT-3.5",
     "anthropic_claude_3_7_sonnet": "Claude 3.7",
     "openai_gpt_2": "GPT-2",
-    "davinci-002 175B": "GPT-3",
+    "davinci-002 175b": "GPT-3",
     "ui_tars_1_5": "TARS 1.5",
 }
 
@@ -361,23 +361,26 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     fig, ax = plt.subplots(figsize=(10, 6))
     add_watermark(ax)
 
-    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "tesla_fsd"]
+    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "tesla_fsd", "livecodebench_2411_2505"]
 
     df_to_use = df[df['benchmark'].isin(benchmarks_to_use)]
+
+    print(df_to_use[df_to_use['benchmark'] == "livecodebench_2411_2505"])
 
     arr = mpatches.FancyArrowPatch((0.2, 0.05), (0.8, 0.05),
                                arrowstyle='->,head_width=.15', mutation_scale=20,
                                transform=ax.transAxes)
     ax.add_patch(arr)
-    ax.annotate("Human task length is a BETTER predictor of model success", (.5, 1), xycoords=arr, ha='center', va='bottom', fontsize=12)
+    ax.annotate("Model success depends MORE on human task length", (.5, 1), xycoords=arr, ha='center', va='bottom', fontsize=12)
 
 
     sns.scatterplot(data=df_to_use, y='horizon', x='slope', hue='benchmark', ax=ax)
 
     
 
-    ax.set_xlim(0, 1)
+    ax.set_xlim(0.05, 5)
     ax.set_yscale('log')
+    ax.set_xscale('log')
     ax.set_ylim(bottom=0.1)
     ax.set_title("Length-dependence of each benchmark (each point is a model)")
     ax.legend()

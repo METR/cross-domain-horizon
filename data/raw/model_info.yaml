@@ -11,10 +11,13 @@ model_info:
       - anthropic_claude_3_5_haiku
   anthropic_claude_3_haiku:
     release_date: 2024-03-13
+    aliases:
+      - "claude 3 haiku"
   anthropic_claude_3_5_sonnet_latest:
     release_date: 2024-10-22
     aliases:
       - "Claude 3.6 Sonnet"
+      - "claude 3.5 sonnet 20241022"
   anthropic_claude_3_5_sonnet_old:
     release_date: 2024-06-20
     aliases:
@@ -47,6 +50,9 @@ model_info:
     release_date: 2025-01-20
   deepseek_v3:
     release_date: 2024-12-26
+    aliases:
+      - "DeepSeek-V3"
+      - "deepseek v3"
   deepseek_v3_03_24_2025:
     release_date: 2025-03-24
   google_gemini_1_5_flash_002:
@@ -65,6 +71,14 @@ model_info:
      - Gemini 2.0 Flash Experimental
   google_gemini_2_5_pro_exp:
     release_date: 2025-03-28
+    aliases:
+      - "Gemini-2.5-Pro"
+      - "gemini 2.5 pro"
+  google_gemini_2_5_flash_preview:
+    release_date: 2025-03-28
+    aliases:
+      - "Gemini-2.5-Flash-Preview"
+      - "gemini 2.5 flash preview"
   google_gemini_pro:
     release_date: 2023-12-13
     aliases:
@@ -126,6 +140,7 @@ model_info:
       - openai_gpt_4_turbo_0409
       - "GPT-4 Turbo (MACM, w/code, voting)"
       - "GPT-4 Turbo"
+      - "gpt 4 turbo 2024 04 09"
   openai_gpt_4_1106:
     release_date: 2023-11-06
   openai_gpt_4_vision:
@@ -138,12 +153,15 @@ model_info:
       - "GPT-4o"
   openai_gpt_4o_2024_08_06:
     release_date: 2024-08-06
+    aliases:
+      - "gpt 4o 2024 08 06"
   openai_gpt_4o_2024_11_20:
     release_date: 2024-11-20
   openai_gpt_4o_mini:
     release_date: 2024-07-18
     aliases:
       - "GPT-4o mini"
+      - "gpt 4o mini 2024 07 18"
   openai_o1:
     release_date: 2024-12-05
     aliases:
@@ -154,14 +172,21 @@ model_info:
     release_date: 2025-01-31
     aliases:
       - "o3-mini-high"
+      - "o3 mini 2025 01 31"
   openai_cua:
     release_date: 2025-01-23
   openai_o3:
     release_date: 2025-04-16
   openai_o4_mini:
     release_date: 2025-04-16
+    aliases:
+      - "o4 mini"
   qwen_2_5_vl_72b:
     release_date: 2024-09-19
+  qwen3_235b_a22b:
+    release_date: 2025-04-28
+    aliases:
+      - "qwen3 235b a22b"
   qwen_vl_max_0809:
     release_date: unknown
   ui_tars_1_5:

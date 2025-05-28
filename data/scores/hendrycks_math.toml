@@ -1,6 +1,9 @@
 source = "https://huggingface.co/datasets/nlile/math_benchmark_test_saturation"
 
 [splits.all]
+"GPT-3 175B" = 5.2
+GPT-4o = 76.6
+"Claude 3.5 Sonnet" = 71.1
 "Gemini 2.0 Flash Experimental" = 89.7
 "Qwen2.5-Math-72B-Instruct" = 88.1
 "GPT-4 Turbo" = 87.92

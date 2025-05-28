@@ -7,6 +7,7 @@ import matplotlib.ticker as mticker
 import numpy as np
 import os
 import pandas as pd
+import matplotlib.patches as mpatches
 import pathlib
 import seaborn as sns
 import toml
@@ -341,6 +342,12 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
 
     df_to_use = df[df['benchmark'].isin(benchmarks_to_use)]
 
+    arr = mpatches.FancyArrowPatch((0.2, 0.05), (0.8, 0.05),
+                               arrowstyle='->,head_width=.15', mutation_scale=20,
+                               transform=ax.transAxes)
+    ax.add_patch(arr)
+    ax.annotate("Human task length is a BETTER predictor of model success", (.5, 1), xycoords=arr, ha='center', va='bottom', fontsize=12)
+
 
     sns.scatterplot(data=df_to_use, y='horizon', x='slope', hue='benchmark', ax=ax)
 
@@ -349,7 +356,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     ax.set_xlim(0, 1)
     ax.set_yscale('log')
     ax.set_ylim(bottom=0.1)
-    ax.set_title("Length-dependence of each benchmark \n Higher slope --> more length-dependent")
+    ax.set_title("Length-dependence of each benchmark (each point is a model)")
     ax.legend()
 
     plt.savefig(output_file)

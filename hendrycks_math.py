@@ -16,7 +16,12 @@ source = "nlile/math_benchmark_test_saturation"
 ds = load_dataset(source)["train"]
 
 # Get the scores for each model
-scores = {}
+scores = {
+    "GPT-3 175B": 5.2,
+    "GPT-4o": 76.6,
+    "Claude 3.5 Sonnet": 71.1,
+
+}
 for i, row in enumerate(ds):
     # bsaelines have no code, so it's unfair to use code
     if "w/ code" in row["model"]:

@@ -9,10 +9,13 @@ import os
 import pandas as pd
 import matplotlib.patches as mpatches
 import pathlib
+import matplotlib.patheffects as patheffects
 import seaborn as sns
 import toml
-from scipy.interpolate import UnivariateSpline, PchipInterpolator
-
+from scipy.interpolate import UnivariateSpline
+from enum import Enum
+from dataclasses import dataclass, field
+from functools import total_ordering
 import wrangle
 
 BENCHMARKS_PATH = 'data/benchmarks'
@@ -34,7 +37,27 @@ plotting_aliases = {
     "openai_gpt_2": "GPT-2",
     "davinci-002 175b": "GPT-3",
     "ui_tars_1_5": "TARS 1.5",
+    "claude 3 haiku": "C 3 Haiku",
+    "10.8.x": "V10.8",
+    "13.2.x": "V13.2",
+    "o3-mini-high": "o3 mini",
 }
+
+@total_ordering
+class ShowPointsLevel(Enum):
+    NONE = 0
+    FIRST_AND_LAST = 1
+    FRONTIER = 2
+    ALL = 3
+    def __lt__(self, other):
+        return self.value < other.value
+
+@dataclass
+class LinesPlotParams:
+    show_points_level: ShowPointsLevel
+    show_benchmarks: list[str] = field(default_factory=list)
+    hide_benchmarks: list[str] = field(default_factory=list)
+    show_doubling_rate: bool = False
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.25):
     """Add a watermark to the current plot or specified axes."""
@@ -111,12 +134,12 @@ def plot_horizons(df, sorted_models):
     plt.close() # Close the plot to free memory
 
 
+
 def plot_lines_over_time(df, output_file,
                          benchmark_data: pd.DataFrame,
-                         show_benchmarks=None,
-                         hide_benchmarks=None,
-                         only_frontier=True):
+                         params: LinesPlotParams):
     """Generates and saves a scatter plot of horizon vs. release date with trendlines fitted in log space to frontier models."""
+
     if df.empty:
         print("No data loaded for lines over time plot.")
         return
@@ -162,11 +185,10 @@ def plot_lines_over_time(df, output_file,
 
     texts = [] # Initialize list to store text objects for adjustText
 
-
-    if hide_benchmarks:
-        benchmarks = [bench for bench in benchmarks if bench not in hide_benchmarks]
-    if show_benchmarks:
-        benchmarks = [bench for bench in benchmarks if bench in show_benchmarks]
+    if params.hide_benchmarks:
+        benchmarks = [bench for bench in benchmarks if bench not in params.hide_benchmarks]
+    if params.show_benchmarks:
+        benchmarks = [bench for bench in benchmarks if bench in params.show_benchmarks]
 
     for bench in benchmarks:
         bench_data = plot_df[plot_df['benchmark'] == bench]
@@ -191,7 +213,7 @@ def plot_lines_over_time(df, output_file,
             )
 
         # Plot non-frontier points (circles)
-        if not only_frontier:
+        if params.show_points_level >= ShowPointsLevel.ALL:
             scatter_points(non_frontier_data, f"_{bench}_nonfrontier", marker='o', alpha=0.2, s=30, edgecolor='k', linewidth=0.5)
 
         df_within = frontier_data[(frontier_data['horizon_minutes'] > p2) & (frontier_data['horizon_minutes'] < p98)]
@@ -199,9 +221,15 @@ def plot_lines_over_time(df, output_file,
         df_below = frontier_data[frontier_data['horizon_minutes'] < p2]
 
         # Plot frontier points (diamonds)
-        scatter_points(df_within, f"{bench}", marker='o', alpha=0.9, s=40, edgecolor='k', linewidth=0.5)
-        scatter_points(df_above, f"_{bench}_above", marker='P', alpha=0.9, s=30, edgecolor='k', linewidth=0.5)
-        scatter_points(df_below, f"_{bench}_below", marker='$-$', alpha=0.9, s=30, edgecolor='k', linewidth=0.5)
+        if params.show_points_level >= ShowPointsLevel.FRONTIER:
+            scatter_points(df_within, f"_{bench}", marker='o', alpha=0.9, s=15, edgecolor='k', linewidth=0.5)
+            scatter_points(df_above, f"_{bench}_above", marker='P', alpha=0.9, s=20, edgecolor='k', linewidth=0.5)
+            scatter_points(df_below, f"_{bench}_below", marker='$-$', alpha=0.9, s=20, edgecolor='k', linewidth=0.5)
+        else:
+            
+            frontier_data = frontier_data.sort_values('release_date_num')
+            selected_data = frontier_data.iloc[[0, -1]] if params.show_points_level == ShowPointsLevel.FIRST_AND_LAST else frontier_data.iloc[[]]
+            scatter_points(selected_data, f"_{bench}", marker='o', alpha=0.9, s=30, edgecolor='k', linewidth=0.5)
 
         densely_dotted = (0, (1, 1))
         # Fit and plot smoothing spline using only frontier points
@@ -215,8 +243,8 @@ def plot_lines_over_time(df, output_file,
             coeffs = np.polyfit(X, Y_log, 1)
             doubling_rate = coeffs[0] * 365  # Convert from per day to per year
 
-            # Use monotonic interpolation for display to prevent negative derivatives
-            spline = PchipInterpolator(X, Y_log)
+            # degree-1 spline to avoid negative slopes
+            spline = UnivariateSpline(X, Y_log, s=0.2, k=1)
 
             x_line_num = np.linspace(X.min(), X.max(), 100)
             y_line_log = spline(x_line_num)
@@ -227,9 +255,10 @@ def plot_lines_over_time(df, output_file,
             mid_y = 2**y_line_log[mid_point_idx]
             mid_x = mdates.num2date(mid_x_num)
             
-            rate_text = f"{doubling_rate:.1f} dbl./yr"
-            ax.text(mid_x, mid_y * 1.1, rate_text, fontsize=10, color=color, 
-                   ha='center', va='bottom', bbox=dict(facecolor='white', alpha=0.7, pad=2))
+            if params.show_doubling_rate:
+                rate_text = f"{doubling_rate:.1f} dbl./yr"
+                ax.text(mid_x, mid_y * 1.1, rate_text, fontsize=10, color=color, 
+                        ha='center', va='bottom', bbox=dict(facecolor='white', alpha=0.7, pad=2))
 
             x_line_date = np.array(mdates.num2date(x_line_num))
             y_line = 2.0**y_line_log
@@ -239,13 +268,14 @@ def plot_lines_over_time(df, output_file,
             mask_above = y_line > p98
             mask_below = y_line < p2
 
-            # Plot each segment with appropriate style
-            ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', linewidth=2, label=f"_{bench}_trend")
-            ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=2)
-            ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=2)
+            is_hcast = bench == "hcast_r_s"
+            # Plot HCAST in front and thicker
+            ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', linewidth=5 if is_hcast else 3, label=f"{bench}", zorder=100 if is_hcast else None)
+            ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=3)
+            ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=3)
 
             # Add text labels for first and last frontier points
-            if not frontier_data.empty:
+            if not frontier_data.empty and params.show_points_level >= ShowPointsLevel.FIRST_AND_LAST:
                 # Sort frontier_data by release date to ensure first and last are correct
                 frontier_data_sorted = frontier_data.sort_values('release_date')
                 first_frontier_point = frontier_data_sorted.iloc[0]
@@ -272,7 +302,7 @@ def plot_lines_over_time(df, output_file,
     ax.set_xlabel("Model Release Date")
     ax.set_ylabel("Horizon (minutes, log scale)")
     ax.set_title("Model Horizon vs. Release Date (Log Scale, Trend on Frontier)")
-    ax.grid(True, which="both", ls="--", linewidth=0.5, alpha=0.5)
+    ax.grid(True, which="major", ls="--", linewidth=0.5, alpha=0.4)
 
     # Format x-axis dates
     ax.xaxis.set_major_locator(mdates.YearLocator())
@@ -288,16 +318,21 @@ def plot_lines_over_time(df, output_file,
     # Create a legend
     handles, labels = ax.get_legend_handles_labels()
 
-
+    legend2_handles = []
     handle1, = ax.plot([], [], color='black', linestyle='-', linewidth=2, label="Range of task lengths\n in the benchmark")
-    handle2, = ax.plot([], [], color='black', linestyle=densely_dotted, linewidth=2, label="Above/below range")
-    handle3 = ax.scatter([], [], color='black', marker='o', alpha=0.9, s=40, edgecolor='k', linewidth=0.5, label="Models in range")
-    handle4 = ax.scatter([], [], color='black', marker='P', alpha=0.9, s=30, edgecolor='k', linewidth=0.5, label="Above range")
-    handle5 = ax.scatter([], [], color='black', marker='$-$', alpha=0.9, s=30, edgecolor='k', linewidth=0.5, label="Below range")
-    trend_legend = ax.legend(handles=[handle1, handle2, handle3, handle4, handle5], title="Markers", bbox_to_anchor=(1.05, 0.5), loc='upper left')
-    # ax.add_artist(trend_legend)
+    legend2_handles.append(handle1)
+    handle2, = ax.plot([], [], color='black', linestyle=densely_dotted, linewidth=2, label="Extrapolated\n (above/below range)")
+    legend2_handles.append(handle2)
+    if params.show_points_level >= ShowPointsLevel.FRONTIER:
+        handle3 = ax.scatter([], [], color='black', marker='o', alpha=0.9, s=40, edgecolor='k', linewidth=0.5, label="Models in range")
+        legend2_handles.append(handle3)
+        handle4 = ax.scatter([], [], color='black', marker='P', alpha=0.9, s=30, edgecolor='k', linewidth=0.5, label="Above range")
+        legend2_handles.append(handle4)
+        handle5 = ax.scatter([], [], color='black', marker='$-$', alpha=0.9, s=30, edgecolor='k', linewidth=0.5, label="Below range")
+        legend2_handles.append(handle5)
+    trend_legend = ax.legend(handles=legend2_handles, title="Trendlines\n(smoothed splines)", bbox_to_anchor=(0.02, 0.5), loc='upper left')
 
-    bench_legend = ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(1.05, 1), loc='upper left')
+    bench_legend = ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(0.02, 1), loc='upper left')
     ax.add_artist(trend_legend)
 
 
@@ -461,8 +496,8 @@ def main():
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:
         # Generate and save the lines over time plot using the original loaded data
-        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, hide_benchmarks=["hcast_r_s_full_method"]) # Use copy
-        plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"])
+        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.NONE)) # Use copy
+        plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, LinesPlotParams(show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER))
 
 
     # --- Benchmark Task Lengths Plot ---

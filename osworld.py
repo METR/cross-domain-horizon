@@ -12,6 +12,7 @@ import toml
 
 median_time = 111.94 / 60
 n_tasks = 369
+human_success_rate = 0.7236
 output_dir = "data/benchmarks"
 output_filename = os.path.join(output_dir, "osworld.toml")
 
@@ -33,6 +34,8 @@ probabilities = [(i + 1) / (n_tasks + 1) for i in range(n_tasks)]
 # Calculate task completion times using the Percent Point Function (ppf) - inverse CDF
 # scipy.stats.lognorm uses s=sigma and scale=exp(mu)
 sampled_times = lognorm.ppf(probabilities, s=sigma, scale=math.exp(mu))
+
+sampled_times = sampled_times / human_success_rate
 
 # Format the times to 3 decimal places
 times = [float(round(t, 3)) for t in sampled_times]

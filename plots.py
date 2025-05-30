@@ -21,11 +21,25 @@ import wrangle
 BENCHMARKS_PATH = 'data/benchmarks'
 
 BAR_PLOT_OUTPUT_FILE = 'plots/all_bar.png'
-SCATTER_PLOT_OUTPUT_FILE = 'plots/scatter.png' # New output file
-LINES_PLOT_OUTPUT_FILE = 'plots/lines_over_time.png' # New output file for lines plot
+SCATTER_PLOT_OUTPUT_FILE = 'plots/scatter.png'
+LINES_PLOT_OUTPUT_FILE = 'plots/lines_over_time.png'
+LINES_SUBPLOTS_OUTPUT_FILE = 'plots/lines_over_time_subplots.png'
 BENCHMARK_TASK_LENGTHS_OUTPUT_FILE = 'plots/benchmark_task_lengths.png'
 LENGTH_DEPENDENCE_OUTPUT_FILE = 'plots/length_dependence.png'
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
+
+
+benchmark_aliases = {
+    "aime": "AIME",
+    "gpqa": "GPQA",
+    "hcast_r_s": "HCAST/RS",
+    "hcast_r_s_full_method": "HCAST/RS (Full Method)",
+    "hendrycks_math": "MATH",
+    "livecodebench_2411_2505": "LiveCodeBench",
+    "osworld": "OSWorld",
+    "tesla_fsd": "Tesla FSD",
+    "video_mme": "Video-MME",
+}
 
 plotting_aliases = {
     "google_gemini_1_5_pro_002": "G 1.5 Pro",
@@ -58,6 +72,7 @@ class LinesPlotParams:
     show_benchmarks: list[str] = field(default_factory=list)
     hide_benchmarks: list[str] = field(default_factory=list)
     show_doubling_rate: bool = False
+    subplots: bool = False
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.25):
     """Add a watermark to the current plot or specified axes."""
@@ -178,7 +193,12 @@ def plot_lines_over_time(df, output_file,
         if frontier_indices:
             plot_df.loc[frontier_indices, 'is_frontier'] = True
 
-    fig, ax = plt.subplots(figsize=(12, 8))
+    if params.subplots:
+        # last subplot contains legend
+        fig, axs = plt.subplots(figsize=(12, 8), nrows=(len(benchmarks) + 1) // 3, ncols=3, sharex=True, sharey=True)
+        axs = axs.flatten()
+    else:
+        fig, ax = plt.subplots(figsize=(12, 8))
 
     palette = sns.color_palette(n_colors=len(benchmarks))
     benchmark_colors = {bench: color for bench, color in zip(benchmarks, palette)}
@@ -191,6 +211,10 @@ def plot_lines_over_time(df, output_file,
         benchmarks = [bench for bench in benchmarks if bench in params.show_benchmarks]
 
     for bench in benchmarks:
+        if params.subplots:
+            ax = axs[benchmarks.index(bench)]
+            ax.set_title(benchmark_aliases[bench], fontsize=10)
+
         bench_data = plot_df[plot_df['benchmark'] == bench]
         color = benchmark_colors[bench]
         frontier_data = bench_data[bench_data['is_frontier']]
@@ -270,7 +294,7 @@ def plot_lines_over_time(df, output_file,
 
             is_hcast = bench == "hcast_r_s"
             # Plot HCAST in front and thicker
-            ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', linewidth=5 if is_hcast else 3, label=f"{bench}", zorder=100 if is_hcast else None)
+            ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', linewidth=5 if is_hcast else 3, label=f"{benchmark_aliases[bench]}", zorder=100 if is_hcast else None)
             ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=3)
             ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=3)
 
@@ -297,12 +321,19 @@ def plot_lines_over_time(df, output_file,
 
     ax.set_yscale('log')
     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter('{x}'))
-    ax.set_ylim(0.05, 1000)
+    plt.ylim(0.05, 1000)
 
-    ax.set_xlabel("Model Release Date")
-    ax.set_ylabel("Time Horizon (minutes, log scale)")
-    ax.set_title("Time Horizon vs. Release Date (Log Scale, Trend on Frontier)")
-    ax.grid(True, which="major", ls="--", linewidth=0.5, alpha=0.4)
+    if params.subplots:
+        fig.suptitle("Time Horizon vs. Release Date (Log Scale, Trend on Frontier)")
+        fig.supxlabel("Model Release Date")
+        fig.supylabel("Time Horizon (minutes)")
+    else:
+        plt.xlabel("Model Release Date")
+        plt.ylabel("Time Horizon (minutes)")
+        plt.title("Time Horizon vs. Release Date (Log Scale, Trend on Frontier)")
+        ax.grid(True, which="major", ls="--", linewidth=0.5, alpha=0.4)
+
+
 
     # Format x-axis dates
     ax.xaxis.set_major_locator(mdates.YearLocator())
@@ -310,36 +341,39 @@ def plot_lines_over_time(df, output_file,
     ax.xaxis.set_minor_locator(mdates.MonthLocator(bymonth=[1, 4, 7, 10]))
     fig.autofmt_xdate(rotation=45, ha='right') # Auto-format dates (includes rotation)
 
-    # Adjust text to prevent overlap
-    if texts:
-        adjustText.adjust_text(texts, ax=ax,
-                               arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
 
     # Create a legend
     handles, labels = ax.get_legend_handles_labels()
 
-    legend2_handles = []
-    handle1, = ax.plot([], [], color='black', linestyle='-', linewidth=2, label="Range of task lengths\n in the benchmark")
-    legend2_handles.append(handle1)
-    handle2, = ax.plot([], [], color='black', linestyle=densely_dotted, linewidth=2, label="Extrapolated\n (above/below range)")
-    legend2_handles.append(handle2)
-    if params.show_points_level >= ShowPointsLevel.FRONTIER:
-        handle3 = ax.scatter([], [], color='black', marker='o', alpha=0.9, s=40, edgecolor='k', linewidth=0.5, label="Models in range")
-        legend2_handles.append(handle3)
-        handle4 = ax.scatter([], [], color='black', marker='P', alpha=0.9, s=30, edgecolor='k', linewidth=0.5, label="Above range")
-        legend2_handles.append(handle4)
-        handle5 = ax.scatter([], [], color='black', marker='$-$', alpha=0.9, s=30, edgecolor='k', linewidth=0.5, label="Below range")
-        legend2_handles.append(handle5)
-    trend_legend = ax.legend(handles=legend2_handles, title="Trendlines\n(smoothed splines)", bbox_to_anchor=(0.02, 0.5), loc='upper left')
+    trend_legend_handles = []
+    handle1, = ax.plot([], [], color='black', linestyle='-', linewidth=2, label="Inside range")
+    trend_legend_handles.append(handle1)
+    handle2, = ax.plot([], [], color='black', linestyle=densely_dotted, alpha=0.4, linewidth=2, label="Outside range")
+    trend_legend_handles.append(handle2)
 
-    bench_legend = ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(0.02, 1), loc='upper left')
-    ax.add_artist(trend_legend)
+    if params.subplots:
+        trend_legend_ax = axs[-1]
+    else:
+        trend_legend_ax = ax
 
+    trend_legend = trend_legend_ax.legend(handles=trend_legend_handles, title="Range of task lengths\n in benchmark", bbox_to_anchor=(0.02, 0.5), loc='center left')
 
+    
+    if not params.subplots:
+        bench_legend = ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(0.02, 1), loc='upper left')
+        ax.add_artist(trend_legend)
+
+        if texts:
+            adjustText.adjust_text(texts, ax=ax,
+                                arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
 
     add_watermark(ax)
 
-    plt.tight_layout() # Adjust layout for legend
+    if params.subplots:
+        for i in range(len(benchmarks), len(axs)):
+            axs[i].set_axis_off()
+
+    plt.tight_layout()
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
@@ -498,6 +532,7 @@ def main():
         # Generate and save the lines over time plot using the original loaded data
         plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.NONE)) # Use copy
         plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, LinesPlotParams(show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER))
+        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.ALL, subplots=True))
 
 
     # --- Benchmark Task Lengths Plot ---

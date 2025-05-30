@@ -12,7 +12,7 @@ import pathlib
 import matplotlib.patheffects as patheffects
 import seaborn as sns
 import toml
-from scipy.interpolate import UnivariateSpline
+from scipy.interpolate import make_splrep
 from enum import Enum
 from dataclasses import dataclass, field
 from functools import total_ordering
@@ -244,7 +244,7 @@ def plot_lines_over_time(df, output_file,
             doubling_rate = coeffs[0] * 365  # Convert from per day to per year
 
             # degree-1 spline to avoid negative slopes
-            spline = UnivariateSpline(X, Y_log, s=0.2, k=1)
+            spline = make_splrep(X, Y_log, s=0.2, k=1)
 
             x_line_num = np.linspace(X.min(), X.max(), 100)
             y_line_log = spline(x_line_num)
@@ -300,8 +300,8 @@ def plot_lines_over_time(df, output_file,
     ax.set_ylim(0.05, 1000)
 
     ax.set_xlabel("Model Release Date")
-    ax.set_ylabel("Horizon (minutes, log scale)")
-    ax.set_title("Model Horizon vs. Release Date (Log Scale, Trend on Frontier)")
+    ax.set_ylabel("Time Horizon (minutes, log scale)")
+    ax.set_title("Time Horizon vs. Release Date (Log Scale, Trend on Frontier)")
     ax.grid(True, which="major", ls="--", linewidth=0.5, alpha=0.4)
 
     # Format x-axis dates

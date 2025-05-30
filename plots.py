@@ -238,17 +238,15 @@ def plot_lines_over_time(df, output_file,
 
         # Plot non-frontier points (circles)
         if params.show_points_level >= ShowPointsLevel.ALL:
-            scatter_points(non_frontier_data, f"_{bench}_nonfrontier", marker='o', alpha=0.2, s=30, edgecolor='k', linewidth=0.5)
+            scatter_points(non_frontier_data, f"_{bench}_nonfrontier", marker='o', alpha=0.2, s=20, edgecolor='k', linewidth=0.5)
 
         df_within = frontier_data[(frontier_data['horizon_minutes'] > p2) & (frontier_data['horizon_minutes'] < p98)]
-        df_above = frontier_data[frontier_data['horizon_minutes'] > p98]
-        df_below = frontier_data[frontier_data['horizon_minutes'] < p2]
+        df_outside = frontier_data[(frontier_data['horizon_minutes'] > p98) | (frontier_data['horizon_minutes'] < p2)]
 
         # Plot frontier points (diamonds)
         if params.show_points_level >= ShowPointsLevel.FRONTIER:
             scatter_points(df_within, f"_{bench}", marker='o', alpha=0.9, s=15, edgecolor='k', linewidth=0.5)
-            scatter_points(df_above, f"_{bench}_above", marker='P', alpha=0.9, s=20, edgecolor='k', linewidth=0.5)
-            scatter_points(df_below, f"_{bench}_below", marker='$-$', alpha=0.9, s=20, edgecolor='k', linewidth=0.5)
+            scatter_points(df_outside, f"_{bench}_outside", marker='D', alpha=0.9, s=20, linewidth=0.5)
         else:
             
             frontier_data = frontier_data.sort_values('release_date_num')
@@ -292,9 +290,9 @@ def plot_lines_over_time(df, output_file,
             mask_above = y_line > p98
             mask_below = y_line < p2
 
-            is_hcast = bench == "hcast_r_s"
-            # Plot HCAST in front and thicker
-            ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', linewidth=5 if is_hcast else 3, label=f"{benchmark_aliases[bench]}", zorder=100 if is_hcast else None)
+            thick = (bench == "hcast_r_s") and not params.subplots
+
+            ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', linewidth=5 if thick else 3, label=f"{benchmark_aliases[bench]}", zorder=100 if thick else None)
             ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=3)
             ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=3)
 
@@ -351,10 +349,7 @@ def plot_lines_over_time(df, output_file,
     handle2, = ax.plot([], [], color='black', linestyle=densely_dotted, alpha=0.4, linewidth=2, label="Outside range")
     trend_legend_handles.append(handle2)
 
-    if params.subplots:
-        trend_legend_ax = axs[-1]
-    else:
-        trend_legend_ax = ax
+    trend_legend_ax = axs[-1] if params.subplots else ax
 
     trend_legend = trend_legend_ax.legend(handles=trend_legend_handles, title="Range of task lengths\n in benchmark", bbox_to_anchor=(0.02, 0.5), loc='center left')
 
@@ -532,7 +527,7 @@ def main():
         # Generate and save the lines over time plot using the original loaded data
         plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.NONE)) # Use copy
         plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, LinesPlotParams(show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER))
-        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.ALL, subplots=True))
+        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True))
 
 
     # --- Benchmark Task Lengths Plot ---

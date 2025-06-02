@@ -107,6 +107,7 @@ assert len(all_lengths) == n_questions
 benchmark_data = dict(
     n_questions=n_questions,
     chance_accuracy=0.0,
+    length_type="estimate",
     splits=dict(all=dict(lengths=all_lengths))
 )
 

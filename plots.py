@@ -245,8 +245,8 @@ def plot_lines_over_time(df, output_file,
 
         # Plot frontier points (diamonds)
         if params.show_points_level >= ShowPointsLevel.FRONTIER:
-            scatter_points(df_within, f"_{bench}", marker='o', alpha=0.9, s=15, edgecolor='k', linewidth=0.5)
-            scatter_points(df_outside, f"_{bench}_outside", marker='D', alpha=0.9, s=20, linewidth=0.5)
+            scatter_points(df_within, f"_{bench}", marker='o', alpha=0.9, s=12, edgecolor='k', linewidth=0.5)
+            scatter_points(df_outside, f"_{bench}_outside", marker='D', alpha=0.9, s=15, linewidth=0.5)
         else:
             
             frontier_data = frontier_data.sort_values('release_date_num')
@@ -386,9 +386,9 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
 
     
     length_to_color_map = {
-        "baseline": "blue",
-        "estimate": "grey",
-        "default": "black"
+        "baseline": "royalblue",
+        "estimate": "darkred",
+        "default": "grey"
     }
 
     # Create a DataFrame for seaborn
@@ -412,20 +412,30 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
     
     kwargs = {"label": f"Frontier (max horizon)"}
     for benchmark, horizon in s_frontier.items():
-        plt.scatter(benchmark, horizon, color='darkred', edgecolor='black', marker='D', s=100, zorder=3, **kwargs)
+        plt.scatter(benchmark, horizon, color='white', edgecolor='black', marker='*', s=130, zorder=3, **kwargs)
         kwargs = {}
 
     # Legend
     plt.plot([], [], color='black', linewidth=2, label="Quantiles (10/25/50/75/90%)")
-    plt.scatter([], [], color='blue', marker='o', s=20, label="Individual task")
-    plt.scatter([], [], color='grey', marker='o', s=20, label="Individual task (estimated)")
+    plt.scatter([], [], color='royalblue', marker='o', s=20, label="Individual task")
+    plt.scatter([], [], color='darkred', marker='o', s=20, label="Individual task (estimated)")
     plt.legend()
 
+    plt.grid(True, which="major", axis="y",ls="--", linewidth=0.5, alpha=0.4)
 
     plt.yscale('log')
     plt.ylabel('Length (minutes)')
     plt.xlabel('Benchmark')
     plt.title('Task Lengths By Benchmark')
+
+    
+    # Replace x-axis tick labels with benchmark aliases
+    ax = plt.gca()
+    tick_labels = ax.get_xticklabels()
+    new_labels = [benchmark_aliases.get(label.get_text(), label.get_text()) for label in tick_labels]
+    ax.set_xticklabels(new_labels)
+
+    
     
     add_watermark()
     
@@ -525,7 +535,7 @@ def main():
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:
         # Generate and save the lines over time plot using the original loaded data
-        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.NONE)) # Use copy
+        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER)) # Use copy
         plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, LinesPlotParams(show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER))
         plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True))
 

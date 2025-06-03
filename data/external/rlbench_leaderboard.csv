@@ -1,0 +1,19 @@
+score,date,model,paper_link
+89.4,2025-05-27,EquAct,https://paperswithcode.com/paper/equact-an-se-3-equivariant-multi-task-1
+86.8,2025-01-30,SAM2Act,https://paperswithcode.com/paper/sam2act-integrating-visual-foundation-model-1
+84.9,2024-10-04,ARP+,https://paperswithcode.com/paper/autoregressive-action-sequence-learning-for
+83.1,2024-10-02,3D-LOTUS,https://paperswithcode.com/paper/towards-generalizable-vision-language-robotic
+81.4,2024-06-12,RVT-2,https://paperswithcode.com/paper/rvt-2-learning-precise-manipulation-from-few
+81.3,2024-02-18,3D Diffuser Actor,https://paperswithcode.com/paper/3d-diffuser-actor-policy-diffusion-with-3d
+77.6,2025-05-14,Mini Diffuser,https://paperswithcode.com/paper/train-a-multi-task-diffusion-policy-on
+70.6,2024-05-30,SAM-E,https://paperswithcode.com/paper/sam-e-leveraging-visual-foundation-model-with
+65,2023-06-30,Act3D,https://paperswithcode.com/paper/act3d-infinite-resolution-action-detection
+62.9,2023-06-26,RVT,https://paperswithcode.com/paper/rvt-robotic-view-transformer-for-3d-object
+49.4,2022-09-12,PerAct (Evaluated in RVT),https://paperswithcode.com/paper/perceiver-actor-a-multi-task-transformer-for
+46.4,2023-09-27,PolarNet,https://paperswithcode.com/paper/polarnet-3d-point-clouds-for-language-guided
+45.3,2022-09-11,Hiveformer,https://paperswithcode.com/paper/instruction-driven-history-aware-policies-for
+42.7,2022-09-12,PerAct,https://paperswithcode.com/paper/perceiver-actor-a-multi-task-transformer-for
+20.1,Unknown,C2FARM-BC (Evaluated in PerAct),https://paperswithcode.com/paper/coarse-to-fine-q-attention-efficient-learning
+1.3,2022-09-12,Image-BC VIT,https://paperswithcode.com/paper/perceiver-actor-a-multi-task-transformer-for
+1.3,2022-09-12,Image-BC CNN,https://paperswithcode.com/paper/perceiver-actor-a-multi-task-transformer-for
+N/A,2022-02-07,Auto-λ,https://paperswithcode.com/paper/auto-lambda-disentangling-dynamic-task

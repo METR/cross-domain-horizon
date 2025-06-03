@@ -8,24 +8,13 @@ import argparse
 from scipy.stats import beta as beta_dist
 from scipy.optimize import minimize
 from collections import namedtuple
-
+from classes import BenchmarkScoresSpec
 
 @dataclass
 class ModelParams:
     horizon: float
     slope: float | None
     slope_method: str | None = None
-
-@dataclass
-class SplitSpec:
-    lengths: list[int]
-    scores: dict[str, float]
-
-@dataclass
-class BenchmarkSpec:
-    name: str
-    chance_accuracy: float
-    splits: dict[str, SplitSpec]
 
 def sigmoid(horizon, task_len, slope, chance_accuracy) -> np.ndarray:
     result = 1 / (1 + np.exp(slope * (-np.log2(horizon) + np.log2(task_len))))
@@ -55,7 +44,7 @@ def beta_nlog_likelihood(params, model_name, observed_scores:dict[str, float], t
         ll += beta_dist.logpdf(score, alpha, beta)
     return -ll
 
-def estimate_params_mle(model_name: str, bspec: BenchmarkSpec):
+def estimate_params_mle(model_name: str, bspec: BenchmarkScoresSpec):
     """
     Uses MLE, specifically scipy.optimize.minimize, to find the horizon
     and slope consistent with the observed scores

@@ -122,6 +122,8 @@ def scrape_rlbench_leaderboard():
     except Exception as e:
         print(f"Failed to fetch RLBench leaderboard data: {e}")
         return None
+    
+
 
 def main():
     """

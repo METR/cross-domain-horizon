@@ -8,8 +8,13 @@ Estimate the time horizon of AIs over time on various domains like knowledge and
 - Only models that get between 10% and 90% on some benchmark are counted
 - The best agent is used on each model
 
-
 ### Usage
+
+First run
+
+```
+pip install requirements.txt --no-deps
+```
 
 * Run benchmark-specific `.py` files to load scores for each dataset. Some also calculate horizons.
 

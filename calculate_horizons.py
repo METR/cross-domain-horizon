@@ -21,7 +21,7 @@ from typing import Iterator
 import tomllib
 import argparse
 
-from mle import sigmoid, estimate_params_mle, ModelParams, BenchmarkSpec, SplitSpec
+from mle import sigmoid, estimate_params_mle, ModelParams, BenchmarkScoresSpec, SplitSpec
 
 DEFAULT_SLOPE = 0.6
 DEFAULT_CHANCE_ACCURACY = 0.0
@@ -29,7 +29,7 @@ DEFAULT_CHANCE_ACCURACY = 0.0
 BENCHMARKS = ["gpqa", "aime", "osworld", "video_mme", "hcast_r_s", "hendrycks_math", "livecodebench_2411_2505"]
 
 
-def expected_score(horizon: float, bspec: BenchmarkSpec, slope: float = DEFAULT_SLOPE):
+def expected_score(horizon: float, bspec: BenchmarkScoresSpec, slope: float = DEFAULT_SLOPE):
     """
     Gets expected score that horizon `horizon` will produce
     Input:
@@ -40,7 +40,7 @@ def expected_score(horizon: float, bspec: BenchmarkSpec, slope: float = DEFAULT_
     return np.mean(probs_for_horizon)
 
 
-def initial_estimate(score: int, bspec: BenchmarkSpec):
+def initial_estimate(score: int, bspec: BenchmarkScoresSpec):
     """
     Estimates the horizon as the value of h for which
     a model would get score `score` with horizon h
@@ -48,7 +48,7 @@ def initial_estimate(score: int, bspec: BenchmarkSpec):
     lengths = sorted(bspec.splits["all"].lengths)
     return lengths[min(len(lengths) - 1, int(score))]
 
-def estimate_horizon_binsearch(score: int, bspec: BenchmarkSpec, n_iterations=100, min_horizon=None, max_horizon=None):
+def estimate_horizon_binsearch(score: int, bspec: BenchmarkScoresSpec, n_iterations=100, min_horizon=None, max_horizon=None):
     """
     Estimates the horizon as the value of h for which
     a model would get mean score `score` with horizon h
@@ -110,7 +110,7 @@ def estimate_horizon_binsearch(score: int, bspec: BenchmarkSpec, n_iterations=10
             
     return ModelParams(horizon=float(np.exp(log_horizon)), slope=DEFAULT_SLOPE)
 
-def estimate_horizons(scores: dict[str, int], bspec: BenchmarkSpec, mle: bool) -> dict[str, float]:
+def estimate_horizons(scores: dict[str, int], bspec: BenchmarkScoresSpec, mle: bool) -> dict[str, float]:
     """
     Estimates time horizon for each model given score and question lengths in minutes
 
@@ -162,7 +162,7 @@ def process_dataset(dataset_name: str) -> None:
         split_specs[split_name] = SplitSpec(lengths=lengths, scores=scores)
 
 
-    bspec = BenchmarkSpec(name=dataset_name, chance_accuracy=chance_accuracy, splits=split_specs)
+    bspec = BenchmarkScoresSpec(name=dataset_name, chance_accuracy=chance_accuracy, splits=split_specs)
     print(f"Estimating horizons for {dataset_name} {'with MLE' if use_mle else 'with binsearch'}")
     horizons = estimate_horizons(scores, bspec=bspec, mle=use_mle)
 

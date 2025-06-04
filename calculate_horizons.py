@@ -20,13 +20,15 @@ import pathlib
 from typing import Iterator
 import tomllib
 import argparse
+import logging
 
-from mle import sigmoid, estimate_params_mle, ModelParams, BenchmarkScoresSpec, SplitSpec
+from classes import BenchmarkScoresSpec, SplitScoresSpec
+from mle import sigmoid, estimate_params_mle, ModelParams
 
 DEFAULT_SLOPE = 0.6
 DEFAULT_CHANCE_ACCURACY = 0.0
 
-BENCHMARKS = ["gpqa", "aime", "osworld", "video_mme", "hcast_r_s", "hendrycks_math", "livecodebench_2411_2505"]
+BENCHMARKS = ["gpqa", "gpqa_diamond","aime", "osworld", "video_mme", "hcast_r_s", "hendrycks_math", "livecodebench_2411_2505"]
 
 
 def expected_score(horizon: float, bspec: BenchmarkScoresSpec, slope: float = DEFAULT_SLOPE):
@@ -159,11 +161,11 @@ def process_dataset(dataset_name: str) -> None:
         scores = {k: min(1.0 - eps, max(eps, float(v) / 100)) for k, v in scores.items()}
         assert all(0 <= score <= 1 for score in scores.values())
         n_questions = len(lengths)
-        split_specs[split_name] = SplitSpec(lengths=lengths, scores=scores)
+        split_specs[split_name] = SplitScoresSpec(lengths=lengths, scores=scores)
 
 
     bspec = BenchmarkScoresSpec(name=dataset_name, chance_accuracy=chance_accuracy, splits=split_specs)
-    print(f"Estimating horizons for {dataset_name} {'with MLE' if use_mle else 'with binsearch'}")
+    logging.info(f"Estimating horizons for {dataset_name} {'with MLE' if use_mle else 'with binsearch'}")
     horizons = estimate_horizons(scores, bspec=bspec, mle=use_mle)
 
     df = pd.DataFrame({

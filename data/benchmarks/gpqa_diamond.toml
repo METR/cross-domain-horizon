@@ -1,0 +1,597 @@
+n_questions = 198
+chance_accuracy = 0.25
+length_type = "baseline"
+
+[splits.rec06pnAkLOr2t2mp]
+lengths = [ 12.5,]
+
+[splits.rec0Arme2jcXQZnAW]
+lengths = [ 27.5,]
+
+[splits.rec0wZvZgiz320KRs]
+lengths = [ 15.0,]
+
+[splits.rec0yTRmO1o1xCA6H]
+lengths = [ 15.0,]
+
+[splits.rec1zl5LvaatzGhFt]
+lengths = [ 10.0,]
+
+[splits.rec260hNUCEj109Dj]
+lengths = [ 10.0,]
+
+[splits.rec2UlKqC6RFHdcro]
+lengths = [ 27.5,]
+
+[splits.rec2ZTsqazBZ3LTWZ]
+lengths = [ 22.5,]
+
+[splits.rec2fsnzUuvNtUYK8]
+lengths = [ 30.0,]
+
+[splits.rec4JrWy7Il8ho5vk]
+lengths = [ 12.5,]
+
+[splits.rec4L69T0Y1AS4AFS]
+lengths = [ 17.5,]
+
+[splits.rec4UqStf9WUVif1f]
+lengths = [ 20.0,]
+
+[splits.rec4r4KWNLrT7g2kR]
+lengths = [ 40.0,]
+
+[splits.rec527dNeEtWJrYNl]
+lengths = [ 40.0,]
+
+[splits.rec5eA17Qr1ucNLUf]
+lengths = [ 25.0,]
+
+[splits.rec5rjeLsEq5Fg7Oj]
+lengths = [ 32.5,]
+
+[splits.rec7C06XOB2h298ue]
+lengths = [ 15.0,]
+
+[splits.rec7qmSnbud4FHSqL]
+lengths = [ 40.0,]
+
+[splits.rec8nshandHARTkrg]
+lengths = [ 20.0,]
+
+[splits.rec8y3ZrBOcLgNEkE]
+lengths = [ 17.5,]
+
+[splits.rec9GugrngvsQR99A]
+lengths = [ 20.0,]
+
+[splits.rec9ubQihAh6g9bft]
+lengths = [ 20.0,]
+
+[splits.recA1i5ZAh0Uzclxp]
+lengths = [ 17.5,]
+
+[splits.recAAJoHMW45Lv5je]
+lengths = [ 32.5,]
+
+[splits.recBGxVySx1pkrO1i]
+lengths = [ 32.5,]
+
+[splits.recBXlqrZUCR897It]
+lengths = [ 27.5,]
+
+[splits.recBtVK8rBVtIlXDq]
+lengths = [ 22.5,]
+
+[splits.recCJJOeBGERaHYax]
+lengths = [ 27.5,]
+
+[splits.recD8oX1KevFbl7bL]
+lengths = [ 7.5,]
+
+[splits.recDDxpS9s8cwkqfq]
+lengths = [ 20.0,]
+
+[splits.recDj2Y2BbtV02Wv5]
+lengths = [ 20.0,]
+
+[splits.recDytVnNYZe2HuUU]
+lengths = [ 17.5,]
+
+[splits.recEmTBhx2hgw6tPQ]
+lengths = [ 17.5,]
+
+[splits.recFaL6j8UMhutXrc]
+lengths = [ 10.0,]
+
+[splits.recG1ljJQcVy6CbSl]
+lengths = [ 17.5,]
+
+[splits.recGFKDUd8qgz81Zl]
+lengths = [ 12.5,]
+
+[splits.recGFNRVl1qBZGwyU]
+lengths = [ 22.5,]
+
+[splits.recHVUd2DkoKfedJZ]
+lengths = [ 20.0,]
+
+[splits.recI1ls9OXdxatHQn]
+lengths = [ 25.0,]
+
+[splits.recIDiDKKrN61Auyr]
+lengths = [ 12.5,]
+
+[splits.recIIUynGGpsGEYuo]
+lengths = [ 5.0,]
+
+[splits.recIMcQfaQNa6vzsT]
+lengths = [ 15.0,]
+
+[splits.recINSFEYLCyyd08m]
+lengths = [ 12.5,]
+
+[splits.recIOlKBsOeEcgkA1]
+lengths = [ 16.0,]
+
+[splits.recIj8lR4tuDgrHou]
+lengths = [ 17.5,]
+
+[splits.recIlghoOw5VbY4Zh]
+lengths = [ 32.5,]
+
+[splits.recJJcOHhFeSaRpl4]
+lengths = [ 11.0,]
+
+[splits.recJZ3QEfRKjYw9a7]
+lengths = [ 55.0,]
+
+[splits.recK9F5aqdaybl8bb]
+lengths = [ 37.5,]
+
+[splits.recKcjTwONILZqHAX]
+lengths = [ 37.5,]
+
+[splits.recKm6LNWykGapmCr]
+lengths = [ 17.5,]
+
+[splits.recKv4hFyNpViUXnL]
+lengths = [ 20.0,]
+
+[splits.recL9MFV5zmdlle5T]
+lengths = [ 22.5,]
+
+[splits.recLAgwx9vbgB5EHk]
+lengths = [ 10.0,]
+
+[splits.recLSzwBUS3olCjhl]
+lengths = [ 17.5,]
+
+[splits.recLrRirj7iXoB0rU]
+lengths = [ 22.5,]
+
+[splits.recN4DY9Q5V03glmQ]
+lengths = [ 30.0,]
+
+[splits.recNAiPUKOulQbKVP]
+lengths = [ 20.0,]
+
+[splits.recNFJjE5PPTqVJGv]
+lengths = [ 37.5,]
+
+[splits.recNu3MXkvWUzHZr9]
+lengths = [ 9.0,]
+
+[splits.recNuT2oSnO86bxOx]
+lengths = [ 17.5,]
+
+[splits.recO3hvCWRGiG0odN]
+lengths = [ 20.0,]
+
+[splits.recOYsaYs6RmtlTDy]
+lengths = [ 17.5,]
+
+[splits.recOkA2zsy4GSMD9R]
+lengths = [ 37.5,]
+
+[splits.recOvqPKUtyy9ISA1]
+lengths = [ 35.0,]
+
+[splits.recPL4ZPpVYxgMu57]
+lengths = [ 25.0,]
+
+[splits.recPSTGXK3P39yNYT]
+lengths = [ 40.0,]
+
+[splits.recPzW1WqRnPs57D6]
+lengths = [ 22.5,]
+
+[splits.recQ8oxSY2aCwFRS8]
+lengths = [ 32.5,]
+
+[splits.recQiWOxhkXRz9NVE]
+lengths = [ 127.5,]
+
+[splits.recRTiyaRymerDJ4y]
+lengths = [ 20.0,]
+
+[splits.recRgabRzMaEoBRcM]
+lengths = [ 50.0,]
+
+[splits.recS48OsU6kVadBPW]
+lengths = [ 12.5,]
+
+[splits.recSBcGLPatKb3Ygu]
+lengths = [ 20.0,]
+
+[splits.recTs7qzfJs6kfLUK]
+lengths = [ 21.0,]
+
+[splits.recUBgVlkKzcRPDdK]
+lengths = [ 17.5,]
+
+[splits.recUOePh79cp4T2Bg]
+lengths = [ 45.0,]
+
+[splits.recV1nqYQvpII94oC]
+lengths = [ 20.0,]
+
+[splits.recVEXvhYxAhELVqB]
+lengths = [ 20.0,]
+
+[splits.recVvpD8miVjmmyfe]
+lengths = [ 33.5,]
+
+[splits.recWPMm91mGDLXONm]
+lengths = [ 25.0,]
+
+[splits.recWxGU8Q4YReJ1tb]
+lengths = [ 30.0,]
+
+[splits.recWzUUYBN0NuXO2k]
+lengths = [ 30.0,]
+
+[splits.recXsuOHRBLcyenF2]
+lengths = [ 37.5,]
+
+[splits.recXvQ6gWAmyakrpD]
+lengths = [ 82.5,]
+
+[splits.recYA3LPsCvF1fTMI]
+lengths = [ 35.0,]
+
+[splits.recYOzCsevNz61Lyn]
+lengths = [ 22.5,]
+
+[splits.recYt8xx80OTyDsL0]
+lengths = [ 11.0,]
+
+[splits.recZ13cwgDQf9jRd9]
+lengths = [ 37.5,]
+
+[splits.recZSGUkn56v9kEp1]
+lengths = [ 12.5,]
+
+[splits.recZWeueB7lSPR6wN]
+lengths = [ 22.5,]
+
+[splits.recZbxrocrxh9YENH]
+lengths = [ 37.5,]
+
+[splits.recZdZxsN0AxDx0pB]
+lengths = [ 22.5,]
+
+[splits.recZt4x514UQNnsgy]
+lengths = [ 25.0,]
+
+[splits.reca44yABeO2fx7UB]
+lengths = [ 20.0,]
+
+[splits.recaXdGn3FAIkxLGM]
+lengths = [ 22.5,]
+
+[splits.recafnH3RRnMBXEb1]
+lengths = [ 20.0,]
+
+[splits.recakFKZioXUuldcd]
+lengths = [ 15.0,]
+
+[splits.recb2M22zaD3tL6Qc]
+lengths = [ 22.5,]
+
+[splits.recb4cGsC6BJUCU3V]
+lengths = [ 25.0,]
+
+[splits.reccOKzFNmyqeJ6ry]
+lengths = [ 20.0,]
+
+[splits.reccVFW11Elovnf8T]
+lengths = [ 24.0,]
+
+[splits.recclFbsjbaiVVnnV]
+lengths = [ 35.0,]
+
+[splits.recdya6FuYraBU5Rh]
+lengths = [ 37.5,]
+
+[splits.receYQxnUBvxPcvbQ]
+lengths = [ 20.0,]
+
+[splits.receo3UUzRvWCqyfA]
+lengths = [ 42.5,]
+
+[splits.recf6ayQmL1SxKbvW]
+lengths = [ 12.5,]
+
+[splits.recgI6tUQ7RLJRWGx]
+lengths = [ 27.5,]
+
+[splits.recgM7o1tcc7tP778]
+lengths = [ 50.0,]
+
+[splits.recgXxEgllSGEpELP]
+lengths = [ 35.0,]
+
+[splits.rechKl68Uc6H7vU0N]
+lengths = [ 27.5,]
+
+[splits.rechgQucGlrnt8KRV]
+lengths = [ 20.0,]
+
+[splits.rechtUKxC6G67H7Pr]
+lengths = [ 22.5,]
+
+[splits.recihePFulRgNKsIn]
+lengths = [ 11.5,]
+
+[splits.reciuppdQde4FGX1z]
+lengths = [ 20.0,]
+
+[splits.recjJ54TXc04enRkZ]
+lengths = [ 32.5,]
+
+[splits.recjgMJaMxz4ESDF2]
+lengths = [ 10.0,]
+
+[splits.reck1zKeCssmN82Ga]
+lengths = [ 12.5,]
+
+[splits.reck4G4xxv3YnpbtQ]
+lengths = [ 22.5,]
+
+[splits.reckYqR92oJkqJXkE]
+lengths = [ 30.0,]
+
+[splits.reckl6PkaEMWM50yZ]
+lengths = [ 7.5,]
+
+[splits.recl1UtgTVKishAq4]
+lengths = [ 25.0,]
+
+[splits.recmI7EiLv72PxmYK]
+lengths = [ 12.5,]
+
+[splits.recmkvk6EFAmqyMxR]
+lengths = [ 22.5,]
+
+[splits.recmwwQJnx7ll7bqL]
+lengths = [ 5.0,]
+
+[splits.recn3NhOhqAPLda16]
+lengths = [ 12.5,]
+
+[splits.recnGEpF1srQpaqWq]
+lengths = [ 10.0,]
+
+[splits.recnTTKdBzfuoZ7w7]
+lengths = [ 27.5,]
+
+[splits.recnawZPumSCLMVgp]
+lengths = [ 11.0,]
+
+[splits.recnjViFrqlZNL3fY]
+lengths = [ 17.5,]
+
+[splits.reco8WSc71p8zAv4q]
+lengths = [ 45.0,]
+
+[splits.recooG6bivTUJpDBz]
+lengths = [ 22.5,]
+
+[splits.recoy9ZLBsc7HIRBy]
+lengths = [ 35.0,]
+
+[splits.recpJmTOXx6T48nDJ]
+lengths = [ 20.0,]
+
+[splits.recpki12iG9RUGrz9]
+lengths = [ 10.0,]
+
+[splits.recqFDvYKKRmbnoUb]
+lengths = [ 15.0,]
+
+[splits.recqGD3fxPCI59vPQ]
+lengths = [ 12.5,]
+
+[splits.recqLRu4BcJvlSANc]
+lengths = [ 14.0,]
+
+[splits.recr3VHM4zYf6dMFY]
+lengths = [ 12.5,]
+
+[splits.recrHBEJJoDTV05JR]
+lengths = [ 50.0,]
+
+[splits.recrNbtgTNoabJJi6]
+lengths = [ 35.0,]
+
+[splits.recrs0kUo7Ua1xhKO]
+lengths = [ 6.0,]
+
+[splits.recs3PLPUEMiqg4P8]
+lengths = [ 15.0,]
+
+[splits.rect4iLrSfUwkNTno]
+lengths = [ 22.5,]
+
+[splits.rectXfsCM1dj4Kv2c]
+lengths = [ 15.0,]
+
+[splits.rectlyG9pCAAuWhoB]
+lengths = [ 17.5,]
+
+[splits.recuYEkVjdVUwA3c0]
+lengths = [ 27.5,]
+
+[splits.recuyeuT5rQ6qDt8F]
+lengths = [ 17.5,]
+
+[splits.recv7GsQg3f0fvB1f]
+lengths = [ 15.0,]
+
+[splits.recvZlMbpPz0yLDle]
+lengths = [ 32.5,]
+
+[splits.recvlnu8BuLmXZhSX]
+lengths = [ 37.5,]
+
+[splits.recw4rROcnHKNZhtK]
+lengths = [ 23.5,]
+
+[splits.recxTy0x7M6T9ikc0]
+lengths = [ 35.0,]
+
+[splits.recxsX66ktJ1Lwt4f]
+lengths = [ 22.5,]
+
+[splits.recyPffUDqC2k7ZZO]
+lengths = [ 15.0,]
+
+[splits.recyl3usDqb7ruXJx]
+lengths = [ 30.0,]
+
+[splits.recypVp2NmPlBKVTp]
+lengths = [ 20.0,]
+
+[splits.reczQ4I0VpENdMtIj]
+lengths = [ 17.5,]
+
+[splits.reczUoM8JsxU6pYxr]
+lengths = [ 17.5,]
+
+[splits.reczjcMtrB1YGS2fO]
+lengths = [ 82.5,]
+
+[splits.reczzzihL7btBH7RO]
+lengths = [ 35.0,]
+
+[splits.rec0VuKUjt1SZ7NYv]
+lengths = [ 17.5,]
+
+[splits.rec1oj2DveQWl9Rpw]
+lengths = [ 20.0,]
+
+[splits.rec32C1ZEapBnCC0E]
+lengths = [ 37.5,]
+
+[splits.rec47oNPXudlTIk4y]
+lengths = [ 30.0,]
+
+[splits.rec6sE2CRtD4drtHg]
+lengths = [ 190.0,]
+
+[splits.rec9W28HgpEUeUN8k]
+lengths = [ 52.5,]
+
+[splits.recAYkd96NNuNl1Ei]
+lengths = [ 25.0,]
+
+[splits.recBhnXrUyTJ6WHIR]
+lengths = [ 30.0,]
+
+[splits.recE2ihVfqEK4R9d0]
+lengths = [ 17.5,]
+
+[splits.recGee5m84dg5FZkc]
+lengths = [ 12.5,]
+
+[splits.recINGR1z01Fh1Z3A]
+lengths = [ 12.5,]
+
+[splits.recJpyGtGIsxulevT]
+lengths = [ 15.0,]
+
+[splits.recLB0EkQ54bYVhnd]
+lengths = [ 15.0,]
+
+[splits.recMicVBcqy1xM1jq]
+lengths = [ 12.5,]
+
+[splits.recPIzpnuYpB4yvmp]
+lengths = [ 45.0,]
+
+[splits.recRZjaElf8ft7xTq]
+lengths = [ 22.5,]
+
+[splits.recReg13iV2HwJTaA]
+lengths = [ 67.5,]
+
+[splits.recRhwQwHijW0gCLo]
+lengths = [ 15.0,]
+
+[splits.recUc29lMDBEvurYo]
+lengths = [ 82.5,]
+
+[splits.recVE8cUNHpHZIAvL]
+lengths = [ 25.0,]
+
+[splits.recWXwn9v4IG9ZrM6]
+lengths = [ 20.0,]
+
+[splits.recXsYa3i2UhGF5fe]
+lengths = [ 27.5,]
+
+[splits.recYCMJWH7IpcdqwE]
+lengths = [ 30.0,]
+
+[splits.recatj4YXzbOaq3Ar]
+lengths = [ 12.5,]
+
+[splits.recb80OwMgNnceA9t]
+lengths = [ 40.0,]
+
+[splits.reccVBrYdwsB84fGy]
+lengths = [ 32.5,]
+
+[splits.recfTlTMjZBuOducT]
+lengths = [ 30.0,]
+
+[splits.recgC4GJ8wUemlUQD]
+lengths = [ 25.0,]
+
+[splits.recixxJmdux0d8LZQ]
+lengths = [ 15.0,]
+
+[splits.reckEnrOPFT9Ru7tW]
+lengths = [ 25.0,]
+
+[splits.recoiTJPGUmzAkief]
+lengths = [ 20.0,]
+
+[splits.recwW1A85nfyQpReG]
+lengths = [ 30.0,]
+
+[splits.recwlwlcPvXVNPmvl]
+lengths = [ 12.5,]
+
+[splits.recyrk6XBVwugG5u8]
+lengths = [ 42.5,]
+
+[splits.recywRj5a8EEjj2Ib]
+lengths = [ 42.5,]
+
+[splits.recz3MfYHPRhsEQkW]
+lengths = [ 27.5,]
+
+[splits.reczkBiPPNrNN49Hp]
+lengths = [ 30.0,]

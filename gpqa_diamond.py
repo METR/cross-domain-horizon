@@ -21,7 +21,7 @@ def write_scores_data(df_scores, scores_dir: Path, benchmark: str):
         score = row['score']
         if question_id not in scores_dict:
             scores_dict[question_id] = dict()
-        scores_dict[question_id][model] = score
+        scores_dict[question_id][model] = score * 100
 
 
     data = dict(

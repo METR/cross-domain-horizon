@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import glob
+import re
 from scipy.stats import gmean
 import yaml
 
@@ -8,6 +9,13 @@ DATA_DIR = 'data'
 HORIZONS_DIR = os.path.join(DATA_DIR, 'horizons') # New constant for horizons dir
 RELEASE_DATES_FILE = os.path.join(DATA_DIR, 'raw', 'model_info.yaml') # Path to release dates
 MIN_HORIZON_THRESHOLD_SECONDS = 10 * 60  # 10 minutes
+
+def normalize_model_name(model_name):
+    """Normalizes model names to lowercase and replaces non-alphanumeric characters with underscores."""
+    if re.match(r'\d+\.\d+\.(x|\d+)?', model_name):
+        print(f"Matching {model_name}")
+        return model_name
+    return re.sub(r'[^a-zA-Z0-9]', '_', model_name.lower())
 
 def load_release_dates(release_dates_file):
     """Loads model release dates and handles aliases from a YAML file."""
@@ -35,7 +43,7 @@ def load_release_dates(release_dates_file):
                 all_releases.append({'model': model, 'release_date': release_date})
                 # Add aliases with the same release date
                 for alias in aliases:
-                    all_releases.append({'model': alias.lower(), 'release_date': release_date})
+                    all_releases.append({'model': normalize_model_name(alias), 'release_date': release_date})
             else:
                  print(f"Warning: Missing release_date for model: {model} in {release_dates_file}")
 
@@ -46,6 +54,9 @@ def load_release_dates(release_dates_file):
         release_df = pd.DataFrame(all_releases)
         # Attempt to convert 'release_date' to datetime, handling potential 'unknown' values
         release_df['release_date'] = pd.to_datetime(release_df['release_date'], errors='coerce')
+
+        # Remove duplicate rows based on model and release_date
+        release_df = release_df.drop_duplicates(subset=['model', 'release_date'])
 
         return release_df
 
@@ -100,7 +111,7 @@ def load_data(data_dir):
         raise ValueError("No data loaded after processing CSV files.")
 
     horizon_df = pd.concat(all_data, ignore_index=True)
-    horizon_df['model'] = horizon_df['model'].str.lower()
+    horizon_df['model'] = horizon_df['model'].apply(normalize_model_name)
 
     # --- Load and Merge Release Dates ---
     release_df = load_release_dates(RELEASE_DATES_FILE)

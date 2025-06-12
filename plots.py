@@ -32,6 +32,7 @@ Y_AXIS_MIN_SECONDS = 60  # 1 minute
 benchmark_aliases = {
     "aime": "AIME",
     "gpqa": "GPQA",
+    "gpqa_diamond": "GPQA (Diamond)",
     "hcast_r_s": "HCAST/RS",
     "hcast_r_s_full_method": "HCAST/RS (Full Method)",
     "hendrycks_math": "MATH",
@@ -511,6 +512,8 @@ def main():
     # Write raw data to CSV
     # Get release dates for each model (assuming one release date per model)
     release_dates = all_df[['model', 'release_date']].drop_duplicates().set_index('model')
+    duplicate_rows = all_df[all_df[['model', 'benchmark']].duplicated(keep=False)]
+    assert duplicate_rows.empty, "Duplicate rows found in release dates"
     
     # Create pivot table for horizons
     pivot_df = all_df.pivot(index='model', columns='benchmark', values='horizon')

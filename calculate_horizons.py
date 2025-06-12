@@ -123,6 +123,7 @@ def estimate_horizons(scores: dict[str, int], bspec: BenchmarkScoresSpec, mle: b
 
     result = {}
     for model, score in scores.items():
+        # if model != 'google/gemini-2.5-pro-exp-03-25': continue
         if mle:
             result[model] = estimate_params_mle(model, bspec=bspec)
         else:
@@ -152,13 +153,13 @@ def process_dataset(dataset_name: str) -> None:
     split_specs = {}
 
     use_mle = (len(data["splits"]) > 1)
-    eps = 0.0001
+    # eps = 0.0001
     for split_name, split_data in data["splits"].items():
         if split_name == "all" and use_mle:
             continue
         lengths = split_data["lengths"]
         scores = scores_data["splits"][split_name]
-        scores = {k: min(1.0 - eps, max(eps, float(v) / 100)) for k, v in scores.items()}
+        scores = {k:float(v) / 100 for k, v in scores.items()}
         assert all(0 <= score <= 1 for score in scores.values())
         n_questions = len(lengths)
         split_specs[split_name] = SplitScoresSpec(lengths=lengths, scores=scores)

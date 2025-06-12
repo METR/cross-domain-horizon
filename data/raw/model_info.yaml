@@ -1,14 +1,16 @@
 model_info:
-  anthropic_claude_2_0:
-    release_date: 2023-07-11
   anthropic_claude_3_sonnet:
     release_date: 2024-03-04
   ai21_jamba_1_6_large:
     release_date: 2025-03-06
   ai21_jamba_1_6_mini:
     release_date: 2025-03-06
+  anthropic_claude_2_0:
+    release_date: 2023-07-11
+  anthropic_claude_2_1:
+    release_date: 2023-11-21
   anthropic_claude_3_5_haiku_latest:
-    release_date: 2024-10
+    release_date: 2024-10-22
     aliases:
       - anthropic_claude_3_5_haiku
   anthropic_claude_3_haiku:
@@ -25,6 +27,7 @@ model_info:
     release_date: 2024-06-20
     aliases:
       - "Claude 3.5 Sonnet"
+      - anthropic_claude_3_5_sonnet_20240620
   anthropic_claude_3_7_sonnet:
     release_date: 2025-02-24
     aliases:
@@ -38,6 +41,8 @@ model_info:
       - anthropic_claude_sonnet_4_20250514
   anthropic_claude_3_opus:
     release_date: 2024-03-04
+    aliases:
+      - anthropic_claude_3_opus_20240229
   bytedance_llava_video_72b_qwen2:
     release_date: 2024-09-02
   cogagent:
@@ -63,16 +68,20 @@ model_info:
       - "deepseek v3"
   deepseek_v3_03_24_2025:
     release_date: 2025-03-24
+  gemini_ultra:
+    release_date: 2023-12-19
   google_gemini_1_5_flash_002:
     release_date: 2024-06-12
+  google_gemini_1_5_pro_001:
+    release_date: 2024-02-15  
   google_gemini_1_5_pro_002:
     release_date: 2024-06-12
     aliases:
       - google_gemini_1_5_pro
   google_gemini_1_5_pro_052024:
-    release_date: 2024-05
+    release_date: 2024-05-01
   google_gemini_1_5_pro_022024:
-    release_date: 2024-02
+    release_date: 2024-02-01
   google_gemini_2_0_flash_001:
     release_date: 2025-02-05
     aliases:
@@ -92,6 +101,7 @@ model_info:
     aliases:
       - "Gemini-2.5-Flash-Preview"
       - "gemini 2.5 flash preview"
+      - google_gemini_2_5_flash_preview_05_20
   google_gemini_pro:
     release_date: 2023-12-13
     aliases:
@@ -119,9 +129,9 @@ model_info:
   meta_llama_4_scout:
     release_date: 2025-04-04
   mistral_large_11_2024:
-    release_date: 2024-11
+    release_date: 2024-11-01
   mistral_small_02_2024:
-    release_date: 2024-02
+    release_date: 2024-02-01
   mistral_small_3_1_03_2025:
     release_date: unknown
   nvidia_openmath2_llama3_1_70b:
@@ -156,8 +166,13 @@ model_info:
       - "GPT-4 Turbo (MACM, w/code, voting)"
       - "GPT-4 Turbo"
       - "gpt 4 turbo 2024 04 09"
+      - openai_gpt_4_turbo_2024_04_09
   openai_gpt_4_1106:
     release_date: 2023-11-06
+    aliases:
+      - openai_gpt_4_1106_preview
+  openai_gpt_4_0125_preview:
+    release_date: 2024-01-25
   openai_gpt_4_vision:
     release_date: 2023-11-06
   openai_gpt_4o:
@@ -177,6 +192,8 @@ model_info:
     aliases:
       - "GPT-4o mini"
       - "gpt 4o mini 2024 07 18"
+  openai_gpt_4_1_mini_2025_04_14:
+    release_date: 2025-04-14
   openai_o1_mini_2024_09_12:
     release_date: 2024-09-12
   openai_o1:
@@ -184,8 +201,11 @@ model_info:
     aliases:
       - "o1"
       - openai_o1_2024_12_05
+      - openai_o1_2024_12_17
   openai_o1_preview:
     release_date: 2024-09-12
+    aliases:
+      - openai_o1_preview_2024_09_12
   openai_o3_mini:
     release_date: 2025-01-31
     aliases:
@@ -195,10 +215,13 @@ model_info:
     release_date: 2025-01-23
   openai_o3:
     release_date: 2025-04-16
+    aliases:
+      - openai_o3_2025_04_16
   openai_o4_mini:
     release_date: 2025-04-16
     aliases:
       - "o4 mini"
+      - openai_o4_mini_2025_04_16
   qwen_2_5_vl_72b:
     release_date: 2024-09-19
   qwen3_235b_a22b:

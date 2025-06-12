@@ -211,6 +211,7 @@ def plot_lines_over_time(df, output_file,
     if params.show_benchmarks:
         benchmarks = [bench for bench in benchmarks if bench in params.show_benchmarks]
 
+    densely_dotted = (0, (1, 1))
     for bench in benchmarks:
         if params.subplots:
             ax = axs[benchmarks.index(bench)]
@@ -254,7 +255,6 @@ def plot_lines_over_time(df, output_file,
             selected_data = frontier_data.iloc[[0, -1]] if params.show_points_level == ShowPointsLevel.FIRST_AND_LAST else frontier_data.iloc[[]]
             scatter_points(selected_data, f"_{bench}", marker='o', alpha=0.9, s=30, edgecolor='k', linewidth=0.5)
 
-        densely_dotted = (0, (1, 1))
         # Fit and plot smoothing spline using only frontier points
         if len(frontier_data) >= 3:  # Need at least 3 points for spline
             # Sort frontier data by release date for spline fitting
@@ -294,8 +294,8 @@ def plot_lines_over_time(df, output_file,
             thick = (bench == "hcast_r_s") and not params.subplots
 
             ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', linewidth=5 if thick else 3, label=f"{benchmark_aliases[bench]}", zorder=100 if thick else None)
-            ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=3)
-            ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.4, linestyle=densely_dotted, linewidth=3)
+            ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.3, linestyle=densely_dotted, linewidth=2.5)
+            ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.3, linestyle=densely_dotted, linewidth=2.5)
 
             # Add text labels for first and last frontier points
             if not frontier_data.empty and params.show_points_level >= ShowPointsLevel.FIRST_AND_LAST:
@@ -451,7 +451,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     fig, ax = plt.subplots(figsize=(10, 6))
     add_watermark(ax)
 
-    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "tesla_fsd", "livecodebench_2411_2505"]
+    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "livecodebench_2411_2505", "gpqa_diamond", ]
 
     df_to_use = df[df['benchmark'].isin(benchmarks_to_use)]
 

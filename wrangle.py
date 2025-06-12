@@ -4,49 +4,100 @@ import glob
 import re
 from scipy.stats import gmean
 import yaml
+from pydantic import BaseModel, Field, validator
+from typing import Union, Dict, List, Optional, Literal
+import datetime
 
 DATA_DIR = 'data'
 HORIZONS_DIR = os.path.join(DATA_DIR, 'horizons') # New constant for horizons dir
 RELEASE_DATES_FILE = os.path.join(DATA_DIR, 'raw', 'model_info.yaml') # Path to release dates
 MIN_HORIZON_THRESHOLD_SECONDS = 10 * 60  # 10 minutes
 
+
+class ModelInfo(BaseModel):
+    release_date: datetime.date | Literal['unknown']
+    aliases: List[str] = Field(default_factory=list)
+
+    @classmethod
+    def from_yaml_data(cls, data: Union[str, Dict]) -> 'ModelInfo':
+        """Create ModelInfo from YAML data that can be either a string or dict."""
+        if isinstance(data, str):
+            return cls(release_date=data, aliases=[])
+        elif isinstance(data, dict):
+            return cls(
+                release_date=data.get('release_date', ''),
+                aliases=data.get('aliases', [])
+            )
+        else:
+            raise ValueError(f"Invalid model data format: {type(data)}")
+
+
+class ModelInfoCollection(BaseModel):
+    model_info: Dict[str, Union[str, Dict]]
+
+    def get_validated_models(self) -> Dict[str, ModelInfo]:
+        """Validate and return all model info as ModelInfo objects."""
+        validated_models = {}
+        for model_name, model_data in self.model_info.items():
+            try:
+                validated_models[model_name] = ModelInfo.from_yaml_data(model_data)
+            except Exception as e:
+                print(f"Warning: Failed to validate model {model_name}: {e}")
+        return validated_models
+
 def normalize_model_name(model_name):
     """Normalizes model names to lowercase and replaces non-alphanumeric characters with underscores."""
+
+    prefixes_to_remove = [
+        "together_",
+        "fireworks_accounts_fireworks_models_"
+        "sagemaker_"
+    ]
+
+    # tesla fsd versions
     if re.match(r'\d+\.\d+\.(x|\d+)?', model_name):
-        print(f"Matching {model_name}")
         return model_name
-    return re.sub(r'[^a-zA-Z0-9]', '_', model_name.lower())
+    model_name = re.sub(r'[^a-zA-Z0-9]', '_', model_name.lower())
+
+    for prefix in prefixes_to_remove:
+        if model_name.startswith(prefix):
+            model_name = model_name[len(prefix):]
+
+    return model_name
+
 
 def load_release_dates(release_dates_file):
-    """Loads model release dates and handles aliases from a YAML file."""
+    """Loads model release dates and handles aliases from a YAML file using Pydantic validation."""
     try:
         with open(release_dates_file, 'r') as f:
             release_data = yaml.safe_load(f)
-            model_info = release_data.get('model_info', {})
-            if not model_info:
-                error_msg = f"Error: No 'model_info' key found or empty in {release_dates_file}. Cannot proceed."
-                print(error_msg)
-                raise ValueError(error_msg)
+            
+        # Validate the loaded data using Pydantic
+        try:
+            model_collection = ModelInfoCollection(**release_data)
+        except Exception as e:
+            error_msg = f"Error: Failed to validate YAML structure in {release_dates_file}: {e}. Cannot proceed."
+            print(error_msg)
+            raise ValueError(error_msg)
+            
+        # Get validated model info
+        validated_models = model_collection.get_validated_models()
+        
+        if not validated_models:
+            error_msg = f"Error: No valid model info found in {release_dates_file}. Cannot proceed."
+            print(error_msg)
+            raise ValueError(error_msg)
 
         all_releases = []
-        for model, data in model_info.items():
-            release_date = None
-            aliases = []
-            if isinstance(data, dict):
-                release_date = data.get('release_date')
-                aliases = data.get('aliases', [])
-            else: # Assume data is the release date string itself
-                release_date = data
-
-            if release_date:
+        for model_name, model_info in validated_models.items():
+            if model_info.release_date:
                 # Add the main model
-                all_releases.append({'model': model, 'release_date': release_date})
+                all_releases.append({'model': model_name, 'release_date': model_info.release_date})
                 # Add aliases with the same release date
-                for alias in aliases:
-                    all_releases.append({'model': normalize_model_name(alias), 'release_date': release_date})
+                for alias in model_info.aliases:
+                    all_releases.append({'model': normalize_model_name(alias), 'release_date': model_info.release_date})
             else:
-                 print(f"Warning: Missing release_date for model: {model} in {release_dates_file}")
-
+                print(f"Warning: Missing or unknown release_date for model: {model_name} in {release_dates_file}")
 
         if not all_releases:
             raise ValueError(f"Warning: No release dates found after processing {release_dates_file}")
@@ -78,9 +129,7 @@ def load_data(data_dir):
     csv_files = glob.glob(os.path.join(horizons_dir, '*.csv')) # Find all CSVs in horizons dir
 
     if not csv_files:
-        print(f"Warning: No CSV files found in {horizons_dir}")
-        # Return empty DataFrame with all expected columns
-        raise ValueError("No data loaded after processing CSV files.")
+        raise ValueError(f"No CSV files found in {horizons_dir}")
 
     for csv_path in csv_files:
         benchmark_name = os.path.basename(csv_path).replace('.csv', '') # Extract benchmark from filename

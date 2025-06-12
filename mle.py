@@ -24,7 +24,7 @@ def sigmoid(horizon, task_len, slope, chance_accuracy) -> np.ndarray:
 
 
 # Log-likelihood for one model
-def beta_nlog_likelihood(params: tuple[float, float], observed_scores:dict[str, float], task_lengths:dict[str, float], chance_accuracy, verbose=False):
+def beta_nlog_likelihood(params: tuple[float, float], observed_scores:dict[str, float], task_lengths:dict[str, float], chance_accuracy, model_name=None, verbose=False):
     h, slope = params
     lls = []
     for split_idx, score in observed_scores.items():
@@ -40,7 +40,7 @@ def beta_nlog_likelihood(params: tuple[float, float], observed_scores:dict[str, 
             score_ceil = score_floor + 1 # not exactly ceil if it's an integer
             split_lls = poisson_binom_dist.logpmf([score_floor,score_ceil], predicted_scores)
             split_ll = (score_ceil - score_on_split) * split_lls[0] + (score_on_split - score_floor) * split_lls[1]
-            assert (split_lls[0] >= split_ll >= split_lls[1]) or (split_lls[1] >= split_ll >= split_lls[0]), f"split_lls: {split_lls}, split_ll: {split_ll}, split_size: {split_size}, score: {score}, score_on_split: {score_on_split}, score_floor: {score_floor}, score_ceil: {score_ceil}"
+            assert (split_lls[0] >= split_ll >= split_lls[1]) or (split_lls[1] >= split_ll >= split_lls[0]), f"model: {model_name}, split_lls: {split_lls}, split_ll: {split_ll}, split_size: {split_size}, score: {score}, score_on_split: {score_on_split}, score_floor: {score_floor}, score_ceil: {score_ceil}, h: {h}, slope: {slope}, task_lengths: {task_lengths[split_idx]}"
         lls.append(split_ll)
 
     ll = sum(lls)
@@ -60,5 +60,5 @@ def estimate_params_mle(model_name: str, bspec: BenchmarkScoresSpec):
     observed_scores = {split_name: split.scores[model_name] for split_name, split in distinct_splits.items()}
     chance_accuracy = bspec.chance_accuracy
  
-    result = minimize(beta_nlog_likelihood, x0=[5.0, 0.5], bounds=[(None, None), (0.01, None)], args=(observed_scores, task_lengths, chance_accuracy))
+    result = minimize(beta_nlog_likelihood, x0=[5.0, 0.5], bounds=[(0, None), (0.01, None)], args=(observed_scores, task_lengths, chance_accuracy, model_name))
     return ModelParams(horizon=float(result.x[0]), slope=float(result.x[1]), slope_method="mle")

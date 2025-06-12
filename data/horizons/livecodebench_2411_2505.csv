@@ -1,10 +1,10 @@
 model,horizon,slope
-gemini 2.5 pro,279.2282,0.2539
-o3 mini 2025 01 31,202.0357,0.1575
-o4 mini,140.1644,0.3057
+o4 mini,226.9908,0.3227
 grok 3 mini,109.4051,0.3813
-qwen3 235b a22b,32.6915,165.8107
-gemini 2.5 flash preview,27.7909,1.3850
+gemini 2.5 pro,102.6151,0.3676
+o3 mini 2025 01 31,34.7186,3.7642
+qwen3 235b a22b,31.3144,3.2369
+gemini 2.5 flash preview,28.9389,2.2859
 claude 3.7 sonnet,24.2764,2.4035
 claude 3.5 sonnet 20241022,16.6867,2.1686
 gpt 4o 2024 08 06,13.3737,2.4777

@@ -1,0 +1,28 @@
+benchmark_aliases = {
+    "aime": "AIME",
+    "gpqa": "GPQA",
+    "gpqa_diamond": "GPQA (Diamond)",
+    "hcast_r_s": "HCAST/RS",
+    "hcast_r_s_full_method": "HCAST/RS (Full Method)",
+    "hendrycks_math": "MATH",
+    "livecodebench_2411_2505": "LiveCodeBench",
+    "osworld": "OSWorld",
+    "tesla_fsd": "Tesla FSD",
+    "video_mme": "Video-MME",
+}
+plotting_aliases = {
+    "google_gemini_1_5_pro_002": "G 1.5 Pro",
+    "google_gemini_2_5_pro_exp": "G 2.5 Pro",
+    "Gemini 2.0 Flash Experimental": "G 2.0 Flash",
+    "openai_gpt_4_vision": "GPT-4V",
+    "openai_gpt_3_5": "GPT-3.5",
+    "anthropic_claude_3_7_sonnet": "Claude 3.7",
+    "openai_gpt_2": "GPT-2",
+    "davinci-002 175b": "GPT-3",
+    "ui_tars_1_5": "TARS 1.5",
+    "claude 3 haiku": "C 3 Haiku",
+    "claude 3.7 sonnet": "C 3.7 Sonnet",
+    "10.8.x": "V10.8",
+    "13.2.x": "V13.2",
+    "o3-mini-high": "o3 mini",
+}

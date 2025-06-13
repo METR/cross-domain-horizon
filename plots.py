@@ -17,6 +17,9 @@ from enum import Enum
 from dataclasses import dataclass, field
 from functools import total_ordering
 
+from plotting_aliases import benchmark_aliases, plotting_aliases
+from plot_splits import plot_splits
+
 BENCHMARKS_PATH = 'data/benchmarks'
 
 SCATTER_PLOT_OUTPUT_FILE = 'plots/scatter.png'
@@ -24,37 +27,9 @@ LINES_PLOT_OUTPUT_FILE = 'plots/lines_over_time.png'
 LINES_SUBPLOTS_OUTPUT_FILE = 'plots/lines_over_time_subplots.png'
 BENCHMARK_TASK_LENGTHS_OUTPUT_FILE = 'plots/benchmark_task_lengths.png'
 LENGTH_DEPENDENCE_OUTPUT_FILE = 'plots/length_dependence.png'
+SPLITS_OUTPUT_FILE = 'plots/splits_plot.png'
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
 
-
-benchmark_aliases = {
-    "aime": "AIME",
-    "gpqa": "GPQA",
-    "gpqa_diamond": "GPQA (Diamond)",
-    "hcast_r_s": "HCAST/RS",
-    "hcast_r_s_full_method": "HCAST/RS (Full Method)",
-    "hendrycks_math": "MATH",
-    "livecodebench_2411_2505": "LiveCodeBench",
-    "osworld": "OSWorld",
-    "tesla_fsd": "Tesla FSD",
-    "video_mme": "Video-MME",
-}
-
-plotting_aliases = {
-    "google_gemini_1_5_pro_002": "G 1.5 Pro",
-    "google_gemini_2_5_pro_exp": "G 2.5 Pro",
-    "Gemini 2.0 Flash Experimental": "G 2.0 Flash",
-    "openai_gpt_4_vision": "GPT-4V",
-    "openai_gpt_3_5": "GPT-3.5",
-    "anthropic_claude_3_7_sonnet": "Claude 3.7",
-    "openai_gpt_2": "GPT-2",
-    "davinci-002 175b": "GPT-3",
-    "ui_tars_1_5": "TARS 1.5",
-    "claude 3 haiku": "C 3 Haiku",
-    "10.8.x": "V10.8",
-    "13.2.x": "V13.2",
-    "o3-mini-high": "o3 mini",
-}
 
 @total_ordering
 class ShowPointsLevel(Enum):
@@ -395,6 +370,18 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
     print(f"Benchmark lengths plot saved to {output_file}")
 
 
+def plot_speculation(df: pd.DataFrame, output_file: pathlib.Path):
+    """
+    Plot based on speculation about other domains.
+
+    The plot should have an x-axis of release date, extending back to 1900,
+    and a y axis of horizon that's mostly log scale but the top is infinity.
+
+    e.g. 
+
+    """
+
+
 def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     """
     Plots the length dependence of the horizon.
@@ -434,6 +421,8 @@ def main():
     parser.add_argument('--hcast', action='store_true', help='Generate hcast comparison plot')
     parser.add_argument('--lengths', action='store_true', help='Generate benchmark lengths plot')
     parser.add_argument('--length-dependence', action='store_true', help='Generate length dependence plot')
+    parser.add_argument('--speculation', action='store_true', help='Generate speculation plot')
+    parser.add_argument('--splits', action='store_true', help='Generate splits plot')
     args = parser.parse_args()
 
     plots_to_make = []
@@ -447,6 +436,10 @@ def main():
         plots_to_make += ["lengths"]
     elif args.length_dependence:
         plots_to_make += ["length_dependence"]
+    elif args.speculation:
+        plots_to_make += ["speculation"]
+    elif args.splits:
+        plots_to_make += ["splits"]
 
     # If no arguments provided, default to --all
     if not any(vars(args).values()):
@@ -488,6 +481,9 @@ def main():
     # --- Length Dependence Plot ---
     if "length_dependence" in plots_to_make:
         plot_length_dependence(all_df, LENGTH_DEPENDENCE_OUTPUT_FILE)
+
+    if "splits" in plots_to_make:
+        plot_splits(all_df, SPLITS_OUTPUT_FILE)
 
 if __name__ == "__main__":
     main()

@@ -16,11 +16,9 @@ from scipy.interpolate import make_splrep
 from enum import Enum
 from dataclasses import dataclass, field
 from functools import total_ordering
-import wrangle
 
 BENCHMARKS_PATH = 'data/benchmarks'
 
-BAR_PLOT_OUTPUT_FILE = 'plots/all_bar.png'
 SCATTER_PLOT_OUTPUT_FILE = 'plots/scatter.png'
 LINES_PLOT_OUTPUT_FILE = 'plots/lines_over_time.png'
 LINES_SUBPLOTS_OUTPUT_FILE = 'plots/lines_over_time_subplots.png'
@@ -103,53 +101,6 @@ def get_benchmark_data(benchmarks_path) -> dict[str, list[float]]:
         for length in split_data['lengths']
     ])
     return result
-
-def plot_horizons(df, sorted_models):
-    """Generates and saves the grouped bar plot."""
-    if df.empty or not sorted_models:
-        print("No data to plot after filtering for bar plot.")
-        return
-
-    # Get unique benchmarks for hue order
-    benchmarks = df['benchmark'].unique()
-    benchmarks.sort()
-
-    plt.figure(figsize=(15, 8)) # Increased figure size for potentially many models
-
-    # Create the bar plot - SWAPPED x and hue
-    ax = sns.barplot(
-        data=df,
-        x='model',
-        y='horizon',
-        hue='benchmark',
-        order=sorted_models,  # Use the sorted model order for the x-axis
-        hue_order=benchmarks # Use sorted benchmarks for hue
-    )
-
-    # Set y-axis to log scale starting at 1 minute
-    ax.set_yscale('log')
-    ax.set_ylim(bottom=Y_AXIS_MIN_SECONDS)
-
-    # Add labels and title - UPDATED x-label
-    ax.set_xlabel("Model (Sorted by GeoMean Horizon)")
-    ax.set_ylabel("Horizon (seconds, log scale)")
-    ax.set_title("Model Horizon across Benchmarks")
-
-    # Improve layout and legend - UPDATED legend title and x-ticks
-    plt.xticks(rotation=75, ha='right') # Rotate more if many models
-    plt.legend(title='Benchmark', bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.tight_layout(rect=[0, 0, 0.85, 1]) # Adjust layout to make space for legend
-
-    add_watermark(ax)
-
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(BAR_PLOT_OUTPUT_FILE), exist_ok=True)
-
-    # Save the plot
-    plt.savefig(BAR_PLOT_OUTPUT_FILE)
-    print(f"Bar plot saved to {BAR_PLOT_OUTPUT_FILE}")
-    plt.close() # Close the plot to free memory
-
 
 
 def plot_lines_over_time(df, output_file,
@@ -487,7 +438,7 @@ def main():
 
     plots_to_make = []
     if args.all or not any(vars(args).values()):
-        plots_to_make = ["lines", "hcast", "lengths", "bar", "length_dependence"]
+        plots_to_make = ["lines", "hcast", "lengths", "length_dependence"]
     elif args.lines:
         plots_to_make += ["lines"]
     elif args.hcast:
@@ -501,37 +452,22 @@ def main():
     if not any(vars(args).values()):
         args.all = True
 
-    # Load all data initially using wrangle
-    all_df = wrangle.load_data(wrangle.DATA_DIR)
+    # Load all data from CSV file written by wrangle.py
+    data_file = 'data/processed/all_data.csv'
+    if not os.path.exists(data_file):
+        print(f"Data file {data_file} not found. Please run wrangle.py first.")
+        return
+    
+    all_df = pd.read_csv(data_file)
+    # Convert release_date back to datetime
+    all_df['release_date'] = pd.to_datetime(all_df['release_date']).dt.date
+    
     if all_df.empty:
         print("No data loaded. Exiting.")
         return
-    
-    # Write raw data to CSV
-    # Get release dates for each model (assuming one release date per model)
-    release_dates = all_df[['model', 'release_date']].drop_duplicates().set_index('model')
-    duplicate_rows = all_df[all_df[['model', 'benchmark']].duplicated(keep=False)]
-    assert duplicate_rows.empty, f"Duplicate rows found in release dates:\n{duplicate_rows}"
-    
-    # Create pivot table for horizons
-    pivot_df = all_df.pivot(index='model', columns='benchmark', values='horizon')
-    
-    # Join with release dates
-    pivot_df = pivot_df.join(release_dates)
-    
-    pivot_df.reset_index(inplace=True)
-    os.makedirs(os.path.dirname('data/all_data.csv'), exist_ok=True)
-    pivot_df.to_csv('data/all_data.csv', index=False)
-    print("Raw data written to data/all_data.csv")
 
     benchmark_data = get_benchmark_data(BENCHMARKS_PATH)
 
-    # --- Bar Plot --- 
-    if "bar" in plots_to_make:
-        # Filter and sort for the bar plot using wrangle
-        filtered_df, sorted_models = wrangle.filter_and_sort_models(all_df.copy()) # Use copy to avoid modifying original
-        # Generate and save the bar plot
-        plot_horizons(filtered_df, sorted_models)
 
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:

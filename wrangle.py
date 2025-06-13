@@ -251,45 +251,7 @@ def load_data(data_dir):
     return merged_df
 
 
-def filter_and_sort_models(df):
-    """Filters models based on horizon threshold and count, and sorts by geometric mean.
-
-    Specifically for preparing data for the bar plot.
-    """
-    if df.empty:
-        return df, []
-
-    # Filter 1: Model must have >= MIN_HORIZON_THRESHOLD_SECONDS on at least one benchmark
-    max_horizons = df.groupby('model')['horizon'].max()
-    models_passing_threshold = max_horizons[max_horizons >= MIN_HORIZON_THRESHOLD_SECONDS].index
-    df_filtered_threshold = df[df['model'].isin(models_passing_threshold)].copy()
-
-    if df_filtered_threshold.empty:
-        print("No models meet the minimum horizon threshold.")
-        return df_filtered_threshold, []
-
-    # Filter 2: Model must have horizons defined for at least 2 benchmarks
-    # Count non-zero horizons per model within the threshold-filtered data
-    horizon_counts = df_filtered_threshold[df_filtered_threshold['horizon'] > 0].groupby('model')['benchmark'].nunique()
-    models_passing_count = horizon_counts[horizon_counts >= 2].index
-    filtered_df = df_filtered_threshold[df_filtered_threshold['model'].isin(models_passing_count)].copy()
-
-    if filtered_df.empty:
-        print("No models have horizons defined for at least 2 benchmarks after threshold filtering.")
-        return filtered_df, []
-
-    # Calculate geometric mean horizon for sorting (using the final filtered data)
-    pivot_df = filtered_df.pivot(index='model', columns='benchmark', values='horizon')
-    # Replace NaN/0 with a small value (e.g., 1 second) for gmean calculation
-    pivot_df = pivot_df.fillna(1).clip(lower=1)
-
-    # Calculate geometric mean across benchmarks for each model
-    model_gmean = pivot_df.apply(gmean, axis=1)
-
-    # Sort models by geometric mean ascending
-    sorted_models = model_gmean.sort_values().index.tolist()
-
-    return filtered_df, sorted_models 
+ 
 
 if __name__ == "__main__":
     out_file = os.path.join(DATA_DIR, 'processed', 'all_data.csv')

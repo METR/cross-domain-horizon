@@ -1,0 +1,1324 @@
+model_info:
+  claude_3_sonnet:
+    release_date: 2024-03-04
+    aliases: []
+  ai21_jamba_1_6_large:
+    release_date: 2025-03-06
+    aliases: []
+  ai21_jamba_1_6_mini:
+    release_date: 2025-03-06
+    aliases: []
+  claude_2_0:
+    release_date: 2023-07-11
+    aliases: []
+  claude_2_1:
+    release_date: 2023-11-21
+    aliases: []
+  claude_3_5_haiku_latest:
+    release_date: 2024-10-22
+    aliases:
+    - anthropic_claude_3_5_haiku
+  claude_3_haiku:
+    release_date: 2024-03-13
+    aliases: []
+  claude_3_5_sonnet_latest:
+    release_date: 2024-10-22
+    aliases:
+    - Claude 3.6 Sonnet
+    - claude 3.5 sonnet 20241022
+    - anthropic_claude_3_5_sonnet_20241022
+  claude_3_5_sonnet_old:
+    release_date: 2024-06-20
+    aliases:
+    - Claude 3.5 Sonnet
+    - anthropic_claude_3_5_sonnet_20240620
+  claude_3_7_sonnet:
+    release_date: 2025-02-24
+    aliases:
+    - anthropic_claude_3_7_sonnet_thinking
+    - anthropic_claude_3_7_sonnet_nothinking
+    - Claude 3.7 Sonnet
+    - anthropic_claude_3_7_sonnet_20250219
+  claude_sonnet_4:
+    release_date: 2025-05-14
+    aliases:
+    - anthropic_claude_sonnet_4_20250514
+  claude_3_opus:
+    release_date: 2024-03-04
+    aliases:
+    - anthropic_claude_3_opus_20240229
+  bytedance_llava_video_72b_qwen2:
+    release_date: 2024-09-02
+    aliases: []
+  cogagent:
+    release_date: 2023-12-15
+    aliases: []
+  cogagent_9b:
+    release_date: 2024-12-20
+    aliases: []
+  cohere_command_a:
+    release_date: 2025-03-13
+    aliases: []
+  cohere_command_r_plus:
+    release_date: 2024-04-04
+    aliases: []
+  davinci_002:
+    release_date: 2020-05-28
+    aliases:
+    - davinci-002 (GPT-3)
+    - GPT-3 175B
+    - davinci-002 175B
+  deepseek_deepseek_r1:
+    release_date: 2025-01-20
+    aliases: []
+  deepseek_v3:
+    release_date: 2024-12-26
+    aliases: []
+  deepseek_v3_03_24_2025:
+    release_date: 2025-03-24
+    aliases: []
+  gemini_ultra:
+    release_date: 2023-12-19
+    aliases: []
+  gemini_1_5_flash_002:
+    release_date: 2024-09-24
+    aliases: []
+  gemini_1_5_pro_001:
+    release_date: 2024-05-24
+    aliases: []
+  gemini_1_5_pro_002:
+    release_date: 2024-09-24
+    aliases:
+    - google_gemini_1_5_pro
+  gemini_1_5_pro_052024:
+    release_date: 2024-05-01
+    aliases: []
+  gemini_1_5_pro_022024:
+    release_date: 2024-02-01
+    aliases: []
+  gemini_2_0_flash_001:
+    release_date: 2025-02-05
+    aliases:
+    - Gemini 2.0 Flash Experimental
+  gemini_2_0_pro_exp:
+    release_date: 2025-02-05
+    aliases:
+    - google_gemini_2_0_pro_exp_02_05
+  gemini_2_5_pro_exp:
+    release_date: 2025-03-28
+    aliases:
+    - google_gemini_2_5_pro_exp_03_25
+  gemini_2_5_pro:
+    release_date: unknown
+    aliases: []
+  gemini_2_5_flash_preview:
+    release_date: 2025-03-28
+    aliases: []
+  gemini_2_5_flash_preview_05_20:
+    release_date: 2025-05-20
+    aliases: []
+  gemini_pro:
+    release_date: 2023-12-13
+    aliases:
+    - Gemini Pro
+  gemini_pro_vision:
+    release_date: 2024-02-15
+    aliases: []
+  minerva_62b:
+    release_date: 2022-07-01
+    aliases:
+    - Minerva 62B
+  minerva_540b:
+    release_date: 2022-07-01
+    aliases: []
+  palm_2:
+    release_date: 2024-05-10
+    aliases:
+    - PaLM 2
+  meta_llama_2_70b_chat:
+    release_date: 2023-07-18
+    aliases: []
+  meta_llama_3_70b:
+    release_date: 2024-04-18
+    aliases:
+    - Llama 3 70B
+  meta_llama_3_3_instruct_turbo_70b:
+    release_date: 2024-12-06
+    aliases: []
+  meta_llama_4_maverick:
+    release_date: 2025-04-05
+    aliases: []
+  meta_llama_4_scout:
+    release_date: 2025-04-04
+    aliases: []
+  mistral_large_11_2024:
+    release_date: 2024-11-01
+    aliases: []
+  mistral_small_02_2024:
+    release_date: 2024-02-01
+    aliases: []
+  mistral_small_3_1_03_2025:
+    release_date: unknown
+    aliases: []
+  nvidia_openmath2_llama3_1_70b:
+    release_date: 2024-11-25
+    aliases:
+    - OpenMath2-Llama3.1-70B
+  o1_preview__elicited_:
+    release_date: 2024-09-12
+    aliases: []
+  gpt_2:
+    release_date: 2019-02-14
+    aliases: []
+  gpt_3_5:
+    release_date: 2022-03-15
+    aliases:
+    - openai_gpt_3_5_turbo_instruct
+  gpt_3_5_turbo_0125:
+    release_date: 2024-01-25
+    aliases: []
+  gpt_4_0125:
+    release_date: 2024-01-25
+    aliases: []
+  gpt_4_0314:
+    release_date: 2023-03-14
+    aliases:
+    - GPT-4
+  gpt_4_0613:
+    release_date: 2023-06-13
+    aliases:
+    - GPT-4-code model
+    - GPT-4-code model (CSV, w/ code, SC, k=16)
+  gpt_4_turbo:
+    release_date: 2023-11-06
+    aliases:
+    - GPT-4 Turbo (MACM, w/code, voting)
+    - GPT-4 Turbo
+  gpt_4_turbo_2024_04_09:
+    release_date: 2024-04-09
+    aliases:
+    - openai_gpt_4_turbo_0409
+    - gpt 4 turbo 2024 04 09
+    - openai_gpt_4_turbo_2024_04_09
+  gpt_4_1106:
+    release_date: 2023-11-06
+    aliases:
+    - openai_gpt_4_1106_preview
+  gpt_4_0125_preview:
+    release_date: 2024-01-25
+    aliases: []
+  gpt_4_vision:
+    release_date: 2023-11-06
+    aliases: []
+  gpt_4o:
+    release_date: 2024-05-13
+    aliases:
+    - openai_gpt_4o_0513
+    - openai_gpt_4o_2024_05_13
+    - GPT-4o
+  gpt_4o_2024_08_06:
+    release_date: 2024-08-06
+    aliases:
+    - gpt 4o 2024 08 06
+  gpt_4o_2024_11_20:
+    release_date: 2024-11-20
+    aliases: []
+  gpt_4o_mini:
+    release_date: 2024-07-18
+    aliases:
+    - GPT-4o mini
+    - gpt 4o mini 2024 07 18
+  gpt_4_1_mini_2025_04_14:
+    release_date: 2025-04-14
+    aliases: []
+  o1_mini_2024_09_12:
+    release_date: 2024-09-12
+    aliases: []
+  o1:
+    release_date: 2024-12-05
+    aliases:
+    - openai_o1_2024_12_05
+    - openai_o1_2024_12_17
+  o1_preview:
+    release_date: 2024-09-12
+    aliases:
+    - openai_o1_preview_2024_09_12
+  o3_mini:
+    release_date: 2025-01-31
+    aliases:
+    - o3-mini-high
+    - o3 mini 2025 01 31
+  cua:
+    release_date: 2025-01-23
+    aliases: []
+  o3:
+    release_date: 2025-04-16
+    aliases:
+    - openai_o3_2025_04_16
+  o4_mini:
+    release_date: 2025-04-16
+    aliases:
+    - o4 mini
+    - openai_o4_mini_2025_04_16
+  qwen_2_5_vl_72b:
+    release_date: 2024-09-19
+    aliases: []
+  qwen3_235b_a22b:
+    release_date: 2025-04-28
+    aliases:
+    - qwen3 235b a22b
+  qwen_vl_max_0809:
+    release_date: unknown
+    aliases: []
+  ui_tars_1_5:
+    release_date: 2025-04-17
+    aliases: []
+  ui_tars_72b_dpo:
+    release_date: 2025-04-17
+    aliases: []
+  xai_grok_2:
+    release_date: 2024-08-13
+    aliases: []
+  xai_grok_3_beta:
+    release_date: 2025-02-18
+    aliases: []
+  xai_grok_3_mini_fast_beta:
+    release_date: 2025-02-18
+    aliases:
+    - xai_grok_3_mini_fast_beta_high_reasoning
+    - xai_grok_3_mini_fast_beta_low_reasoning
+  code_davinci_002:
+    release_date: unknown
+    aliases: []
+  ministral_3b:
+    release_date: unknown
+    aliases: []
+  o:
+    release_date: unknown
+    aliases: []
+  davinci:
+    release_date: unknown
+    aliases: []
+  glm_4:
+    release_date: unknown
+    aliases: []
+  ada:
+    release_date: unknown
+    aliases: []
+  code_davinci_edit_001:
+    release_date: unknown
+    aliases: []
+  curie:
+    release_date: unknown
+    aliases: []
+  text_ada_001:
+    release_date: unknown
+    aliases: []
+  mistral_7b_v0_3:
+    release_date: unknown
+    aliases: []
+  babbage:
+    release_date: unknown
+    aliases: []
+  gemma_2_9b:
+    release_date: unknown
+    aliases: []
+  text_curie_001:
+    release_date: unknown
+    aliases: []
+  code_cushman_002:
+    release_date: unknown
+    aliases: []
+  text_babbage_001:
+    release_date: unknown
+    aliases: []
+  gemma_2_27b:
+    release_date: unknown
+    aliases: []
+  mistral_7b_instruct_v0_2:
+    release_date: unknown
+    aliases: []
+  text_davinci_edit_001:
+    release_date: unknown
+    aliases: []
+  intellect_math:
+    release_date: unknown
+    aliases: []
+  sonar:
+    release_date: unknown
+    aliases: []
+  learnlm_1_5_pro_experimental:
+    release_date: unknown
+    aliases: []
+  ml_elephant:
+    release_date: unknown
+    aliases: []
+  gpt2_xl:
+    release_date: 2019-11-05
+    aliases: []
+  gopher__280b_:
+    release_date: 2021-12-08
+    aliases: []
+  glam__moe_:
+    release_date: 2021-12-13
+    aliases: []
+  text_davinci_001:
+    release_date: 2022-01-27
+    aliases: []
+  text_davinci_002:
+    release_date: 2022-03-15
+    aliases: []
+  chinchilla__70b_:
+    release_date: 2022-03-29
+    aliases: []
+  palm_540b:
+    release_date: 2022-04-04
+    aliases: []
+  palm_62b:
+    release_date: 2022-04-04
+    aliases: []
+  opt_175b:
+    release_date: 2022-05-02
+    aliases: []
+  opt_66b:
+    release_date: 2022-05-03
+    aliases: []
+  bloom:
+    release_date: 2022-07-06
+    aliases: []
+  text_davinci_003:
+    release_date: 2022-11-28
+    aliases: []
+  llama_7b:
+    release_date: 2023-02-24
+    aliases: []
+  llama_65b:
+    release_date: 2023-02-24
+    aliases: []
+  llama_13b:
+    release_date: 2023-02-27
+    aliases: []
+  llama_33b:
+    release_date: 2023-02-27
+    aliases: []
+  gpt_4_32k_0314:
+    release_date: 2023-03-14
+    aliases: []
+  falcon_40b:
+    release_date: 2023-03-15
+    aliases: []
+  claude_1_3:
+    release_date: 2023-04-18
+    aliases: []
+  falcon_7b:
+    release_date: 2023-04-24
+    aliases: []
+  mpt_7b_instruct:
+    release_date: 2023-05-05
+    aliases: []
+  mpt_7b:
+    release_date: 2023-05-05
+    aliases: []
+  palm_2_s:
+    release_date: 2023-05-17
+    aliases: []
+  palm_2_m:
+    release_date: 2023-05-17
+    aliases: []
+  palm_2_l:
+    release_date: 2023-05-17
+    aliases: []
+  baichuan_7b:
+    release_date: 2023-06-01
+    aliases: []
+  gpt_3_5_turbo_0613:
+    release_date: 2023-06-13
+    aliases: []
+  gpt_4_32k_0613:
+    release_date: 2023-06-13
+    aliases: []
+  gpt_3_5_turbo_16k_0613:
+    release_date: 2023-06-13
+    aliases: []
+  mpt_30b_instruct:
+    release_date: 2023-06-22
+    aliases: []
+  mpt_30b:
+    release_date: 2023-06-22
+    aliases: []
+  inflection_1:
+    release_date: 2023-06-22
+    aliases: []
+  internlm_7b:
+    release_date: 2023-07-05
+    aliases: []
+  baichuan_13b_base:
+    release_date: 2023-07-11
+    aliases: []
+  llama_2_70b_chat_hf:
+    release_date: 2023-07-18
+    aliases: []
+  llama_2_7b:
+    release_date: 2023-07-18
+    aliases: []
+  llama_2_13b:
+    release_date: 2023-07-18
+    aliases: []
+  llama_2_70b_hf_:
+    release_date: 2023-07-18
+    aliases: []
+  llama_2_34b:
+    release_date: 2023-07-18
+    aliases: []
+  stablebeluga2:
+    release_date: 2023-07-20
+    aliases: []
+  claude_instant_1_2:
+    release_date: 2023-08-09
+    aliases: []
+  falcon_180b:
+    release_date: 2023-09-06
+    aliases: []
+  baichuan_2_13b_base:
+    release_date: 2023-09-06
+    aliases: []
+  phi_1_5:
+    release_date: 2023-09-11
+    aliases: []
+  gpt_3_5_turbo_instruct:
+    release_date: 2023-09-18
+    aliases: []
+  internlm_20b:
+    release_date: 2023-09-18
+    aliases: []
+  baichuan_2_7b_base:
+    release_date: 2023-09-20
+    aliases: []
+  mistral_7b_v0_1:
+    release_date: 2023-09-27
+    aliases: []
+  mistral_7b_instruct_v0_1:
+    release_date: 2023-09-27
+    aliases: []
+  open_mistral_7b:
+    release_date: 2023-09-27
+    aliases: []
+  qwen_7b:
+    release_date: 2023-09-28
+    aliases: []
+  qwen_14b:
+    release_date: 2023-09-28
+    aliases: []
+  deepseek_coder_6_7b_instruct:
+    release_date: 2023-11-02
+    aliases: []
+  deepseek_coder_6_7b_base:
+    release_date: 2023-11-02
+    aliases: []
+  deepseek_coder_1_3b_instruct:
+    release_date: 2023-11-02
+    aliases: []
+  deepseek_coder_33b_instruct:
+    release_date: 2023-11-02
+    aliases: []
+  deepseek_coder_1_3b_base:
+    release_date: 2023-11-02
+    aliases: []
+  deepseek_coder_33b_base:
+    release_date: 2023-11-02
+    aliases: []
+  yi_34b:
+    release_date: 2023-11-02
+    aliases: []
+  yi_6b:
+    release_date: 2023-11-02
+    aliases: []
+  gpt_3_5_turbo_1106:
+    release_date: 2023-11-06
+    aliases: []
+  gpt_4_1106_vision_preview:
+    release_date: 2023-11-06
+    aliases: []
+  gpt_4_1106_preview:
+    release_date: 2023-11-06
+    aliases: []
+  yi_34b_chat:
+    release_date: 2023-11-22
+    aliases: []
+  deepseek_llm_7b_base:
+    release_date: 2023-11-29
+    aliases: []
+  deepseek_llm_67b_base:
+    release_date: 2023-11-29
+    aliases: []
+  deepseek_llm_67b_chat:
+    release_date: 2023-11-29
+    aliases: []
+  deepseek_llm_7b_chat:
+    release_date: 2023-11-29
+    aliases: []
+  qwen_1_8b:
+    release_date: 2023-11-30
+    aliases: []
+  mixtral_8x7b_v0_1:
+    release_date: 2023-12-11
+    aliases: []
+  mixtral_8x7b_instruct_v0_1:
+    release_date: 2023-12-11
+    aliases: []
+  open_mixtral_8x7b:
+    release_date: 2023-12-11
+    aliases: []
+  mistral_medium_2312:
+    release_date: 2023-12-11
+    aliases: []
+  phi_2:
+    release_date: 2023-12-12
+    aliases: []
+  babbage_002:
+    release_date: 2024-01-04
+    aliases: []
+  deepseek_coder_7b_base_v1_5:
+    release_date: 2024-01-25
+    aliases: []
+  text_embedding_3_small:
+    release_date: 2024-01-25
+    aliases: []
+  text_embedding_3_large:
+    release_date: 2024-01-25
+    aliases: []
+  qwen1_5_7b_chat:
+    release_date: 2024-02-04
+    aliases: []
+  qwen1_5_72b_chat:
+    release_date: 2024-02-04
+    aliases: []
+  qwen1_5_14b_chat:
+    release_date: 2024-02-04
+    aliases: []
+  qwen1_5_32b:
+    release_date: 2024-02-04
+    aliases: []
+  qwen1_5_14b:
+    release_date: 2024-02-04
+    aliases: []
+  qwen1_5_7b:
+    release_date: 2024-02-04
+    aliases: []
+  deepseek_math_7b_base:
+    release_date: 2024-02-05
+    aliases: []
+  gemini_1_0_pro_001:
+    release_date: 2024-02-15
+    aliases: []
+  gemma_2b:
+    release_date: 2024-02-21
+    aliases: []
+  gemma_7b:
+    release_date: 2024-02-21
+    aliases: []
+  mistral_large_2402:
+    release_date: 2024-02-26
+    aliases: []
+  mistral_small_2402:
+    release_date: 2024-02-26
+    aliases: []
+  claude_3_sonnet_20240229:
+    release_date: 2024-02-29
+    aliases: []
+  claude_3_opus_20240229:
+    release_date: 2024-02-29
+    aliases: []
+  yi_9b:
+    release_date: 2024-03-01
+    aliases: []
+  claude_3_haiku_20240307:
+    release_date: 2024-03-07
+    aliases: []
+  dbrx_instruct:
+    release_date: 2024-03-27
+    aliases: []
+  dbrx_base:
+    release_date: 2024-03-27
+    aliases: []
+  qwen1_5_32b_chat:
+    release_date: 2024-04-03
+    aliases: []
+  llama_4_maverick_17b_128e_instruct:
+    release_date: 2025-04-05
+    aliases: []
+  llama_4_scout_17b_16e_instruct:
+    release_date: 2025-04-05
+    aliases: []
+  wizardlm_2_8x22b:
+    release_date: 2024-04-15
+    aliases: []
+  mixtral_8x22b_v0_1:
+    release_date: 2024-04-17
+    aliases: []
+  mixtral_8x22b_instruct_v0_1:
+    release_date: 2024-04-17
+    aliases: []
+  open_mixtral_8x22b:
+    release_date: 2024-04-17
+    aliases: []
+  meta_llama_3_70b_instruct:
+    release_date: 2024-04-18
+    aliases: []
+  meta_llama_3_8b_instruct:
+    release_date: 2024-04-18
+    aliases: []
+  meta_llama_3_8b:
+    release_date: 2024-04-18
+    aliases: []
+  phi_3_medium_128k_instruct:
+    release_date: 2024-04-23
+    aliases: []
+  phi_3_mini_4k_instruct:
+    release_date: 2024-04-23
+    aliases: []
+  phi_3_mini_128k_instruct:
+    release_date: 2024-04-23
+    aliases: []
+  phi_3_small_8k_instruct:
+    release_date: 2024-04-23
+    aliases: []
+  qwen1_5_110b_chat:
+    release_date: 2024-04-25
+    aliases: []
+  deepseek_v2:
+    release_date: 2024-05-07
+    aliases: []
+  falcon_11b:
+    release_date: 2024-05-09
+    aliases: []
+  yi_1_5_34b_chat:
+    release_date: 2024-05-13
+    aliases: []
+  gpt_4o_2024_05_13:
+    release_date: 2024-05-13
+    aliases: []
+  yi_1_5_34b:
+    release_date: 2024-05-13
+    aliases: []
+  yi_large:
+    release_date: 2024-05-13
+    aliases: []
+  gemini_1_5_flash_0514:
+    release_date: 2024-05-14
+    aliases: []
+  glm_4_0520:
+    release_date: 2024-05-20
+    aliases: []
+  gemini_1_5_flash_001:
+    release_date: 2024-05-23
+    aliases: []
+  mistral_7b_instruct_v0_3:
+    release_date: 2024-05-27
+    aliases: []
+  qwen2_72b_instruct:
+    release_date: 2024-06-07
+    aliases: []
+  nemotron_4_340b_instruct:
+    release_date: 2024-06-14
+    aliases: []
+  deepseek_coder_v2_instruct:
+    release_date: 2024-06-17
+    aliases: []
+  deepseek_coder_v2_base:
+    release_date: 2024-06-17
+    aliases: []
+  claude_3_5_sonnet_20240620:
+    release_date: 2024-06-20
+    aliases: []
+  hermes_2_theta_llama_3_70b:
+    release_date: 2024-06-20
+    aliases: []
+  gemma_2_27b_it:
+    release_date: 2024-06-24
+    aliases: []
+  gemma_2_9b_it:
+    release_date: 2024-06-24
+    aliases: []
+  gemma2_27b_instruct_q8_0:
+    release_date: 2024-06-27
+    aliases: []
+  deepseek_v2_chat_0628:
+    release_date: 2024-06-28
+    aliases: []
+  gpt_4o_mini_2024_07_18:
+    release_date: 2024-07-18
+    aliases: []
+  mistral_nemo_base_2407:
+    release_date: 2024-07-18
+    aliases: []
+  mistral_nemo_instruct_2407:
+    release_date: 2024-07-18
+    aliases: []
+  open_mistral_nemo_2407:
+    release_date: 2024-07-18
+    aliases: []
+  llama_3_1_8b_instruct:
+    release_date: 2024-07-23
+    aliases: []
+  llama_3_1_405b_instruct:
+    release_date: 2024-07-23
+    aliases: []
+  llama_3_1_70b_instruct:
+    release_date: 2024-07-23
+    aliases: []
+  llama3_1_405b_instruct_q4_k_m:
+    release_date: 2024-07-23
+    aliases: []
+  llama3_1_8b_instruct_q8_0:
+    release_date: 2024-07-23
+    aliases: []
+  llama_3_1_405b:
+    release_date: 2024-07-23
+    aliases: []
+  mistral_large_instruct_2407:
+    release_date: 2024-07-24
+    aliases: []
+  mistral_large_2407:
+    release_date: 2024-07-24
+    aliases: []
+  grok_2_0813:
+    release_date: 2024-08-13
+    aliases: []
+  grok_2_mini_0813:
+    release_date: 2024-08-13
+    aliases: []
+  dracarys2_llama_3_1_70b_instruct:
+    release_date: 2024-08-14
+    aliases: []
+  deepseek_prover_v1_5_base:
+    release_date: 2024-08-15
+    aliases: []
+  deepseek_prover_v1_5_sft:
+    release_date: 2024-08-15
+    aliases: []
+  deepseek_prover_v1_5_rl:
+    release_date: 2024-08-15
+    aliases: []
+  phi_3_5_moe_instruct:
+    release_date: 2024-08-17
+    aliases: []
+  gemini_1_5_flash_exp_0827:
+    release_date: 2024-08-27
+    aliases: []
+  qwen2_vl_72b_instruct:
+    release_date: 2024-08-29
+    aliases: []
+  qwen2_vl_7b_instruct:
+    release_date: 2024-08-29
+    aliases: []
+  c4ai_command_r_08_2024:
+    release_date: 2024-08-30
+    aliases: []
+  c4ai_command_r_plus_08_2024:
+    release_date: 2024-08-30
+    aliases: []
+  deepseek_v2_5:
+    release_date: 2024-09-06
+    aliases: []
+  o1_mini_2024_09_12_medium:
+    release_date: 2024-09-12
+    aliases: []
+  o1_preview_2024_09_12:
+    release_date: 2024-09-12
+    aliases: []
+  o1_mini_2024_09_12_high:
+    release_date: 2024-09-12
+    aliases: []
+  o1_mini_2024_09_12_low:
+    release_date: 2024-09-12
+    aliases: []
+  qwen2_5_32b_instruct:
+    release_date: 2024-09-17
+    aliases: []
+  pixtral_12b_2409:
+    release_date: 2024-09-17
+    aliases: []
+  qwen2_5_coder_0_5b:
+    release_date: 2024-09-18
+    aliases: []
+  qwen2_5_coder_1_5b:
+    release_date: 2024-09-18
+    aliases: []
+  qwen2_5_coder_3b:
+    release_date: 2024-09-18
+    aliases: []
+  qwen2_5_coder_7b:
+    release_date: 2024-09-18
+    aliases: []
+  qwen2_5_coder_14b:
+    release_date: 2024-09-18
+    aliases: []
+  qwen2_5_coder_32b:
+    release_date: 2024-09-18
+    aliases: []
+  qwen2_5_72b_instruct:
+    release_date: 2024-09-19
+    aliases: []
+  qwen2_5_vl_72b_instruct:
+    release_date: 2024-09-19
+    aliases: []
+  qwen2_5_72b:
+    release_date: 2024-09-19
+    aliases: []
+  llama_3_2_90b_vision_instruct:
+    release_date: 2024-09-24
+    aliases: []
+  llama_3_2_11b_vision_instruct:
+    release_date: 2024-09-24
+    aliases: []
+  llama_3_2_3b_instruct:
+    release_date: 2024-09-24
+    aliases: []
+  llama_3_2_1b_instruct:
+    release_date: 2024-09-24
+    aliases: []
+  dracarys2_72b_instruct:
+    release_date: 2024-09-30
+    aliases: []
+  gemini_1_5_flash_8b_001:
+    release_date: 2024-10-03
+    aliases: []
+  ministral_8b_instruct_2410:
+    release_date: 2024-10-16
+    aliases: []
+  ministral_3b_2410:
+    release_date: 2024-10-16
+    aliases: []
+  ministral_8b_2410:
+    release_date: 2024-10-16
+    aliases: []
+  claude_3_5_haiku_20241022:
+    release_date: 2024-10-22
+    aliases: []
+  claude_3_5_sonnet_20241022:
+    release_date: 2024-10-22
+    aliases: []
+  doubao_pro_32k:
+    release_date: 2024-10-28
+    aliases: []
+  qwen_turbo_2024_11_01:
+    release_date: 2024-11-01
+    aliases: []
+  mistral_large_instruct_2411:
+    release_date: 2024-11-15
+    aliases: []
+  mistral_large_2411:
+    release_date: 2024-11-18
+    aliases: []
+  chatgpt_4o_11_25_2024:
+    release_date: 2024-11-20
+    aliases: []
+  llama_3_1_tulu_3_70b_dpo:
+    release_date: 2024-11-21
+    aliases: []
+  qwen2_5_coder_32b_instruct:
+    release_date: 2024-11-21
+    aliases: []
+  qwen2_57b_a14b_instruct:
+    release_date: 2024-11-28
+    aliases: []
+  qwen2_7b_instruct:
+    release_date: 2024-11-28
+    aliases: []
+  qwq_32b_preview:
+    release_date: 2024-11-28
+    aliases: []
+  yi_lightning:
+    release_date: 2024-12-02
+    aliases: []
+  amazon_nova_pro_v1_0:
+    release_date: 2024-12-03
+    aliases: []
+  amazon_nova_micro_v1_0:
+    release_date: 2024-12-03
+    aliases: []
+  amazon_nova_lite_v1_0:
+    release_date: 2024-12-03
+    aliases: []
+  llama_3_3_70b_instruct:
+    release_date: 2024-12-06
+    aliases: []
+  gemini_exp_1206:
+    release_date: 2024-12-06
+    aliases: []
+  llama3_3_70b_instruct_q8_0:
+    release_date: 2024-12-06
+    aliases: []
+  deepseek_v2_5_1210:
+    release_date: 2024-12-10
+    aliases: []
+  gemini_2_0_flash_exp:
+    release_date: 2024-12-11
+    aliases: []
+  grok_2_1212:
+    release_date: 2024-12-12
+    aliases: []
+  grok_2_vision_1212:
+    release_date: 2024-12-12
+    aliases: []
+  phi_4:
+    release_date: 2024-12-12
+    aliases: []
+  o1_2024_12_17_medium:
+    release_date: 2024-12-17
+    aliases: []
+  o1_2024_12_17_high:
+    release_date: 2024-12-17
+    aliases: []
+  o1_2025_12_17_low:
+    release_date: 2024-12-17
+    aliases: []
+  llama_3_1_nemotron_70b_instruct:
+    release_date: 2024-12-18
+    aliases: []
+  gemini_2_0_flash_thinking_exp_1219:
+    release_date: 2024-12-19
+    aliases: []
+  qwq_32b_preview_q8_0_gguf:
+    release_date: 2024-12-27
+    aliases: []
+  eurus_2_7b_prime:
+    release_date: 2024-12-31
+    aliases: []
+  olmo_2_1124_13b_instruct:
+    release_date: 2024-12-31
+    aliases: []
+  codestral_2501:
+    release_date: 2025-01-13
+    aliases: []
+  s1_32b:
+    release_date: 2025-01-14
+    aliases: []
+  deepseek_r1:
+    release_date: 2025-01-20
+    aliases: []
+  deepseek_r1_distill_llama_70b:
+    release_date: 2025-01-20
+    aliases: []
+  deepseek_r1_distill_qwen_1_5b:
+    release_date: 2025-01-20
+    aliases: []
+  deepseek_r1_distill_qwen_14b:
+    release_date: 2025-01-20
+    aliases: []
+  deepseek_r1_distill_llama_8b:
+    release_date: 2025-01-20
+    aliases: []
+  deepseek_r1_distill_qwen_32b:
+    release_date: 2025-01-20
+    aliases: []
+  deepseek_r1_distill_qwen_7b:
+    release_date: 2025-01-20
+    aliases: []
+  gemini_2_0_flash_thinking_exp_01_21:
+    release_date: 2025-01-21
+    aliases: []
+  sonar_pro:
+    release_date: 2025-01-21
+    aliases: []
+  mistral_small_2501:
+    release_date: 2025-01-25
+    aliases: []
+  qwen_max_2025_01_25:
+    release_date: 2025-01-25
+    aliases: []
+  qwen_plus_2025_01_25:
+    release_date: 2025-01-25
+    aliases: []
+  qwen2_5_max:
+    release_date: 2025-01-28
+    aliases: []
+  chatgpt_4o_01_29_2025:
+    release_date: 2025-01-29
+    aliases: []
+  o3_mini_2025_01_31_medium:
+    release_date: 2025-01-31
+    aliases: []
+  o3_mini_2025_01_31_high:
+    release_date: 2025-01-31
+    aliases: []
+  o3_mini_2025_01_31_low:
+    release_date: 2025-01-31
+    aliases: []
+  gemini_2_0_pro_exp_02_05:
+    release_date: 2025-02-05
+    aliases: []
+  gemini_2_0_flash_lite:
+    release_date: 2025-02-05
+    aliases: []
+  gemini_2_0_flash_lite_preview_02_05:
+    release_date: 2025-02-05
+    aliases: []
+  gemini_2_0_flash_02_05:
+    release_date: 2025-02-05
+    aliases: []
+  qwen2_5_coder_32b_instruct_q8_0_gguf:
+    release_date: 2025-02-16
+    aliases: []
+  claude_3_7_sonnet_20250219:
+    release_date: 2025-02-24
+    aliases: []
+  claude_3_7_sonnet_20250219_16k:
+    release_date: 2025-02-24
+    aliases: []
+  claude_3_7_sonnet_20250219_64k:
+    release_date: 2025-02-24
+    aliases: []
+  claude_3_7_sonnet_20250219_32k:
+    release_date: 2025-02-24
+    aliases: []
+  claude_3_7_sonnet_20250219_8k:
+    release_date: 2025-02-24
+    aliases: []
+  claude_3_7_sonnet_20250219_15k:
+    release_date: 2025-02-24
+    aliases: []
+  claude_3_7_sonnet_20250219_12k:
+    release_date: 2025-02-24
+    aliases: []
+  claude_3_7_sonnet_20250219_1k:
+    release_date: 2025-02-24
+    aliases: []
+  gemini_2_0_flash_lite_001:
+    release_date: 2025-02-25
+    aliases: []
+  qwen2_5_7b_instruct:
+    release_date: 2025-02-26
+    aliases: []
+  qwen2_5_14b_instruct:
+    release_date: 2025-02-26
+    aliases: []
+  phi4_14b_q8_0:
+    release_date: 2025-02-26
+    aliases: []
+  phi_4_mini_instruct:
+    release_date: 2025-02-27
+    aliases: []
+  gpt_4_5_preview_2025_02_27:
+    release_date: 2025-02-27
+    aliases: []
+  qwq_32b:
+    release_date: 2025-03-05
+    aliases: []
+  qwq_32b__16k_thinking_:
+    release_date: 2025-03-05
+    aliases: []
+  reka_flash_3:
+    release_date: 2025-03-10
+    aliases: []
+  gemma_3_27b_it:
+    release_date: 2025-03-12
+    aliases: []
+  computer_use_preview_2025_03_11:
+    release_date: 2025-03-11
+    aliases: []
+  gemma_3_12b_it:
+    release_date: 2025-03-12
+    aliases: []
+  gemma_3_4b_it:
+    release_date: 2025-03-12
+    aliases: []
+  gemma_3_1b_it:
+    release_date: 2025-03-12
+    aliases: []
+  c4ai_command_a_03_2025:
+    release_date: 2025-03-13
+    aliases: []
+  mistral_small_2503:
+    release_date: 2025-03-17
+    aliases: []
+  exaone_deep_32b:
+    release_date: 2025-03-18
+    aliases: []
+  o1_pro_2025_03_19_low:
+    release_date: 2025-03-19
+    aliases: []
+  llama_3_3_70b_instruct_q8_0_gguf_draft:
+    release_date: 2025-03-20
+    aliases: []
+  deepseek_v3_0324:
+    release_date: 2025-03-24
+    aliases: []
+  gemini_2_5_pro_exp_03_25:
+    release_date: 2025-03-25
+    aliases: []
+  qvq_max_2025_03_25:
+    release_date: 2025-03-25
+    aliases: []
+  chatgpt_4o_03_27_2025:
+    release_date: 2025-03-27
+    aliases: []
+  llama_4_maverick_17b_128e_instruct_fp8:
+    release_date: 2025-04-05
+    aliases: []
+  qwq_plus:
+    release_date: 2025-04-08
+    aliases: []
+  grok_3_beta:
+    release_date: 2025-04-09
+    aliases: []
+  grok_3_mini_beta_low:
+    release_date: 2025-04-09
+    aliases: []
+  grok_3_mini_beta_high:
+    release_date: 2025-04-09
+    aliases: []
+  grok_3_mini_beta_medium:
+    release_date: 2025-04-09
+    aliases: []
+  gemini_2_5_pro_preview_03_25:
+    release_date: 2025-04-09
+    aliases: []
+  grok_3:
+    release_date: 2025-04-09
+    aliases: []
+  gpt_4_1_2025_04_14:
+    release_date: 2025-04-14
+    aliases: []
+  gpt_4_1_nano_2025_04_14:
+    release_date: 2025-04-14
+    aliases: []
+  glm_z1_rumination_32b_0414:
+    release_date: 2025-04-14
+    aliases: []
+  o3_2025_04_16_medium:
+    release_date: 2025-04-16
+    aliases: []
+  o3_2025_04_16_high:
+    release_date: 2025-04-16
+    aliases: []
+  o4_mini_2025_04_16_medium:
+    release_date: 2025-04-16
+    aliases: []
+  o4_mini_2025_04_16_high:
+    release_date: 2025-04-16
+    aliases: []
+  o3_2025_04_16_low:
+    release_date: 2025-04-16
+    aliases: []
+  o4_mini_2025_04_16_low:
+    release_date: 2025-04-16
+    aliases: []
+  gemini_2_5_flash_preview_04_17:
+    release_date: 2025-04-17
+    aliases: []
+  gemini_2_5_flash_preview_04_17__16k_thinking_:
+    release_date: 2025-04-17
+    aliases: []
+  gemini_2_5_flash_preview_04_17__24k_thinking_:
+    release_date: 2025-04-17
+    aliases: []
+  qwen_plus_2025_04_28:
+    release_date: 2025-04-28
+    aliases: []
+  qwen3_14b:
+    release_date: 2025-04-28
+    aliases: []
+  qwen3_8b:
+    release_date: 2025-04-28
+    aliases: []
+  qwen3_32b:
+    release_date: 2025-04-29
+    aliases: []
+  qwen3_30b_a3b:
+    release_date: 2025-04-29
+    aliases: []
+  phi_4_reasoning:
+    release_date: 2025-04-30
+    aliases: []
+  deepseek_prover_v2:
+    release_date: 2025-04-30
+    aliases: []
+  phi_4_reasoning_plus:
+    release_date: 2025-04-30
+    aliases: []
+  gemini_2_5_pro_preview_05_06:
+    release_date: 2025-05-06
+    aliases: []
+  mistral_medium_2505:
+    release_date: 2025-05-07
+    aliases: []
+  codex_mini_2025_05_16:
+    release_date: 2025-05-16
+    aliases: []
+  gemini_2_5_flash_preview_05_20_23k:
+    release_date: 2025-05-20
+    aliases: []
+  gemini_2_5_flash_preview_05_20_1k:
+    release_date: 2025-05-20
+    aliases: []
+  gemini_2_5_flash_preview_05_20_8k:
+    release_date: 2025-05-20
+    aliases: []
+  gemini_2_5_flash_preview_05_20_16k:
+    release_date: 2025-05-20
+    aliases: []
+  claude_opus_4_20250514:
+    release_date: 2025-05-22
+    aliases: []
+  claude_sonnet_4_20250514:
+    release_date: 2025-05-22
+    aliases: []
+  claude_opus_4_20250514_32k:
+    release_date: 2025-05-22
+    aliases: []
+  claude_sonnet_4_20250514_64k:
+    release_date: 2025-05-22
+    aliases: []
+  claude_sonnet_4_20250514_16k:
+    release_date: 2025-05-22
+    aliases: []
+  claude_opus_4_20250514_16k:
+    release_date: 2025-05-22
+    aliases: []
+  claude_sonnet_4_20250514_32k:
+    release_date: 2025-05-22
+    aliases: []
+  claude_sonnet_4_20250514_59k:
+    release_date: 2025-05-22
+    aliases: []
+  claude_opus_4_20250514_27k:
+    release_date: 2025-05-22
+    aliases: []
+  claude_opus_4_20250514_8k:
+    release_date: 2025-05-22
+    aliases: []
+  claude_sonnet_4_20250514_8k:
+    release_date: 2025-05-22
+    aliases: []
+  claude_opus_4_20250514_1k:
+    release_date: 2025-05-22
+    aliases: []
+  claude_sonnet_4_20250514_1k:
+    release_date: 2025-05-22
+    aliases: []
+  deepseek_r1_0528:
+    release_date: 2025-05-28
+    aliases: []
+  gemini_2_5_pro_preview_06_05:
+    release_date: 2025-06-05
+    aliases: []
+  gemini_2_5_pro_preview_06_05_1k:
+    release_date: 2025-06-05
+    aliases: []
+  magistral_medium_2506:
+    release_date: 2025-06-10
+    aliases: []
+  magistral_small_2506:
+    release_date: 2025-06-10
+    aliases: []
+  o3_pro_2025_06_10_high:
+    release_date: 2025-06-10
+    aliases: []
+  o3_pro_2025_06_10_low:
+    release_date: 2025-06-10
+    aliases: []
+  o3_pro_2025_06_10_medium:
+    release_date: 2025-06-10
+    aliases: []

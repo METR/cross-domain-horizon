@@ -15,8 +15,6 @@ model_info:
       - anthropic_claude_3_5_haiku
   anthropic_claude_3_haiku:
     release_date: 2024-03-13
-    aliases:
-      - "claude 3 haiku"
   anthropic_claude_3_5_sonnet_latest:
     release_date: 2024-10-22
     aliases:
@@ -63,19 +61,16 @@ model_info:
     release_date: 2025-01-20
   deepseek_v3:
     release_date: 2024-12-26
-    aliases:
-      - "DeepSeek-V3"
-      - "deepseek v3"
   deepseek_v3_03_24_2025:
     release_date: 2025-03-24
   gemini_ultra:
     release_date: 2023-12-19
   google_gemini_1_5_flash_002:
-    release_date: 2024-06-12
+    release_date: 2024-09-24
   google_gemini_1_5_pro_001:
-    release_date: 2024-02-15  
+    release_date: 2024-05-24
   google_gemini_1_5_pro_002:
-    release_date: 2024-06-12
+    release_date: 2024-09-24
     aliases:
       - google_gemini_1_5_pro
   google_gemini_1_5_pro_052024:
@@ -93,15 +88,13 @@ model_info:
   google_gemini_2_5_pro_exp:
     release_date: 2025-03-28
     aliases:
-      - "Gemini-2.5-Pro"
-      - "gemini 2.5 pro"
       - google_gemini_2_5_pro_exp_03_25
+  google_gemini_2_5_pro:
+    release_date: unknown
   google_gemini_2_5_flash_preview:
     release_date: 2025-03-28
-    aliases:
-      - "Gemini-2.5-Flash-Preview"
-      - "gemini 2.5 flash preview"
-      - google_gemini_2_5_flash_preview_05_20
+  google_gemini_2_5_flash_preview_05_20:
+    release_date: 2025-05-20
   google_gemini_pro:
     release_date: 2023-12-13
     aliases:
@@ -112,6 +105,8 @@ model_info:
     release_date: 2022-07-01
     aliases:
       - "Minerva 62B"
+  google_minerva_540b:
+    release_date: 2022-07-01
   google_palm_2:
     release_date: 2024-05-10
     aliases:
@@ -160,13 +155,17 @@ model_info:
       - "GPT-4-code model"
       - "GPT-4-code model (CSV, w/ code, SC, k=16)"
   openai_gpt_4_turbo:
+    release_date: 2023-11-06
+    aliases:
+      - "GPT-4 Turbo (MACM, w/code, voting)"
+      - "GPT-4 Turbo"
+  openai_gpt_4_turbo_2024_04_09:
     release_date: 2024-04-09
     aliases:
       - openai_gpt_4_turbo_0409
-      - "GPT-4 Turbo (MACM, w/code, voting)"
-      - "GPT-4 Turbo"
       - "gpt 4 turbo 2024 04 09"
       - openai_gpt_4_turbo_2024_04_09
+    release_date: 2024-04-09
   openai_gpt_4_1106:
     release_date: 2023-11-06
     aliases:
@@ -199,7 +198,6 @@ model_info:
   openai_o1:
     release_date: 2024-12-05
     aliases:
-      - "o1"
       - openai_o1_2024_12_05
       - openai_o1_2024_12_17
   openai_o1_preview:

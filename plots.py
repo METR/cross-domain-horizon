@@ -74,6 +74,7 @@ class LinesPlotParams:
     hide_benchmarks: list[str] = field(default_factory=list)
     show_doubling_rate: bool = False
     subplots: bool = False
+    title: str = "Time Horizon vs. Release Date (Log Scale, Trend on Frontier)"
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.25):
     """Add a watermark to the current plot or specified axes."""
@@ -182,7 +183,6 @@ def plot_lines_over_time(df, output_file,
     plot_df['is_frontier'] = False
     benchmarks = plot_df['benchmark'].unique()
     for bench in benchmarks:
-        print(f"Plotting {bench}")
         bench_df = plot_df[plot_df['benchmark'] == bench].sort_values(by=['release_date_num', 'horizon_minutes'], ascending=[True, False])
         max_horizon_so_far = -np.inf
         frontier_indices = []
@@ -309,7 +309,7 @@ def plot_lines_over_time(df, output_file,
                     if model_name in plotting_aliases:
                         model_name = plotting_aliases[model_name]
                     else:
-                        model_name = point['model'].split('_',1)[-1]
+                        model_name = point['model']
                     texts.append(ax.text(point['release_date'],
                                          point['horizon_minutes'],
                                          model_name,
@@ -323,13 +323,13 @@ def plot_lines_over_time(df, output_file,
     plt.ylim(0.05, 1000)
 
     if params.subplots:
-        fig.suptitle("Time Horizon vs. Release Date (Log Scale, Trend on Frontier)")
+        fig.suptitle(params.title)
         fig.supxlabel("Model Release Date")
         fig.supylabel("Time Horizon (minutes)")
     else:
         plt.xlabel("Model Release Date")
         plt.ylabel("Time Horizon (minutes)")
-        plt.title("Time Horizon vs. Release Date (Log Scale, Trend on Frontier)")
+        plt.title(params.title)
         ax.grid(True, which="major", ls="--", linewidth=0.5, alpha=0.4)
 
 
@@ -455,8 +455,6 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
 
     df_to_use = df[df['benchmark'].isin(benchmarks_to_use)]
 
-    print(df_to_use[df_to_use['benchmark'] == "livecodebench_2411_2505"])
-
     arr = mpatches.FancyArrowPatch((0.2, 0.05), (0.8, 0.05),
                                arrowstyle='->,head_width=.15', mutation_scale=20,
                                transform=ax.transAxes)
@@ -513,7 +511,7 @@ def main():
     # Get release dates for each model (assuming one release date per model)
     release_dates = all_df[['model', 'release_date']].drop_duplicates().set_index('model')
     duplicate_rows = all_df[all_df[['model', 'benchmark']].duplicated(keep=False)]
-    assert duplicate_rows.empty, "Duplicate rows found in release dates"
+    assert duplicate_rows.empty, f"Duplicate rows found in release dates:\n{duplicate_rows}"
     
     # Create pivot table for horizons
     pivot_df = all_df.pivot(index='model', columns='benchmark', values='horizon')
@@ -538,8 +536,12 @@ def main():
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:
         # Generate and save the lines over time plot using the original loaded data
-        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER)) # Use copy
-        plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, LinesPlotParams(show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER))
+        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER))
+
+        plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, LinesPlotParams(
+            title="HCAST/RS Time Horizons (full method vs average-scores-only)",
+            show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER,)
+        )
         plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True))
 
 

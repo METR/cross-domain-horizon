@@ -23,7 +23,7 @@ def plot_splits(df: pd.DataFrame, output_path: pathlib.Path):
     }
 
     group_benchmark_models = {
-        'gpqa_diamond': ['openai/gpt-4o-2024-05-13', 'anthropic/claude-3-7-sonnet-20250219', 'anthropic/claude-3-haiku-20240307', 'google/gemini-2.5-pro-exp-03-25']
+        'gpqa_diamond': ['google/gemini-2.5-pro-exp-03-25', 'anthropic/claude-3-7-sonnet-20250219', 'openai/gpt-4-1106-preview']
     }
     
     # Load data for each benchmark
@@ -127,6 +127,24 @@ def plot_splits(df: pd.DataFrame, output_path: pathlib.Path):
                         'geom_mean_length': group_geom_mean_length
                     })
     
+    # Manually add GPT-4o HCAST/RS data
+    hcast_buckets = [
+        ('1-4 min', 2.0, 0.73569),      # geomean of 1-4 = 2
+        ('4-16 min', 8.0, 0.614769),    # geomean of 4-16 = 8  
+        ('16-64 min', 32.0, 0.237548),  # geomean of 16-64 = 32
+        ('64-256 min', 128.0, 0.131602), # geomean of 64-256 = 128
+        ('256-960 min', 496.0, 0.0)     # geomean of 256-960 = 496
+    ]
+    
+    for bucket_name, geom_mean_length, score in hcast_buckets:
+        data_points.append({
+            'benchmark': 'hcast_r_s',
+            'model': 'GPT-4o',
+            'split': bucket_name,
+            'score': score * 100,  # Convert to percentage
+            'geom_mean_length': geom_mean_length
+        })
+    
     # Convert to DataFrame
     df = pd.DataFrame(data_points)
     
@@ -138,7 +156,9 @@ def plot_splits(df: pd.DataFrame, output_path: pathlib.Path):
     colors = plt.cm.tab10(np.linspace(0, 1, len(benchmarks)))
     benchmark_colors = dict(zip(benchmarks, colors))
     
-    # Plot each (benchmark, model) group
+    # Plot each (benchmark, model) group and track legend entries
+    legend_entries = {}
+    
     for (benchmark, model), group in df.groupby(['benchmark', 'model']):
         # Sort by appropriate column for line connection
         if benchmark in group_benchmark_models:
@@ -149,11 +169,24 @@ def plot_splits(df: pd.DataFrame, output_path: pathlib.Path):
             group_sorted = group.sort_values('score')
         
         color = benchmark_colors[benchmark]
-        label = f'{benchmark_aliases[benchmark]} \n- {plotting_aliases.get(model, model)}'
+        
+        # Create legend entry for this benchmark if not already created
+        if benchmark not in legend_entries:
+            # Collect all models for this benchmark
+            benchmark_df = df[df['benchmark'] == benchmark]
+            models_in_benchmark = benchmark_df['model'].unique()
+            model_names = [plotting_aliases.get(m, m) for m in models_in_benchmark]
+            model_list = '\n '.join(model_names)
+            legend_label = f'{benchmark_aliases.get(benchmark, benchmark)}:\n {model_list}'
+            legend_entries[benchmark] = legend_label
+            plot_label = legend_label
+        else:
+            # Don't add to legend again
+            plot_label = None
         
         # Plot points and connect with lines
         plt.plot(group_sorted['geom_mean_length'], group_sorted['score'], 
-                'o-', color=color, label=label, alpha=0.7, linewidth=2, markersize=6)
+                'o-', color=color, label=plot_label, alpha=0.7, linewidth=2, markersize=6)
     
 
     plt.xscale('log')
@@ -161,7 +194,7 @@ def plot_splits(df: pd.DataFrame, output_path: pathlib.Path):
     plt.xlabel('Task Length (minutes, geometric mean of split)')
     plt.ylabel('Score (%)')
     plt.title('Performance vs Task Length by Benchmark and Model')
-    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     

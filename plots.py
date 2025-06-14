@@ -157,31 +157,45 @@ def plot_lines_over_time(df, output_file,
             p2 = 0
             p98 = 10**10
 
-        def scatter_points(data, label, **kwargs):
+        def scatter_points(data, label, marker_override=None, **kwargs):
+            # Determine marker based on slope column if not overridden
+            if marker_override:
+                marker = marker_override
+            elif 'slope' in data.columns and len(data) > 0:
+                # Use the slope column from the dataframe
+                slope_val = data['slope'].iloc[0]  # Assume all points in data have same slope for this benchmark
+                if pd.isna(slope_val):
+                    marker = 'o'  # Keep as circle if slope is NaN
+                else:
+                    marker = 'x' if slope_val < 0.5 else 'o'
+            else:
+                marker = 'o'
+                
             ax.scatter(
                 data['release_date'],
                 data['horizon_minutes'],
                 color=color,
                 label=label,
+                marker=marker,
                 **kwargs
             )
 
         # Plot non-frontier points (circles)
         if params.show_points_level >= ShowPointsLevel.ALL:
-            scatter_points(non_frontier_data, f"_{bench}_nonfrontier", marker='o', alpha=0.2, s=20, edgecolor='k', linewidth=0.5)
+            scatter_points(non_frontier_data, f"_{bench}_nonfrontier", marker_override='o', alpha=0.2, s=20, edgecolor='k', linewidth=0.5)
 
         df_within = frontier_data[(frontier_data['horizon_minutes'] > p2) & (frontier_data['horizon_minutes'] < p98)]
         df_outside = frontier_data[(frontier_data['horizon_minutes'] > p98) | (frontier_data['horizon_minutes'] < p2)]
 
-        # Plot frontier points (diamonds)
+        # Plot frontier points (slope-based markers for both within and outside range)
         if params.show_points_level >= ShowPointsLevel.FRONTIER:
-            scatter_points(df_within, f"_{bench}", marker='o', alpha=0.9, s=12, edgecolor='k', linewidth=0.5)
-            scatter_points(df_outside, f"_{bench}_outside", marker='D', alpha=0.9, s=15, linewidth=0.5)
+            scatter_points(df_within, f"_{bench}", alpha=0.9, s=12, edgecolor='k', linewidth=0.5)  # Use slope-based marker
+            scatter_points(df_outside, f"_{bench}_outside", alpha=0.9, s=15, linewidth=0.5)  # Use slope-based marker for outside points too
         else:
             
             frontier_data = frontier_data.sort_values('release_date_num')
             selected_data = frontier_data.iloc[[0, -1]] if params.show_points_level == ShowPointsLevel.FIRST_AND_LAST else frontier_data.iloc[[]]
-            scatter_points(selected_data, f"_{bench}", marker='o', alpha=0.9, s=30, edgecolor='k', linewidth=0.5)
+            scatter_points(selected_data, f"_{bench}", alpha=0.9, s=30, edgecolor='k', linewidth=0.5)  # Use slope-based marker
 
         # Fit and plot smoothing spline using only frontier points
         if len(frontier_data) >= 3:  # Need at least 3 points for spline
@@ -193,6 +207,7 @@ def plot_lines_over_time(df, output_file,
             # Keep linear regression for doubling rate calculation
             coeffs = np.polyfit(X, Y_log, 1)
             doubling_rate = coeffs[0] * 365  # Convert from per day to per year
+            slope = coeffs[0]  # Store raw slope for marker selection
 
             # degree-1 spline to avoid negative slopes
             spline = make_splrep(X, Y_log, s=0.2, k=1)
@@ -248,7 +263,7 @@ def plot_lines_over_time(df, output_file,
 
     ax.set_yscale('log')
     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter('{x}'))
-    plt.ylim(0.05, 1000)
+    plt.ylim(0.05, 10000)
 
     if params.subplots:
         fig.suptitle(params.title)
@@ -392,9 +407,10 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
 
     sns.scatterplot(data=df_to_use, y='horizon', x='slope', hue='benchmark', ax=ax)
 
-    plt.xlabel("Model horizon (minutes)")
+    ax.set_xlabel("Slope of logistic curve")
+    ax.set_ylabel("Model horizon (minutes)")
 
-    ax.set_xlim(0.05, 5)
+    ax.set_xlim(0.08, 4)
     ax.set_yscale('log')
     ax.set_xscale('log')
     ax.set_ylim(bottom=0.1)

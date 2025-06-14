@@ -110,7 +110,7 @@ def estimate_horizon_binsearch(score: int, bspec: BenchmarkScoresSpec, n_iterati
             log_max = log_horizon
             log_horizon = (log_min + log_horizon) / 2
             
-    return ModelParams(horizon=float(np.exp(log_horizon)), slope=DEFAULT_SLOPE)
+    return ModelParams(horizon=float(np.exp(log_horizon)), slope=DEFAULT_SLOPE, score=score)
 
 def estimate_horizons(scores: dict[str, int], bspec: BenchmarkScoresSpec, mle: bool) -> dict[str, float]:
     """
@@ -173,6 +173,7 @@ def process_dataset(dataset_name: str) -> None:
         'model': list(horizons.keys()),
         'horizon': [h.horizon for h in horizons.values()],
         'slope': [h.slope for h in horizons.values()],
+        'score': [h.score for h in horizons.values()],
     })
     df = df.sort_values('horizon', ascending=False)
     df.to_csv(output_file, index=False, float_format='%.4f')

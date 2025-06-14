@@ -30,6 +30,7 @@ BENCHMARK_TASK_LENGTHS_OUTPUT_FILE = 'plots/benchmark_task_lengths.png'
 LENGTH_DEPENDENCE_OUTPUT_FILE = 'plots/length_dependence.png'
 SPLITS_OUTPUT_FILE = 'plots/splits_plot.png'
 SPECULATION_OUTPUT_FILE = pathlib.Path('plots/speculation.png')
+PERCENT_OVER_TIME_OUTPUT_FILE = 'plots/percent_over_time.png'
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
 
 
@@ -51,6 +52,7 @@ class LinesPlotParams:
     subplots: bool = False
     title: str = "Time Horizon vs. Release Date (Log Scale, Trend on Frontier)"
     verbose: bool = False
+    xbound: tuple[str, str] | None = None
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.25):
     """Add a watermark to the current plot or specified axes."""
@@ -125,7 +127,8 @@ def plot_lines_over_time(df, output_file,
 
     if params.subplots:
         # last subplot contains legend
-        fig, axs = plt.subplots(figsize=(12, 8), nrows=(len(benchmarks) + 1) // 3, ncols=3, sharex=True, sharey=True)
+        nrows = (len(benchmarks) + 1) // 2
+        fig, axs = plt.subplots(figsize=(12, nrows * 4), nrows=nrows, ncols=2, sharex=True, sharey=True)
         axs = axs.flatten()
     else:
         fig, ax = plt.subplots(figsize=(12, 8))
@@ -165,8 +168,10 @@ def plot_lines_over_time(df, output_file,
                     slope_val = row['slope']
                     if pd.isna(slope_val):
                         marker = 'o'  # Keep as circle if slope is NaN
+                    elif row['benchmark'] == 'hcast_r_s':
+                        marker = '^'
                     else:
-                        marker = 'x' if slope_val < 0.3 else 'o'
+                        marker = 'x' if slope_val < 0.25 else 'o' if slope_val == 0.6 else '^'
                     
                     # Only add label to the first point to avoid duplicate legend entries
                     point_label = label if idx == data.index[0] else None
@@ -192,7 +197,7 @@ def plot_lines_over_time(df, output_file,
 
         # Plot non-frontier points
         if params.show_points_level >= ShowPointsLevel.ALL:
-            scatter_points(non_frontier_data, f"_{bench}_nonfrontier", alpha=0.2, s=20, edgecolor='k', linewidth=0.5)
+            scatter_points(non_frontier_data, f"_{bench}_nonfrontier", alpha=0.2, s=20,  linewidth=0.5)
 
         if params.verbose:
             print(f"Frontier models for {bench}: {', '.join(frontier_data['model'].unique())}")
@@ -201,12 +206,12 @@ def plot_lines_over_time(df, output_file,
 
         # Plot frontier points (slope-based markers for both within and outside range)
         if params.show_points_level >= ShowPointsLevel.FRONTIER:
-            scatter_points(df_within, f"_{bench}", alpha=0.9, s=12, edgecolor='k', linewidth=0.5)
-            scatter_points(df_outside, f"_{bench}_outside", alpha=0.9, s=15, linewidth=0.5)
+            scatter_points(df_within, f"_{bench}", alpha=0.9, s=17, linewidth=0.5)
+            scatter_points(df_outside, f"_{bench}_outside", alpha=0.9, s=17, linewidth=0.5)
         else:
             frontier_data = frontier_data.sort_values('release_date_num')
             selected_data = frontier_data.iloc[[0, -1]] if params.show_points_level == ShowPointsLevel.FIRST_AND_LAST else frontier_data.iloc[[]]
-            scatter_points(selected_data, f"_{bench}", alpha=0.9, s=30, edgecolor='k', linewidth=0.5)
+            scatter_points(selected_data, f"_{bench}", alpha=0.9, s=30, linewidth=0.5)
 
         # Fit and plot smoothing spline using only frontier points
         if len(frontier_data) >= 3:  # Need at least 3 points for spline
@@ -274,15 +279,15 @@ def plot_lines_over_time(df, output_file,
 
     ax.set_yscale('log')
     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter('{x}'))
-    plt.ylim(0.05, 10000)
+    plt.ylim(0.05, 3000)
 
     if params.subplots:
         fig.suptitle(params.title)
         fig.supxlabel("Model Release Date")
-        fig.supylabel("Time Horizon (minutes)")
+        fig.supylabel("50% Time Horizon (minutes)")
     else:
         plt.xlabel("Model Release Date")
-        plt.ylabel("Time Horizon (minutes)")
+        plt.ylabel("50% Time Horizon (minutes)")
         plt.title(params.title)
         ax.grid(True, which="major", ls="--", linewidth=0.5, alpha=0.4)
 
@@ -293,6 +298,11 @@ def plot_lines_over_time(df, output_file,
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
     ax.xaxis.set_minor_locator(mdates.MonthLocator(bymonth=[1, 4, 7, 10]))
     fig.autofmt_xdate(rotation=45, ha='right') # Auto-format dates (includes rotation)
+    
+    # Set x-axis bounds if specified
+    if params.xbound is not None:
+        start_date, end_date = params.xbound
+        ax.set_xlim(pd.to_datetime(start_date), pd.to_datetime(end_date))
 
 
     # Create a legend
@@ -304,20 +314,32 @@ def plot_lines_over_time(df, output_file,
     handle2, = ax.plot([], [], color='black', linestyle=densely_dotted, alpha=0.4, linewidth=2, label="Outside range")
     trend_legend_handles.append(handle2)
 
+    # Create fit quality legend
+    fit_quality_handles = []
+    handle3 = ax.scatter([], [], color='black', marker='^', s=30, label="Good (β > 0.25)")
+    fit_quality_handles.append(handle3)
+    handle4 = ax.scatter([], [], color='black', marker='x', s=30, label="Poor (β < 0.25)")
+    fit_quality_handles.append(handle4)
+    handle5 = ax.scatter([], [], color='black', marker='o', s=30, label="Unknown")
+    fit_quality_handles.append(handle5)
+
     trend_legend_ax = axs[-1] if params.subplots else ax
 
     trend_legend = trend_legend_ax.legend(handles=trend_legend_handles, title="Range of task lengths\n in benchmark", bbox_to_anchor=(0.02, 0.5), loc='center left')
+    
+    fit_quality_legend = trend_legend_ax.legend(handles=fit_quality_handles, title="Logistic fit quality", bbox_to_anchor=(0.02, 0.3), loc='center left')
 
     
     if not params.subplots:
         bench_legend = ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(0.02, 1), loc='upper left')
         ax.add_artist(trend_legend)
+        ax.add_artist(fit_quality_legend)
 
         if texts:
             adjustText.adjust_text(texts, ax=ax,
                                 arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
 
-    add_watermark(ax)
+        add_watermark(ax)
 
     if params.subplots:
         for i in range(len(benchmarks), len(axs)):
@@ -431,6 +453,86 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     plt.savefig(output_file)
     print(f"Length dependence plot saved to {output_file}")
 
+
+def plot_percent_over_time(df, output_file):
+    """Generates and saves a plot of score (percentage) over time for frontier models only."""
+    
+    assert not df.empty, "No data loaded for percent over time plot."
+    assert 'score' in df.columns and not df['score'].isnull().all(), "No valid 'score' data found."
+    assert 'release_date' in df.columns and not df['release_date'].isnull().all(), "No valid 'release_date' data found."
+
+    plot_df = df.dropna(subset=['release_date', 'score']).copy()
+    assert not plot_df.empty, "No valid data points (with release date and score) found."
+
+    plot_df['release_date_num'] = mdates.date2num(plot_df['release_date'])
+
+    # Identify frontier models for each benchmark (models with highest score at each time point)
+    plot_df['is_frontier'] = False
+    benchmarks = plot_df['benchmark'].unique()
+    
+    for bench in benchmarks:
+        bench_df = plot_df[plot_df['benchmark'] == bench].sort_values(by=['release_date_num', 'score'], ascending=[True, False])
+        max_score_so_far = -np.inf
+        frontier_indices = []
+        for index, row in bench_df.iterrows():
+            # A model is on the frontier if its score is greater than all previous models' scores
+            if row['score'] > max_score_so_far:
+                frontier_indices.append(index)
+                max_score_so_far = row['score']
+        if frontier_indices:
+            plot_df.loc[frontier_indices, 'is_frontier'] = True
+
+    # Filter to only frontier models
+    frontier_df = plot_df[plot_df['is_frontier']].copy()
+    assert not frontier_df.empty, "No frontier models found for percent over time plot."
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    palette = sns.color_palette(n_colors=len(benchmarks))
+    benchmark_colors = {bench: color for bench, color in zip(benchmarks, palette)}
+
+    for bench in benchmarks:
+        bench_frontier = frontier_df[frontier_df['benchmark'] == bench]
+        if bench_frontier.empty:
+            continue
+            
+        color = benchmark_colors[bench]
+        
+        # Sort by release date for proper line plotting
+        bench_frontier = bench_frontier.sort_values('release_date')
+        
+        # Plot the line connecting frontier points
+        ax.plot(bench_frontier['release_date'], bench_frontier['score'] * 100, 
+                color=color, linewidth=2.5, marker='o', markersize=6,
+                label=benchmark_aliases.get(bench, bench))
+
+    ax.set_xlabel("Model Release Date")
+    ax.set_ylabel("Score (%)")
+    ax.set_title("Performance Over Time (Frontier Models Only)")
+    ax.grid(True, which="major", ls="--", linewidth=0.5, alpha=0.4)
+
+    # Format x-axis dates
+    ax.xaxis.set_major_locator(mdates.YearLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+    ax.xaxis.set_minor_locator(mdates.MonthLocator(bymonth=[1, 4, 7, 10]))
+    fig.autofmt_xdate(rotation=45, ha='right')
+
+    # Set y-axis to show percentages nicely
+    ax.set_ylim(0, 100)
+    ax.yaxis.set_major_formatter(mticker.PercentFormatter())
+
+    # Create legend
+    ax.legend(title='Benchmark', bbox_to_anchor=(0.02, 1), loc='upper left')
+    
+    add_watermark(ax)
+    
+    plt.tight_layout()
+    
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    plt.savefig(output_file)
+    print(f"Percent over time plot saved to {output_file}")
+    plt.close(fig)
+
 def main():
     parser = argparse.ArgumentParser(description='Generate various plots for model analysis')
     parser.add_argument('--all', action='store_true', help='Generate all plots')
@@ -440,6 +542,7 @@ def main():
     parser.add_argument('--length-dependence', action='store_true', help='Generate length dependence plot')
     parser.add_argument('--speculation', action='store_true', help='Generate speculation plot')
     parser.add_argument('--splits', action='store_true', help='Generate splits plot')
+    parser.add_argument('--percent', action='store_true', help='Generate percent over time plot')
     args = parser.parse_args()
 
     plots_to_make = []
@@ -457,6 +560,8 @@ def main():
         plots_to_make += ["speculation"]
     elif args.splits:
         plots_to_make += ["splits"]
+    elif args.percent:
+        plots_to_make += ["percent"]
 
     # If no arguments provided, default to --all
     if not any(vars(args).values()):
@@ -482,13 +587,13 @@ def main():
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:
         # Generate and save the lines over time plot using the original loaded data
-        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER, verbose=True))
+        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))
 
         plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, LinesPlotParams(
             title="HCAST/RS Time Horizons (full method vs average-scores-only)",
             show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER,)
         )
-        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True))
+        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2026-01-01")))
 
 
     # --- Benchmark Task Lengths Plot ---
@@ -504,6 +609,9 @@ def main():
 
     if "speculation" in plots_to_make:
         plot_speculation(all_df, SPECULATION_OUTPUT_FILE)
+
+    if "percent" in plots_to_make:
+        plot_percent_over_time(all_df.copy(), PERCENT_OVER_TIME_OUTPUT_FILE)
 
 if __name__ == "__main__":
     main()

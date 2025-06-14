@@ -17,6 +17,7 @@ class ModelParams:
     horizon: float
     slope: float | None
     slope_method: str | None = None
+    score: float | None = None
 
 def sigmoid(horizon, task_len, slope, chance_accuracy) -> np.ndarray:
     result = 1 / (1 + np.exp(slope * (-np.log2(horizon) + np.log2(task_len))))
@@ -61,4 +62,4 @@ def estimate_params_mle(model_name: str, bspec: BenchmarkScoresSpec):
     chance_accuracy = bspec.chance_accuracy
  
     result = minimize(beta_nlog_likelihood, x0=[5.0, 0.5], bounds=[(0, None), (0.01, None)], args=(observed_scores, task_lengths, chance_accuracy, model_name))
-    return ModelParams(horizon=float(result.x[0]), slope=float(result.x[1]), slope_method="mle")
+    return ModelParams(horizon=float(result.x[0]), slope=float(result.x[1]), slope_method="mle", score=np.mean(list(observed_scores.values())))

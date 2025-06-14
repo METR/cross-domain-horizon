@@ -27,7 +27,6 @@ xai_grok_2 = 15.2
 openai_gpt_4o_2024_08_06 = 14.0
 cohere_command_a = 13.3
 openai_gpt_4o_2024_11_20 = 12.1
-openai_gpt_4o_mini = 11.5
 anthropic_claude_3_5_sonnet_latest = 10.0
 mistral_large_11_2024 = 9.6
 mistral_small_02_2024 = 5.6

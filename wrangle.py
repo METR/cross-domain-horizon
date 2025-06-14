@@ -198,7 +198,7 @@ def load_data(data_dir):
         try:
             df = pd.read_csv(csv_path)
 
-            columns_to_use = ['model', 'horizon', 'slope', 'slope_method', 'release_date', 'benchmark']
+            columns_to_use = ['model', 'horizon', 'slope', 'slope_method', 'release_date', 'benchmark', "score"]
 
             for col in columns_to_use:
                 if col not in df.columns:

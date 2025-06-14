@@ -191,9 +191,9 @@ def plot_splits(df: pd.DataFrame, output_path: pathlib.Path):
 
     plt.xscale('log')
 
-    plt.xlabel('Task Length (minutes, geometric mean of split)')
+    plt.xlabel('Task Length for Humans (minutes, geometric mean of split)')
     plt.ylabel('Score (%)')
-    plt.title('Performance vs Task Length by Benchmark and Model')
+    plt.title('Model Success Rate vs Task Length by Benchmark and Model')
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()

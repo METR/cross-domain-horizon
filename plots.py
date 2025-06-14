@@ -50,6 +50,7 @@ class LinesPlotParams:
     show_doubling_rate: bool = False
     subplots: bool = False
     title: str = "Time Horizon vs. Release Date (Log Scale, Trend on Frontier)"
+    verbose: bool = False
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.25):
     """Add a watermark to the current plot or specified axes."""
@@ -157,45 +158,55 @@ def plot_lines_over_time(df, output_file,
             p2 = 0
             p98 = 10**10
 
-        def scatter_points(data, label, marker_override=None, **kwargs):
-            # Determine marker based on slope column if not overridden
-            if marker_override:
-                marker = marker_override
-            elif 'slope' in data.columns and len(data) > 0:
-                # Use the slope column from the dataframe
-                slope_val = data['slope'].iloc[0]  # Assume all points in data have same slope for this benchmark
-                if pd.isna(slope_val):
-                    marker = 'o'  # Keep as circle if slope is NaN
-                else:
-                    marker = 'x' if slope_val < 0.5 else 'o'
+        def scatter_points(data, label, **kwargs):
+            if 'slope' in data.columns and len(data) > 0:
+                # Plot each point individually with its own marker based on slope
+                for idx, row in data.iterrows():
+                    slope_val = row['slope']
+                    if pd.isna(slope_val):
+                        marker = 'o'  # Keep as circle if slope is NaN
+                    else:
+                        marker = 'x' if slope_val < 0.3 else 'o'
+                    
+                    # Only add label to the first point to avoid duplicate legend entries
+                    point_label = label if idx == data.index[0] else None
+                    
+                    ax.scatter(
+                        row['release_date'],
+                        row['horizon_minutes'],
+                        color=color,
+                        label=point_label,
+                        marker=marker,
+                        **kwargs
+                    )
             else:
-                marker = 'o'
-                
-            ax.scatter(
-                data['release_date'],
-                data['horizon_minutes'],
-                color=color,
-                label=label,
-                marker=marker,
-                **kwargs
-            )
+                # Default to circles for all points
+                ax.scatter(
+                    data['release_date'],
+                    data['horizon_minutes'],
+                    color=color,
+                    label=label,
+                    marker='o',
+                    **kwargs
+                )
 
-        # Plot non-frontier points (circles)
+        # Plot non-frontier points
         if params.show_points_level >= ShowPointsLevel.ALL:
-            scatter_points(non_frontier_data, f"_{bench}_nonfrontier", marker_override='o', alpha=0.2, s=20, edgecolor='k', linewidth=0.5)
+            scatter_points(non_frontier_data, f"_{bench}_nonfrontier", alpha=0.2, s=20, edgecolor='k', linewidth=0.5)
 
+        if params.verbose:
+            print(f"Frontier models for {bench}: {', '.join(frontier_data['model'].unique())}")
         df_within = frontier_data[(frontier_data['horizon_minutes'] > p2) & (frontier_data['horizon_minutes'] < p98)]
         df_outside = frontier_data[(frontier_data['horizon_minutes'] > p98) | (frontier_data['horizon_minutes'] < p2)]
 
         # Plot frontier points (slope-based markers for both within and outside range)
         if params.show_points_level >= ShowPointsLevel.FRONTIER:
-            scatter_points(df_within, f"_{bench}", alpha=0.9, s=12, edgecolor='k', linewidth=0.5)  # Use slope-based marker
-            scatter_points(df_outside, f"_{bench}_outside", alpha=0.9, s=15, linewidth=0.5)  # Use slope-based marker for outside points too
+            scatter_points(df_within, f"_{bench}", alpha=0.9, s=12, edgecolor='k', linewidth=0.5)
+            scatter_points(df_outside, f"_{bench}_outside", alpha=0.9, s=15, linewidth=0.5)
         else:
-            
             frontier_data = frontier_data.sort_values('release_date_num')
             selected_data = frontier_data.iloc[[0, -1]] if params.show_points_level == ShowPointsLevel.FIRST_AND_LAST else frontier_data.iloc[[]]
-            scatter_points(selected_data, f"_{bench}", alpha=0.9, s=30, edgecolor='k', linewidth=0.5)  # Use slope-based marker
+            scatter_points(selected_data, f"_{bench}", alpha=0.9, s=30, edgecolor='k', linewidth=0.5)
 
         # Fit and plot smoothing spline using only frontier points
         if len(frontier_data) >= 3:  # Need at least 3 points for spline
@@ -236,9 +247,9 @@ def plot_lines_over_time(df, output_file,
 
             thick = (bench == "hcast_r_s") and not params.subplots
 
-            ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', linewidth=5 if thick else 3, label=f"{benchmark_aliases[bench]}", zorder=100 if thick else None)
-            ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.3, linestyle=densely_dotted, linewidth=2.5)
-            ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.3, linestyle=densely_dotted, linewidth=2.5)
+            ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', linewidth=5 if thick else 2.5, label=f"{benchmark_aliases[bench]}", zorder=100 if thick else None)
+            ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.3, linestyle=densely_dotted, linewidth=2)
+            ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.3, linestyle=densely_dotted, linewidth=2)
 
             # Add text labels for first and last frontier points
             if not frontier_data.empty and params.show_points_level >= ShowPointsLevel.FIRST_AND_LAST:
@@ -471,7 +482,7 @@ def main():
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:
         # Generate and save the lines over time plot using the original loaded data
-        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER))
+        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER, verbose=True))
 
         plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, LinesPlotParams(
             title="HCAST/RS Time Horizons (full method vs average-scores-only)",

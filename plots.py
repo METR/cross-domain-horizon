@@ -402,7 +402,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
 
     sns.scatterplot(data=df_to_use, y='horizon', x='slope', hue='benchmark', ax=ax)
 
-    
+    plt.xlabel("Model horizon (minutes)")
 
     ax.set_xlim(0.05, 5)
     ax.set_yscale('log')

@@ -19,6 +19,7 @@ from functools import total_ordering
 
 from plotting_aliases import benchmark_aliases, plotting_aliases
 from plot_splits import plot_splits
+from plot_speculation import plot_speculation
 
 BENCHMARKS_PATH = 'data/benchmarks'
 
@@ -28,6 +29,7 @@ LINES_SUBPLOTS_OUTPUT_FILE = 'plots/lines_over_time_subplots.png'
 BENCHMARK_TASK_LENGTHS_OUTPUT_FILE = 'plots/benchmark_task_lengths.png'
 LENGTH_DEPENDENCE_OUTPUT_FILE = 'plots/length_dependence.png'
 SPLITS_OUTPUT_FILE = 'plots/splits_plot.png'
+SPECULATION_OUTPUT_FILE = pathlib.Path('plots/speculation.png')
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
 
 
@@ -370,18 +372,6 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
     print(f"Benchmark lengths plot saved to {output_file}")
 
 
-def plot_speculation(df: pd.DataFrame, output_file: pathlib.Path):
-    """
-    Plot based on speculation about other domains.
-
-    The plot should have an x-axis of release date, extending back to 1900,
-    and a y axis of horizon that's mostly log scale but the top is infinity.
-
-    e.g. 
-
-    """
-
-
 def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     """
     Plots the length dependence of the horizon.
@@ -484,6 +474,9 @@ def main():
 
     if "splits" in plots_to_make:
         plot_splits(all_df, SPLITS_OUTPUT_FILE)
+
+    if "speculation" in plots_to_make:
+        plot_speculation(all_df, SPECULATION_OUTPUT_FILE)
 
 if __name__ == "__main__":
     main()

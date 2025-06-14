@@ -5,6 +5,10 @@ import toml
 from pathlib import Path
 
 def load_and_analyze_gpqa_diamond():
+    # Manually specify which models to include
+    selected_models = [
+    ]
+    
     # Load scores data
     with open('data/scores/gpqa_diamond.toml', 'r') as f:
         scores_data = toml.load(f)
@@ -21,8 +25,16 @@ def load_and_analyze_gpqa_diamond():
             # Get question length (assuming single length per split)
             question_length = benchmark_data['splits'][split_name]['lengths'][0]
             
-            # Calculate average success rate across all models for this split
-            scores = list(split_scores.values())
+            # Filter models if selected_models is specified
+            if selected_models:
+                filtered_scores = [split_scores[model] for model in selected_models if model in split_scores]
+                if not filtered_scores:
+                    continue
+                scores = filtered_scores
+            else:
+                scores = list(split_scores.values())
+            
+            # Calculate average success rate across selected models for this split
             avg_success_rate = np.mean(scores)
             
             analysis_data.append({

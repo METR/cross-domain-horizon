@@ -73,8 +73,8 @@ def plot_speculation(df: pd.DataFrame, output_file: pathlib.Path):
         LineSpec("Chess", lambda x: 2**((1/1.7)*(x - 1984)), 'purple', y_start=1, y_end=np.inf,
         dotted_start=0, dotted_end=4*60),
         LineSpec("Image Recognition", lambda x: 2**(x - 2008), 'green', y_start=0, y_end=np.inf, dotted_start=1/60, dotted_end=5),
-        LineSpec("HCAST", lambda x: 2**(2*(x - 2021)), 'orange', y_start=0, y_end=np.inf, dotted_start=1, dotted_end=960),
-        LineSpec("All Intellectual Labor?", lambda x: 2**(x - 2025), 'red', y_start=0, y_end=np.inf, dotted_start=np.inf, dotted_end=np.inf)
+        LineSpec("Self-contained SWE tasks", lambda x: 2**(2*(x - 2022)), 'orange', y_start=0, y_end=np.inf, dotted_start=1, dotted_end=960),
+        LineSpec("All Intellectual Labor?", lambda x: 2**(x - 2026), 'red', y_start=0, y_end=np.inf, dotted_start=np.inf, dotted_end=np.inf)
     ]
 
     points = [
@@ -134,8 +134,8 @@ def plot_speculation(df: pd.DataFrame, output_file: pathlib.Path):
     
     # Set up the plot
     plt.xlabel('Year')
-    plt.ylabel('Time Horizon (minutes)')
-    plt.title('Speculation about Automation of Different Domains')
+    plt.ylabel('Automation Horizon (minutes)')
+    plt.title('Speculation about Automation of Different Domains\nFake data')
     plt.xlim(X_START, X_END)
     
     # Set up y-axis ticks with time units
@@ -181,10 +181,11 @@ def plot_speculation(df: pd.DataFrame, output_file: pathlib.Path):
     # Create evenly spaced percent ticks on the right axis
     percent_values = [20, 30, 40, 50, 60, 70, 80, 90, 100]
     percent_positions = [y_min + (p - 20) / 80 * (y_max - y_min) for p in percent_values]
+    uplift_values = [1 / (1 - p / 100) if p < 100 else np.inf for p in percent_values]
     
     ax2.set_yticks(percent_positions)
-    ax2.set_yticklabels([f'{p}%' for p in percent_values])
-    ax2.set_ylabel('Percent Automated')
+    ax2.set_yticklabels([f'{p:.1f}x' if p < np.inf else '∞' for p in uplift_values])
+    ax2.set_ylabel('Uplift from Automation?')
     ax2.grid(False)  # Disable grid lines for right axis
     
     # Add grid and legend

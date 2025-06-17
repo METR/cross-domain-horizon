@@ -181,8 +181,8 @@ def plot_speculation(df: pd.DataFrame, output_file: pathlib.Path):
     # Create evenly spaced percent ticks on the right axis
     percent_values = [20, 30, 40, 50, 60, 70, 80, 90, 100]
     percent_positions = [y_min + (p - 20) / 80 * (y_max - y_min) for p in percent_values]
-    uplift_values = [1 / (1 - p / 100) if p < 100 else np.inf for p in percent_values]
-    
+    uplift_values = [1 / (0.01 + 1 - p / 100) for p in percent_values]
+    print(uplift_values)
     ax2.set_yticks(percent_positions)
     ax2.set_yticklabels([f'{p:.1f}x' if p < np.inf else '∞' for p in uplift_values])
     ax2.set_ylabel('Uplift from Automation?')
@@ -198,3 +198,8 @@ def plot_speculation(df: pd.DataFrame, output_file: pathlib.Path):
     plt.close()
     
     print(f"Speculation plot saved to {output_file}")
+
+
+if __name__ == "__main__":
+    df = pd.read_csv("data/processed/all_data.csv")
+    plot_speculation(df, pathlib.Path("plots/speculation.png"))

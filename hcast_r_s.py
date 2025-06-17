@@ -48,8 +48,8 @@ df_raw = pd.read_csv(source_horizons_file)
 
 print(df_raw.columns)
 # Select and rename columns
-df_processed = df_raw[["agent", "p50", "coefficient"]].copy()
-df_processed.rename(columns={"agent": "model", "p50": "horizon", "coefficient": "slope"}, inplace=True)
+df_processed = df_raw[["agent", "p50", "coefficient", "average"]].copy()
+df_processed.rename(columns={"agent": "model", "p50": "horizon", "coefficient": "slope", "average": "score"}, inplace=True)
 
 # Apply the name mapping
 df_processed["model"] = df_processed["model"].map(name_mapping)
@@ -72,8 +72,9 @@ df_processed["horizon"] = pd.to_numeric(df_processed["horizon"])
 # slope follows opposite sign convention
 df_processed["slope"] = -df_processed["slope"]
 
+
 # Write the processed data to the new CSV
-df_processed[["model", "horizon", "slope"]].to_csv(output_full_horizons_file, index=False)
+df_processed[["model", "horizon", "slope", "score"]].to_csv(output_full_horizons_file, index=False)
 
 
 def make_scores_toml(df_runs):

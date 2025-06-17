@@ -1,7 +1,7 @@
 benchmark_aliases = {
     "aime": "AIME",
     "gpqa": "GPQA",
-    "gpqa_diamond": "GPQA (Diamond)",
+    "gpqa_diamond": "GPQA Diamond",
     "hcast_r_s": "HCAST/RS",
     "hcast_r_s_full_method": "HCAST/RS (Full Method)",
     "hendrycks_math": "MATH",

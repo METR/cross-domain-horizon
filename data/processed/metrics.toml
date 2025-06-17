@@ -1,0 +1,29 @@
+[hendrycks_math]
+max_horizon_minutes = 363.6955
+
+[osworld]
+max_horizon_minutes = 1.2911
+
+[livecodebench_2411_2505]
+max_horizon_minutes = 227.0383
+
+[gpqa_diamond]
+max_horizon_minutes = 1950.4305
+
+[hcast_r_s]
+max_horizon_minutes = 117.61370000000001
+
+[aime]
+max_horizon_minutes = 146.10330000000002
+
+[gpqa]
+max_horizon_minutes = 77.5852
+
+[tesla_fsd]
+max_horizon_minutes = 93.1816976555271
+
+[hcast_r_s_full_method]
+max_horizon_minutes = 111.303394
+
+[video_mme]
+max_horizon_minutes = 33080.7813

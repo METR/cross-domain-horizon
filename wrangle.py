@@ -4,6 +4,7 @@ import glob
 import re
 from scipy.stats import gmean
 import yaml
+import toml
 from pydantic import BaseModel, Field, validator
 from typing import Union, Dict, List, Optional, Literal
 import datetime
@@ -250,7 +251,17 @@ def load_data(data_dir):
 
     return merged_df
 
-
+def save_metrics(df: pd.DataFrame, out_file: str):
+    """
+    Saves metrics to a toml file, currently the largest horizon for each benchmark
+    """
+    metrics = {}
+    for benchmark in df['benchmark'].unique():
+        benchmark_df = df[df['benchmark'] == benchmark]
+        max_horizon = benchmark_df['horizon'].max()
+        metrics[benchmark] = {'max_horizon_minutes': float(max_horizon / 60)}
+    with open(out_file, 'w') as f:
+        toml.dump(metrics, f)
  
 
 if __name__ == "__main__":
@@ -259,3 +270,5 @@ if __name__ == "__main__":
     os.makedirs(os.path.dirname(out_file), exist_ok=True)
     df.to_csv(out_file, index=False)
     print(f"Data written to {out_file}")
+
+    save_metrics(df, os.path.join(DATA_DIR, 'processed', 'metrics.toml'))

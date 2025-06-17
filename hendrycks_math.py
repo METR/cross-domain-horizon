@@ -64,6 +64,7 @@ level_stats['mean_log2_time'] = level_stats['mean_log2_time'].round(2)
 level_stats['std_log2_time'] = level_stats['std_log2_time'].round(2)
 
 frac_correct = level_stats['num_correct'] / level_stats['num_total']
+print(level_stats)
 
 n_questions = 500
 

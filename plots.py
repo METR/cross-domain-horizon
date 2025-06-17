@@ -24,6 +24,7 @@ from plot_speculation import plot_speculation
 BENCHMARKS_PATH = 'data/benchmarks'
 
 SCATTER_PLOT_OUTPUT_FILE = 'plots/scatter.png'
+HEADLINE_PLOT_OUTPUT_FILE = 'plots/headline.png'
 LINES_PLOT_OUTPUT_FILE = 'plots/lines_over_time.png'
 LINES_SUBPLOTS_OUTPUT_FILE = 'plots/lines_over_time_subplots.png'
 BENCHMARK_TASK_LENGTHS_OUTPUT_FILE = 'plots/benchmark_task_lengths.png'
@@ -48,6 +49,7 @@ class LinesPlotParams:
     show_points_level: ShowPointsLevel
     show_benchmarks: list[str] = field(default_factory=list)
     hide_benchmarks: list[str] = field(default_factory=list)
+    show_dotted_lines: bool = True
     show_doubling_rate: bool = False
     subplots: bool = False
     title: str = "Time Horizon vs. Release Date (Log Scale, Trend on Frontier)"
@@ -253,8 +255,9 @@ def plot_lines_over_time(df, output_file,
             thick = (bench == "hcast_r_s") and not params.subplots
 
             ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', linewidth=5 if thick else 2.5, label=f"{benchmark_aliases[bench]}", zorder=100 if thick else None)
-            ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.3, linestyle=densely_dotted, linewidth=2)
-            ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.3, linestyle=densely_dotted, linewidth=2)
+            if params.show_dotted_lines:
+                ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.3, linestyle=densely_dotted, linewidth=2)
+                ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.3, linestyle=densely_dotted, linewidth=2)
 
             # Add text labels for first and last frontier points
             if not frontier_data.empty and params.show_points_level >= ShowPointsLevel.FIRST_AND_LAST:
@@ -307,12 +310,13 @@ def plot_lines_over_time(df, output_file,
 
     # Create a legend
     handles, labels = ax.get_legend_handles_labels()
-
     trend_legend_handles = []
-    handle1, = ax.plot([], [], color='black', linestyle='-', linewidth=2, label="Inside range")
-    trend_legend_handles.append(handle1)
-    handle2, = ax.plot([], [], color='black', linestyle=densely_dotted, alpha=0.4, linewidth=2, label="Outside range")
-    trend_legend_handles.append(handle2)
+    if params.show_dotted_lines:
+
+        handle1, = ax.plot([], [], color='black', linestyle='-', linewidth=2, label="Inside range")
+        trend_legend_handles.append(handle1)
+        handle2, = ax.plot([], [], color='black', linestyle=densely_dotted, alpha=0.4, linewidth=2, label="Outside range")
+        trend_legend_handles.append(handle2)
 
     # Create fit quality legend
     fit_quality_handles = []
@@ -332,8 +336,9 @@ def plot_lines_over_time(df, output_file,
     
     if not params.subplots:
         bench_legend = ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(0.02, 1), loc='upper left')
-        ax.add_artist(trend_legend)
-        ax.add_artist(fit_quality_legend)
+        if params.show_dotted_lines:
+            ax.add_artist(trend_legend)
+            ax.add_artist(fit_quality_legend)
 
         if texts:
             adjustText.adjust_text(texts, ax=ax,
@@ -422,7 +427,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
 
 def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     """
-    Plots the length dependence of the horizon.
+    Plots the relationship between task length and difficulty
     """
     fig, ax = plt.subplots(figsize=(10, 6))
     add_watermark(ax)
@@ -431,24 +436,106 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
 
     df_to_use = df[df['benchmark'].isin(benchmarks_to_use)]
 
-    arr = mpatches.FancyArrowPatch((0.2, 0.05), (0.8, 0.05),
-                               arrowstyle='->,head_width=.15', mutation_scale=20,
-                               transform=ax.transAxes)
-    ax.add_patch(arr)
-    ax.annotate("Model success depends MORE on human task length", (.5, 1), xycoords=arr, ha='center', va='bottom', fontsize=12)
+    # Calculate HCAST average slope
+    hcast_data = df[df['benchmark'] == 'hcast_r_s']
+    hcast_avg_slope = hcast_data['slope'].mean() if not hcast_data.empty else 0.6
 
+    ax.axhline(y=hcast_avg_slope, color='gray', linestyle='--', alpha=0.7, label=f'HCAST/RS average (β={hcast_avg_slope:.2f})')
 
-    sns.scatterplot(data=df_to_use, y='horizon', x='slope', hue='benchmark', ax=ax)
+    ax.annotate("Model success\n$\\mathbf{strongly}$ related\nto task length", (0.05, 0.95), xycoords='axes fraction', ha='left', va='top', fontsize=12)
+    ax.annotate("Model success\n$\\mathbf{weakly}$ related\nto task length", (0.05, 0.05), xycoords='axes fraction', ha='left', va='bottom', fontsize=12)
 
-    ax.set_xlabel("Slope of logistic curve")
-    ax.set_ylabel("Model horizon (minutes)")
+    
 
-    ax.set_xlim(0.08, 4)
+    # Create custom color palette avoiding red for data points
+    custom_palette = ["blue", "green", "orange", "purple"]
+    sns.scatterplot(data=df_to_use, x='score', y='slope', hue='benchmark', ax=ax, palette=custom_palette)
+
+    # Add bounding ellipses for specific benchmarks
+    import numpy as np
+    
+    ellipse_benchmarks = ["hcast_r_s_full_method", "gpqa_diamond", "video_mme"]
+    
+    for bench in ellipse_benchmarks:
+        bench_data = df_to_use[df_to_use['benchmark'] == bench]
+        if len(bench_data) >= 2:  # Need at least 2 points for an ellipse
+            # Work in log space for y-coordinates to fit ellipse
+            x = bench_data['score'].values
+            y_log = np.log(bench_data['slope'].values)
+            
+            # Calculate mean and covariance in log space
+            mean_x = np.mean(x)
+            mean_y_log = np.mean(y_log)
+            
+            # Calculate covariance matrix
+            cov = np.cov(x, y_log)
+            
+            # Calculate eigenvalues and eigenvectors
+            eigenvals, eigenvecs = np.linalg.eigh(cov)
+            
+            # Calculate ellipse parameters (2 standard deviations)
+            a = 2 * np.sqrt(eigenvals[0])  # semi-major axis
+            b = 2 * np.sqrt(eigenvals[1])  # semi-minor axis
+            angle_rad = np.arctan2(eigenvecs[1, 0], eigenvecs[0, 0])
+            
+            # Generate ellipse boundary points in log space
+            t = np.linspace(0, 2*np.pi, 100)
+            ellipse_x = a * np.cos(t)
+            ellipse_y = b * np.sin(t)
+            
+            # Rotate ellipse
+            cos_angle = np.cos(angle_rad)
+            sin_angle = np.sin(angle_rad)
+            
+            x_rot = ellipse_x * cos_angle - ellipse_y * sin_angle
+            y_rot = ellipse_x * sin_angle + ellipse_y * cos_angle
+            
+            # Translate to center and convert y back to linear scale
+            ellipse_x_final = x_rot + mean_x
+            ellipse_y_final = np.exp(y_rot + mean_y_log)  # Convert back from log space
+            
+            # Plot ellipse boundary in red
+            ax.fill(ellipse_x_final, ellipse_y_final, color='red', alpha=0.1, edgecolor='red', linewidth=1)
+
+    ax.set_ylabel("Success odds ratio per task length doubling")
+    ax.set_xlabel("Model score on benchmark")
+
+    ax.set_ylim(0.08, 4)
     ax.set_yscale('log')
-    ax.set_xscale('log')
-    ax.set_ylim(bottom=0.1)
-    ax.set_title("Length-dependence of each benchmark (each point is a model)")
-    ax.legend()
+    ax.set_xlim(0, 1)
+    
+    # Format y-axis ticks to show odds ratios (exp of slope values)
+    from matplotlib.ticker import FuncFormatter, FixedLocator
+    def odds_ratio_formatter(x, pos):
+        return f'{np.exp(x):.2f}x'
+    
+    # Set specific tick locations for denser labeling
+    tick_locations = np.logspace(np.log10(0.08), np.log10(4), 10)
+    ax.yaxis.set_major_locator(FixedLocator(tick_locations))
+    ax.yaxis.set_minor_locator(FixedLocator([]))  # Remove minor ticks
+    ax.yaxis.set_major_formatter(FuncFormatter(odds_ratio_formatter))
+    
+    # Add secondary y-axis on the right showing original β values
+    ax2 = ax.twinx()
+    ax2.set_ylim(ax.get_ylim())
+    ax2.set_yscale('log')
+    ax2.yaxis.set_major_locator(FixedLocator(tick_locations))
+    ax2.yaxis.set_minor_locator(FixedLocator([]))  # Remove minor ticks
+    
+    def beta_formatter(x, pos):
+        return f'{x:.2f}'
+    ax2.yaxis.set_major_formatter(FuncFormatter(beta_formatter))
+    ax2.set_ylabel(r'$\beta$')
+    
+    # Ensure the right spine is visible
+    ax2.spines['right'].set_visible(True)
+    
+    ax.set_title("Task length vs. model success on 4 benchmarks\n(each point is a model)")
+    
+    # Update legend to use benchmark aliases
+    handles, labels = ax.get_legend_handles_labels()
+    aliased_labels = [benchmark_aliases.get(label, label) for label in labels]
+    ax.legend(handles, aliased_labels)
 
     plt.savefig(output_file)
     print(f"Length dependence plot saved to {output_file}")
@@ -586,6 +673,8 @@ def main():
 
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:
+        plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme"], show_points_level=ShowPointsLevel.FIRST_AND_LAST, verbose=False, show_dotted_lines=False))
+
         # Generate and save the lines over time plot using the original loaded data
         plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))
 

@@ -17,7 +17,7 @@ from enum import Enum
 from dataclasses import dataclass, field
 from functools import total_ordering
 
-from plotting_aliases import benchmark_aliases, plotting_aliases
+from plotting_aliases import benchmark_aliases, plotting_aliases, benchmark_colors
 from plot_splits import plot_splits
 from plot_speculation import plot_speculation
 
@@ -134,9 +134,6 @@ def plot_lines_over_time(df, output_file,
         axs = axs.flatten()
     else:
         fig, ax = plt.subplots(figsize=(12, 8))
-
-    palette = sns.color_palette(n_colors=len(benchmarks))
-    benchmark_colors = {bench: color for bench, color in zip(benchmarks, palette)}
 
     texts = [] # Initialize list to store text objects for adjustText
 
@@ -445,17 +442,15 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     ax.annotate("Model success\n$\\mathbf{weakly}$ related\nto task length", (0.05, 0.05), xycoords='axes fraction', ha='left', va='bottom', fontsize=12)
 
 
-    # Create custom color palette avoiding red for data points
-    custom_palette = ["blue", "green", "orange", "purple"]
-    sns.scatterplot(data=df_to_use, x='score', y='slope', hue='benchmark', ax=ax, palette=custom_palette)
+    # Create color palette using consistent benchmark colors
+    palette_dict = {bench: benchmark_colors[bench] for bench in benchmarks_to_use}
+    sns.scatterplot(data=df_to_use, x='score', y='slope', hue='benchmark', ax=ax, palette=palette_dict)
 
-    # Add bounding ellipses for specific benchmarks
-    
-    # Map benchmarks to their colors from the custom palette
+    # Add bounding ellipses for specific benchmarks using consistent colors
     benchmark_to_ellipse_color = {
-        "hcast_r_s_full_method": custom_palette[2],
-        "video_mme": custom_palette[3],
-        "gpqa_diamond": custom_palette[1],
+        "hcast_r_s_full_method": benchmark_colors["hcast_r_s_full_method"],
+        "video_mme": benchmark_colors["video_mme"],
+        "gpqa_diamond": benchmark_colors["gpqa_diamond"],
     }
     
     for bench in benchmark_to_ellipse_color.keys():
@@ -497,7 +492,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
             ellipse_y_final = np.exp(y_rot + mean_y_log)  # Convert back from log space
             
             # Plot ellipse boundary with matching point color
-            color = benchmark_to_ellipse_color[bench]
+            color = benchmark_colors[bench]
             ax.fill(ellipse_x_final, ellipse_y_final, color=color, alpha=0.1, edgecolor=color, linewidth=1)
 
     ax.set_ylabel("Failure odds ratio per task length doubling")
@@ -577,9 +572,6 @@ def plot_percent_over_time(df, output_file):
     assert not frontier_df.empty, "No frontier models found for percent over time plot."
 
     fig, ax = plt.subplots(figsize=(12, 8))
-
-    palette = sns.color_palette(n_colors=len(benchmarks))
-    benchmark_colors = {bench: color for bench, color in zip(benchmarks, palette)}
 
     for bench in benchmarks:
         bench_frontier = frontier_df[frontier_df['benchmark'] == bench]

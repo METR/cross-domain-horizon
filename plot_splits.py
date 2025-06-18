@@ -7,7 +7,7 @@ import pandas as pd
 import pathlib
 from scipy import stats
 
-from plotting_aliases import benchmark_aliases, plotting_aliases
+from plotting_aliases import benchmark_aliases, plotting_aliases, benchmark_colors
 from wrangle import normalize_model_name
 
 import toml
@@ -151,10 +151,8 @@ def plot_splits(df: pd.DataFrame, output_path: pathlib.Path):
     # Create the plot
     plt.figure(figsize=(12, 8))
     
-    # Get unique benchmarks and assign colors
+    # Get unique benchmarks - colors already defined in benchmark_colors
     benchmarks = df['benchmark'].unique()
-    colors = plt.cm.tab10(np.linspace(0, 1, len(benchmarks)))
-    benchmark_colors = dict(zip(benchmarks, colors))
     
     # Plot each (benchmark, model) group and track legend entries
     legend_entries = {}

@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 benchmark_aliases = {
     "aime": "AIME",
     "gpqa": "GPQA",
@@ -10,6 +12,19 @@ benchmark_aliases = {
     "tesla_fsd": "Tesla FSD",
     "video_mme": "Video-MME",
 }
+
+benchmark_colors = defaultdict(lambda: '#808080', {
+    "aime": "#1f77b4",
+    "gpqa": "#ff7f0e", 
+    "gpqa_diamond": "#2ca02c",
+    "hcast_r_s": "#d62728",
+    "hcast_r_s_full_method": "#9467bd",
+    "hendrycks_math": "#8c564b",
+    "livecodebench_2411_2505": "#e377c2",
+    "osworld": "#7f7f7f",
+    "tesla_fsd": "#bcbd22",
+    "video_mme": "#17becf",
+})
 plotting_aliases = {
     "gemini_1_5_pro_002": "G 1.5 Pro",
     "gemini_2_5_pro_exp": "G 2.5 Pro",

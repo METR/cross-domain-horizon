@@ -3,6 +3,7 @@
 source = "https://os-world.github.io/"
 
 [splits.all]
+openai_o3_cua = 42.9
 ui_tars_1_5 = 42.5
 google_gemini_2_5_pro_exp = 41.4
 openai_cua = 38.1

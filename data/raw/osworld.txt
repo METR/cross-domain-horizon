@@ -1,360 +1,271 @@
-
-Rank	Model	Details	Score	Trajectories
+Rank	Model	Score
 1 *
+
+May 23, 2025	OpenAI CUA o3 (200 steps)
+OpenAI
+
+OpenAI, '25	42.9
+2
 
 Apr 17, 2025	UI-TARS-1.5 (100 steps)
 ByteDance Seed & Tsinghua University
 
-Seed-TARS, '25	
-Active parameter >20B?
-
-42.5	
-Check here
-Trajectory Preview
-2
+Seed-TARS, '25	42.5
+3
 
 Apr 18, 2025	Agent S2 w/ Gemini 2.5 (50 steps)
 Simular Research
 
-Simular Research, '25	
-—
+Simular Research, '25	41.4
+4
 
-41.4	
-Check here
-Trajectory Preview
-3
-
-Jan 24, 2025	OpenAI CUA (200 steps)
+Jan 24, 2025	OpenAI CUA 4o (200 steps)
 OpenAI
 
-OpenAI, '25	
-—
-
-38.1	—
-4
+OpenAI, '25	38.1
+5
 
 Apr 30, 2025	InfantAgent (50 steps)
 Evolution intelligence & University of Minnesota
 
-Link	
-Planner: Claude-3.7 Sonnet，Grounder: UI-TARS-1.5-7B
-
-35.27	
-Check here
-Trajectory Preview
-5
+Lei et al., '25	35.27
+6
 
 Mar 13, 2025	Agent S2 w/ Claude 3.7 (50 steps)
 Simular Research
 
-Simular Research, '25	
-—
+Simular Research, '25	34.5
+7
 
-34.5	
-Check here
-Trajectory Preview
-6
+May 22, 2025	UI-TARS-7B-1.5 + ARPO (w. gold reward)
+CUHK, SmartMore, HKUST
+
+Lu, '25	29.9
+8
 
 Feb 24, 2025	Claude 3.7 Sonnet (100 steps)
 Anthropic
 
-Anthropic, '25	
-—
+Anthropic, '25	~ 28
+9
 
-~ 28	—
-7
+May 9, 2025	Jedi-7B w/ GPT-4o (100 steps)
+Salesforce & The University of Hong Kong
+
+Xie et al., '25	27.04
+10
 
 Mar 13, 2025	Simular Agent S2 (15 steps)
 Simular Research
 
-Simular Research, '25	
-—
-
-27	
-Check here
-Trajectory Preview
-8
+Simular Research, '25	27
+11
 
 Apr 17, 2025	UI-TARS-1.5 7B (100 steps)
 ByteDance Seed & Tsinghua University
 
-Seed-TARS, '25	
-—
-
-26.92	—
-9
+Seed-TARS, '25	26.92
+12
 
 Feb 24, 2025	Claude 3.7 Sonnet (50 steps)
 Anthropic
 
-Anthropic, '25	
-—
+Anthropic, '25	~ 26
+13
 
-~ 26	—
-10
+May 9, 2025	Jedi-7B w/ GPT-4o (50 steps)
+Salesforce & The University of Hong Kong
+
+Xie et al., '25	25.02
+14
 
 Jan 21, 2025	UI-TARS-72B-DPO (50 steps)
 ByteDance Seed & Tsinghua University
 
-Qin et al., '24	
-—
+Qin et al., '24	24.6
+15
 
-24.6	
-Check here
-Trajectory Preview
-11
+May 9, 2025	Jedi-7B w/ GPT-4o (15 steps)
+Salesforce & The University of Hong Kong
+
+Xie et al., '25	22.74
+16
 
 Jan 21, 2025	UI-TARS-72B-DPO (15 steps)
 ByteDance Seed & Tsinghua University
 
-Qin et al., '24	
-—
-
-22.7	—
-12
+Qin et al., '24	22.7
+17
 
 Oct 22, 2024	Claude 3.5 Sonnet (50 steps)
 Anthropic
 
-Anthropic, '24	
-—
+Anthropic, '24	22
+18
 
-22	—
-13
+May 9, 2025	Jedi-3B w/ GPT-4o (15 steps)
+Salesforce & The University of Hong Kong
+
+Xie et al., '25	21.8
+19
 
 Feb 24, 2025	Claude 3.5 Sonnet (new) (100 steps)
 Anthropic
 
-Anthropic, '25	
-—
+Anthropic, '25	~ 21
+20
 
-~ 21	—
-14
+May 30, 2025	UI-TARS-7B-DPO + ZeroGUI
+Shanghai AI Lab
 
-Jan 24, 2025	OpenAI CUA (15 steps)
+Yang et al., '25	20.2
+21
+
+Jan 24, 2025	OpenAI CUA 4o (15 steps)
 OpenAI
 
-OpenAI, '25	
-—
-
-19.7	—
-15
+OpenAI, '25	19.7
+22
 
 Feb 24, 2025	Claude 3.5 Sonnet (new) (50 steps)
 Anthropic
 
-Anthropic, '25	
-—
-
-~ 19.5	—
-16
+Anthropic, '25	~ 19.5
+23
 
 Jan 21, 2025	UI-TARS-72B-SFT (15 steps)
 ByteDance Seed & Tsinghua University
 
-Qin et al., '24	
-—
-
-18.8	—
-17
+Qin et al., '24	18.8
+24
 
 Jan 21, 2025	UI-TARS-7B-DPO (15 steps)
 ByteDance Seed & Tsinghua University
 
-Qin et al., '24	
-—
-
-18.7	—
-18
+Qin et al., '24	18.7
+25
 
 Jan 21, 2025	UI-TARS-7B-SFT (15 steps)
 ByteDance Seed & Tsinghua University
 
-Qin et al., '24	
-—
-
-17.7	—
-19
+Qin et al., '24	17.7
+26
 
 Nov 22, 2024	Aguvis-72B w/ GPT-4o
 Salesforce & The University of Hong Kong
 
-Xu et al., '24	
-—
-
-17.04	—
-20
+Xu et al., '24	17.04
+27
 
 Feb 24, 2025	Claude 3.7 Sonnet (15 steps)
 Anthropic
 
-Anthropic, '25	
-—
-
-~ 15.5	—
-21
+Anthropic, '25	~ 15.5
+28
 
 Dec 24, 2024	Aria-UI w/ GPT-4o
 University of Hong Kong & Rhymes AI
 
-Yang et al., '24	
-—
+Yang et al., '24	15.15
+29
 
-15.15	—
-22
+May 20, 2025	PC Agent-E
+GAIR, Shanghai Jiao Tong University
+
+He et al., '25	14.9
+30
 
 Oct 22, 2024	Claude 3.5 Sonnet (15 steps)
 Anthropic
 
-Anthropic, '24	
-—
-
-14.9	—
-23
+Anthropic, '24	14.9
+31
 
 Nov 22, 2024	Aguvis-7B w/ GPT-4o
 Salesforce & The University of Hong Kong
 
-Xu et al., '24	
-—
-
-14.79	—
-24
+Xu et al., '24	14.79
+32
 
 Oct 30, 2024	OS-Atlas-Base-7B w/ GPT-4o
 Shanghai AI Lab
 
-Wu et al., '24	
-—
-
-14.63	—
-25
+Wu et al., '24	14.63
+33
 
 Oct 30, 2024	OS-Atlas-Base-4B w/ GPT-4o
 Shanghai AI Lab
 
-Wu et al., '24	
-—
-
-11.65	—
-26
+Wu et al., '24	11.65
+34
 
 Nov 22, 2024	Aguvis-72B
 Salesforce & The University of Hong Kong
 
-Xu et al., '24	
-—
-
-10.26	—
-27
+Xu et al., '24	10.26
+35
 
 Oct 30, 2024	SeeClick w/ GPT-4o
 Nanjing University & Shanghai AI Lab
 
-Cheng et al., '24	
-—
-
-9.21	—
-28
+Cheng et al., '24	9.21
+36
 
 Jan 26, 2025	Qwen2.5-vl-72B
 Alibaba Cloud, Qwen Team
 
-Qwen Team, '25	
-t=1.0, top-p=0.9
-
-8.8	—
-29
+Qwen Team, '25	8.8
+37
 
 Dec 2, 2024	Ponder&Press w/ GPT-4o
 Shenzhen International Graduate School, Tsinghua University
 
-Wang et al., '24	
-—
-
-8.7	—
-30
+Wang et al., '24	8.7
+38
 
 April 10, 2025	Kimi-VL
 Kimi & The University of Hong Kong
 
-Kimi Team, '25	
-—
-
-8.22	—
-31
+Kimi Team, '25	8.22
+39
 
 Dec 24, 2024	CogAgent-9B-20241220
 Tsinghua University & Zhipu AI
 
-Hong et al., '24	
-t=1.0, top-p=0.9
-
-8.12	—
-32
+Hong et al., '24	8.12
+40
 
 Jun 14, 2024	CRADLE w/ GPT-4o
 BAAI
 
-BAAI, '24	
-t=1.0, top-p=0.9
-
-7.81	
-Check here
-Trajectory Preview
-33
+BAAI, '24	7.81
+41
 
 May 24, 2024	GPT-4 Vision
 OpenAI
 
-OpenAI, '23	
-t=1.0, top-p=0.9
-
-7.69	
-Check here
-Trajectory Preview
-34
+OpenAI, '23	7.69
+42
 
 Mar 20, 2024	Gemini-Pro Vision
 Google
 
-Gemini Team, Google, '23	
-t=1.0, top-p=0.9
-
-5.8	
-Check here
-Trajectory Preview
-35
+Gemini Team, Google, '23	5.8
+43
 
 April 23, 2024	GPT-4 Vision (0409)
 OpenAI
 
-OpenAI, '23	
-t=1.0, top-p=0.9
-
-5.4	
-Check here
-Trajectory Preview
-36
+OpenAI, '23	5.4
+44
 
 May 3, 2024	Gemini-Pro-1.5
 Google
 
-Gemini Team, Google, '24	
-t=1.0, top-p=0.9
-
-5.4	
-Check here
-Trajectory Preview
-37
+Gemini Team, Google, '24	5.4
+45
 
 Mar 20, 2024	GPT-4 Vision
 OpenAI
 
-OpenAI, '23	
-t=1.0, top-p=0.9
-
-5.26	—
-38
-
-May 20, 2024
+OpenAI, '23

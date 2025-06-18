@@ -56,14 +56,14 @@ class LinesPlotParams:
     verbose: bool = False
     xbound: tuple[str, str] | None = None
 
-def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.25):
+def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.35):
     """Add a watermark to the current plot or specified axes."""
     if ax is None:
         ax = plt.gca()
     
     ax.text(0.5, 0.5, text, transform=ax.transAxes, 
-            fontsize=80, color='gray', alpha=alpha,
-            ha='center', va='center', rotation=45, zorder=0)
+            fontsize=60, color='gray', alpha=alpha,
+            ha='center', va='center', rotation=45, zorder=1000)
 
 def get_benchmark_data(benchmarks_path) -> dict[str, list[float]]:
     """
@@ -417,8 +417,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
     new_labels = [benchmark_aliases.get(label.get_text(), label.get_text()) for label in tick_labels]
     ax.set_xticklabels(new_labels)
 
-    
-    
+    plt.tight_layout()
     add_watermark()
     
     plt.savefig(output_file)
@@ -432,7 +431,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     fig, ax = plt.subplots(figsize=(10, 6))
     add_watermark(ax)
 
-    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "livecodebench_2411_2505", "gpqa_diamond", ]
+    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "gpqa_diamond", "livecodebench_2411_2505"]
 
     df_to_use = df[df['benchmark'].isin(benchmarks_to_use)]
 
@@ -445,18 +444,21 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     ax.annotate("Model success\n$\\mathbf{strongly}$ related\nto task length", (0.05, 0.95), xycoords='axes fraction', ha='left', va='top', fontsize=12)
     ax.annotate("Model success\n$\\mathbf{weakly}$ related\nto task length", (0.05, 0.05), xycoords='axes fraction', ha='left', va='bottom', fontsize=12)
 
-    
 
     # Create custom color palette avoiding red for data points
     custom_palette = ["blue", "green", "orange", "purple"]
     sns.scatterplot(data=df_to_use, x='score', y='slope', hue='benchmark', ax=ax, palette=custom_palette)
 
     # Add bounding ellipses for specific benchmarks
-    import numpy as np
     
-    ellipse_benchmarks = ["hcast_r_s_full_method", "gpqa_diamond", "video_mme"]
+    # Map benchmarks to their colors from the custom palette
+    benchmark_to_ellipse_color = {
+        "hcast_r_s_full_method": custom_palette[2],
+        "video_mme": custom_palette[3],
+        "gpqa_diamond": custom_palette[1],
+    }
     
-    for bench in ellipse_benchmarks:
+    for bench in benchmark_to_ellipse_color.keys():
         bench_data = df_to_use[df_to_use['benchmark'] == bench]
         if len(bench_data) >= 2:  # Need at least 2 points for an ellipse
             # Work in log space for y-coordinates to fit ellipse
@@ -494,10 +496,11 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
             ellipse_x_final = x_rot + mean_x
             ellipse_y_final = np.exp(y_rot + mean_y_log)  # Convert back from log space
             
-            # Plot ellipse boundary in red
-            ax.fill(ellipse_x_final, ellipse_y_final, color='red', alpha=0.1, edgecolor='red', linewidth=1)
+            # Plot ellipse boundary with matching point color
+            color = benchmark_to_ellipse_color[bench]
+            ax.fill(ellipse_x_final, ellipse_y_final, color=color, alpha=0.1, edgecolor=color, linewidth=1)
 
-    ax.set_ylabel("Success odds ratio per task length doubling")
+    ax.set_ylabel("Failure odds ratio per task length doubling")
     ax.set_xlabel("Model score on benchmark")
 
     ax.set_ylim(0.08, 4)
@@ -530,7 +533,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     # Ensure the right spine is visible
     ax2.spines['right'].set_visible(True)
     
-    ax.set_title("Task length vs. model success on 4 benchmarks\n(each point is a model)")
+    ax.set_title("Task length vs. difficulty on 4 benchmarks\n(each point is a model)")
     
     # Update legend to use benchmark aliases
     handles, labels = ax.get_legend_handles_labels()
@@ -673,7 +676,7 @@ def main():
 
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:
-        plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme"], show_points_level=ShowPointsLevel.FIRST_AND_LAST, verbose=False, show_dotted_lines=False))
+        plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme"], show_points_level=ShowPointsLevel.NONE, verbose=False, show_dotted_lines=False))
 
         # Generate and save the lines over time plot using the original loaded data
         plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))

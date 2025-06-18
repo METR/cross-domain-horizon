@@ -22,6 +22,7 @@ assert n > 1 and ratio > 1
 r = math.pow(ratio, 1 / (n - 1))
 t1 = total_time * (r - 1) / (math.pow(r, n) - 1)
 times_per_exam = [t1 * math.pow(r, k) for k in range(n)]
+assert abs(sum(times_per_exam) - total_time) < 1e-6, f"Total time {sum(times_per_exam)} != {total_time}"
 
 # Format to one decimal place
 formatted_times_per_exam = [round(t, 1) for t in times_per_exam]

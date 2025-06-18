@@ -439,7 +439,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     hcast_data = df[df['benchmark'] == 'hcast_r_s']
     hcast_avg_slope = hcast_data['slope'].mean() if not hcast_data.empty else 0.6
 
-    ax.axhline(y=hcast_avg_slope, color='gray', linestyle='--', alpha=0.7, label=f'HCAST/RS average (β={hcast_avg_slope:.2f})')
+    ax.axhline(y=hcast_avg_slope, color='gray', linestyle='--', alpha=0.7, label=f'HRS average (β={hcast_avg_slope:.2f})')
 
     ax.annotate("Model success\n$\\mathbf{strongly}$ related\nto task length", (0.05, 0.95), xycoords='axes fraction', ha='left', va='top', fontsize=12)
     ax.annotate("Model success\n$\\mathbf{weakly}$ related\nto task length", (0.05, 0.05), xycoords='axes fraction', ha='left', va='bottom', fontsize=12)
@@ -501,7 +501,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
             ax.fill(ellipse_x_final, ellipse_y_final, color=color, alpha=0.1, edgecolor=color, linewidth=1)
 
     ax.set_ylabel("Failure odds ratio per task length doubling")
-    ax.set_xlabel("Model score on benchmark")
+    ax.set_xlabel("Model overall score on benchmark")
 
     ax.set_ylim(0.08, 4)
     ax.set_yscale('log')
@@ -533,7 +533,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     # Ensure the right spine is visible
     ax2.spines['right'].set_visible(True)
     
-    ax.set_title("Task length vs. difficulty on 4 benchmarks\n(each point is a model)")
+    ax.set_title("Benchmarks have varying relationships between task length and difficulty\n(each point is a model)")
     
     # Update legend to use benchmark aliases
     handles, labels = ax.get_legend_handles_labels()
@@ -682,7 +682,7 @@ def main():
         plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))
 
         plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, LinesPlotParams(
-            title="HCAST/RS Time Horizons (full method vs average-scores-only)",
+            title="HRS Time Horizons (full method vs average-scores-only)",
             show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER,)
         )
         plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2026-01-01")))

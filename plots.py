@@ -55,6 +55,8 @@ class LinesPlotParams:
     title: str = "Time Horizon vs. Release Date (Log Scale, Trend on Frontier)"
     verbose: bool = False
     xbound: tuple[str, str] | None = None
+    ybound: tuple[float, float] | None = None
+    overlay: bool = False
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.35):
     """Add a watermark to the current plot or specified axes."""
@@ -127,7 +129,12 @@ def plot_lines_over_time(df, output_file,
         if frontier_indices:
             plot_df.loc[frontier_indices, 'is_frontier'] = True
 
-    if params.subplots:
+    if params.overlay:
+        # Create figure normally - we'll add the background image later
+        fig, ax = plt.subplots(figsize=(12, 8))
+        # Store the background image path for later use
+        fig._overlay_image_path = 'plots/original_time_horizon_plot.png'
+    elif params.subplots:
         # last subplot contains legend
         nrows = (len(benchmarks) + 1) // 2
         fig, axs = plt.subplots(figsize=(12, nrows * 4), nrows=nrows, ncols=2, sharex=True, sharey=True)
@@ -304,6 +311,9 @@ def plot_lines_over_time(df, output_file,
         start_date, end_date = params.xbound
         ax.set_xlim(pd.to_datetime(start_date), pd.to_datetime(end_date))
 
+    if params.ybound is not None:
+        ax.set_ylim(params.ybound)
+
 
     # Create a legend
     handles, labels = ax.get_legend_handles_labels()
@@ -348,6 +358,29 @@ def plot_lines_over_time(df, output_file,
             axs[i].set_axis_off()
 
     plt.tight_layout()
+
+    # Add background image if this is an overlay plot
+    if hasattr(fig, '_overlay_image_path'):
+        import matplotlib.image as mpimg
+        from PIL import Image
+        try:
+            background_img = mpimg.imread(fig._overlay_image_path)
+            
+            # Get figure dimensions in pixels
+            fig_width_px = fig.get_figwidth() * fig.dpi / 2
+            fig_height_px = fig.get_figheight() * fig.dpi / 2
+            
+            # Resize background image to match figure size
+            pil_img = Image.fromarray((background_img * 255).astype('uint8'))
+            resized_img = pil_img.resize((int(fig_width_px), int(fig_height_px)), Image.Resampling.LANCZOS)
+            resized_array = np.array(resized_img) / 255.0
+            
+            # Add the background image covering the entire figure
+            fig.figimage(resized_array, xo=0, yo=0, alpha=0.4, zorder=-100)
+        except FileNotFoundError:
+            print(f"Warning: Background image {fig._overlay_image_path} not found.")
+        except ImportError:
+            print("Warning: PIL/Pillow not available for image resizing. Using original size.")
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
@@ -668,7 +701,7 @@ def main():
 
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:
-        plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.NONE, verbose=False, show_dotted_lines=False))
+        plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.NONE, verbose=False, show_dotted_lines=False, ybound=(0.05, 400)))
 
         # Generate and save the lines over time plot using the original loaded data
         plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))
@@ -677,6 +710,18 @@ def main():
             title="HRS Time Horizons (full method vs average-scores-only)",
             show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER,)
         )
+        
+        # Overlay plot - like headline but overlaid on original plot
+        plot_lines_over_time(all_df.copy(), "plots/overlay.png", benchmark_data, LinesPlotParams(
+            hide_benchmarks=["hcast_r_s", "hcast_r_s_full_method", "video_mme", "gpqa", "aime"], 
+            show_points_level=ShowPointsLevel.NONE, 
+            verbose=False, 
+            show_dotted_lines=False, 
+            ybound=(0.05, 400),
+            overlay=True,
+            title="Time Horizon vs. Release Date (Overlay)"
+        ))
+        
         plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2026-01-01")))
 
 

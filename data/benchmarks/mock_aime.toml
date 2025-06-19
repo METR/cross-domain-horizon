@@ -1,0 +1,138 @@
+n_questions = 45
+chance_accuracy = 0.001
+length_type = "estimate"
+
+[splits.2024-Mock-AIME-Problem-01]
+lengths = [ 4.9,]
+
+[splits.2024-Mock-AIME-Problem-02]
+lengths = [ 5.5,]
+
+[splits.2024-Mock-AIME-Problem-03]
+lengths = [ 6.2,]
+
+[splits.2024-Mock-AIME-Problem-04]
+lengths = [ 7.1,]
+
+[splits.2024-Mock-AIME-Problem-05]
+lengths = [ 8.3,]
+
+[splits.2024-Mock-AIME-Problem-06]
+lengths = [ 9.7,]
+
+[splits.2024-Mock-AIME-Problem-07]
+lengths = [ 11.6,]
+
+[splits.2024-Mock-AIME-Problem-08]
+lengths = [ 14.0,]
+
+[splits.2024-Mock-AIME-Problem-09]
+lengths = [ 17.8,]
+
+[splits.2024-Mock-AIME-Problem-10]
+lengths = [ 23.1,]
+
+[splits.2024-Mock-AIME-Problem-11]
+lengths = [ 32.7,]
+
+[splits.2024-Mock-AIME-Problem-12]
+lengths = [ 49.6,]
+
+[splits.2024-Mock-AIME-Problem-13]
+lengths = [ 78.8,]
+
+[splits.2024-Mock-AIME-Problem-14]
+lengths = [ 132.5,]
+
+[splits.2024-Mock-AIME-Problem-15]
+lengths = [ 237.9,]
+
+[splits.2025-I-Mock-AIME-Problem-01]
+lengths = [ 4.9,]
+
+[splits.2025-I-Mock-AIME-Problem-02]
+lengths = [ 5.5,]
+
+[splits.2025-I-Mock-AIME-Problem-03]
+lengths = [ 6.2,]
+
+[splits.2025-I-Mock-AIME-Problem-04]
+lengths = [ 7.1,]
+
+[splits.2025-I-Mock-AIME-Problem-05]
+lengths = [ 8.3,]
+
+[splits.2025-I-Mock-AIME-Problem-06]
+lengths = [ 9.7,]
+
+[splits.2025-I-Mock-AIME-Problem-07]
+lengths = [ 11.6,]
+
+[splits.2025-I-Mock-AIME-Problem-08]
+lengths = [ 14.0,]
+
+[splits.2025-I-Mock-AIME-Problem-09]
+lengths = [ 17.8,]
+
+[splits.2025-I-Mock-AIME-Problem-10]
+lengths = [ 23.1,]
+
+[splits.2025-I-Mock-AIME-Problem-11]
+lengths = [ 32.7,]
+
+[splits.2025-I-Mock-AIME-Problem-12]
+lengths = [ 49.6,]
+
+[splits.2025-I-Mock-AIME-Problem-13]
+lengths = [ 78.8,]
+
+[splits.2025-I-Mock-AIME-Problem-14]
+lengths = [ 132.5,]
+
+[splits.2025-I-Mock-AIME-Problem-15]
+lengths = [ 237.9,]
+
+[splits.2025-II-Mock-AIME-Problem-01]
+lengths = [ 4.9,]
+
+[splits.2025-II-Mock-AIME-Problem-02]
+lengths = [ 5.5,]
+
+[splits.2025-II-Mock-AIME-Problem-03]
+lengths = [ 6.2,]
+
+[splits.2025-II-Mock-AIME-Problem-04]
+lengths = [ 7.1,]
+
+[splits.2025-II-Mock-AIME-Problem-05]
+lengths = [ 8.3,]
+
+[splits.2025-II-Mock-AIME-Problem-06]
+lengths = [ 9.7,]
+
+[splits.2025-II-Mock-AIME-Problem-07]
+lengths = [ 11.6,]
+
+[splits.2025-II-Mock-AIME-Problem-08]
+lengths = [ 14.0,]
+
+[splits.2025-II-Mock-AIME-Problem-09]
+lengths = [ 17.8,]
+
+[splits.2025-II-Mock-AIME-Problem-10]
+lengths = [ 23.1,]
+
+[splits.2025-II-Mock-AIME-Problem-11]
+lengths = [ 32.7,]
+
+[splits.2025-II-Mock-AIME-Problem-12]
+lengths = [ 49.6,]
+
+[splits.2025-II-Mock-AIME-Problem-13]
+lengths = [ 78.8,]
+
+[splits.2025-II-Mock-AIME-Problem-14]
+lengths = [ 132.5,]
+
+[splits.2025-II-Mock-AIME-Problem-15]
+lengths = [ 237.9,]

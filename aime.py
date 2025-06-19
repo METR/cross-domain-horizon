@@ -46,15 +46,16 @@ data["splits"] = {
     }
 }
 
-# Ensure output directory exists
-DATA_DIR.mkdir(parents=True, exist_ok=True)
+if __name__ == "__main__":
+    # Ensure output directory exists
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-# Write to TOML file
-with open(DATASET_OUTPUT_FILE, "w") as f:
-    toml.dump(data, f)
+    # Write to TOML file
+    with open(DATASET_OUTPUT_FILE, "w") as f:
+        toml.dump(data, f)
 
-print(f"Successfully generated {DATASET_OUTPUT_FILE}")
-print(f"Calculated times for one exam (sum={sum(times_per_exam):.2f} min): {adjusted_times_per_q}")
+    print(f"Successfully generated {DATASET_OUTPUT_FILE}")
+    print(f"Calculated times for one exam (unadjusted sum={sum(times_per_exam):.2f} min): {adjusted_times_per_q}")
 
 
 

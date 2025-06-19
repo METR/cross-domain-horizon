@@ -428,7 +428,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     fig, ax = plt.subplots(figsize=(10, 6))
     add_watermark(ax)
 
-    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "gpqa_diamond", "livecodebench_2411_2505"]
+    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "gpqa_diamond", "livecodebench_2411_2505", "mock_aime"]
 
     df_to_use = df[df['benchmark'].isin(benchmarks_to_use)]
 
@@ -668,10 +668,10 @@ def main():
 
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:
-        plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme"], show_points_level=ShowPointsLevel.NONE, verbose=False, show_dotted_lines=False))
+        plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.NONE, verbose=False, show_dotted_lines=False))
 
         # Generate and save the lines over time plot using the original loaded data
-        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))
+        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))
 
         plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, LinesPlotParams(
             title="HRS Time Horizons (full method vs average-scores-only)",

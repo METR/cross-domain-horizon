@@ -1,11 +1,17 @@
 [hendrycks_math]
 max_horizon_minutes = 363.6955
 
+[mock_aime]
+max_horizon_minutes = 119.46150000000002
+
 [osworld]
-max_horizon_minutes = 1.2911
+max_horizon_minutes = 1.7899
 
 [livecodebench_2411_2505]
 max_horizon_minutes = 227.0383
+
+[swe_bench_verified]
+max_horizon_minutes = 37.8221
 
 [gpqa_diamond]
 max_horizon_minutes = 1950.4305
@@ -14,7 +20,7 @@ max_horizon_minutes = 1950.4305
 max_horizon_minutes = 117.61370000000001
 
 [aime]
-max_horizon_minutes = 146.10330000000002
+max_horizon_minutes = 417.7353
 
 [gpqa]
 max_horizon_minutes = 77.5852

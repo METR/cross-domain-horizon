@@ -2,6 +2,7 @@ from collections import defaultdict
 
 benchmark_aliases = {
     "aime": "AIME",
+    "mock_aime": "Mock AIME",
     "gpqa": "GPQA",
     "gpqa_diamond": "GPQA Diamond",
     "hcast_r_s": "HRS",
@@ -9,19 +10,22 @@ benchmark_aliases = {
     "hendrycks_math": "MATH",
     "livecodebench_2411_2505": "LiveCodeBench",
     "osworld": "OSWorld",
+    "swe_bench_verified": "SWE-bench Verified",
     "tesla_fsd": "Tesla FSD",
     "video_mme": "Video-MME",
 }
 
 benchmark_colors = defaultdict(lambda: '#808080', {
     "aime": "#1f77b4",
+    "mock_aime": "#1f27b4",
     "gpqa": "#ff7f0e", 
     "gpqa_diamond": "#2ca02c",
-    "hcast_r_s": "#d62728",
+    "hcast_r_s": "#d60028",
     "hcast_r_s_full_method": "#9467bd",
-    "hendrycks_math": "#8c564b",
+    "hendrycks_math": "#7c664b",
     "livecodebench_2411_2505": "#e377c2",
     "osworld": "#7f7f7f",
+    "swe_bench_verified": "#111111",
     "tesla_fsd": "#bcbd22",
     "video_mme": "#17becf",
 })
@@ -40,8 +44,15 @@ plotting_aliases = {
     "13.2.x": "V13.2",
     "o3_mini_high": "o3 mini",
     "o3_mini_2025_01_31": "o3 mini",
+    "o3_2025_04_16": "o3",
     "o4_mini": "o4 mini",
     "gpt_3_5": "GPT-3.5",
     "gpt_4_0613": "GPT-4 0613",
     "gpt_4o_2024_08_06": "GPT-4o",
+    "claude_2_0": "Claude 2",
+    "claude_3_5_sonnet_20240620": "Sonnet 3.5",
+    "claude_sonnet_4_20250514": "Sonnet 4",
+    "gemini_2_5_pro_exp_03_25": "G 2.5 Pro",
+    "claude_3_7_sonnet_20250219": "C 3.7 S",
+    "gpt_4_1106_preview": "GPT-4 Turbo",
 }

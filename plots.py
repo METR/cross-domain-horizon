@@ -129,9 +129,10 @@ def plot_lines_over_time(df, output_file,
 
     if params.subplots:
         # last subplot contains legend
-        nrows = (len(benchmarks) + 1) // 2
-        fig, axs = plt.subplots(figsize=(12, nrows * 4), nrows=nrows, ncols=2, sharex=True, sharey=True)
+        nrows = (len(benchmarks) + 1) // 4
+        fig, axs = plt.subplots(figsize=(12, nrows * 4), nrows=nrows, ncols=4, sharex=True, sharey=True)
         axs = axs.flatten()
+        texts_per_ax = {ax: [] for ax in axs}  # Track texts per axis
     else:
         fig, ax = plt.subplots(figsize=(12, 8))
 
@@ -221,7 +222,8 @@ def plot_lines_over_time(df, output_file,
 
             # Keep linear regression for doubling rate calculation
             coeffs = np.polyfit(X, Y_log, 1)
-            doubling_rate = coeffs[0] * 365  # Convert from per day to per year
+            doubling_rate_per_year = coeffs[0] * 365  # Convert from per day to per year
+            months_per_doubling = 12 / doubling_rate_per_year
             slope = coeffs[0]  # Store raw slope for marker selection
 
             # degree-1 spline to avoid negative slopes
@@ -237,9 +239,10 @@ def plot_lines_over_time(df, output_file,
             mid_x = mdates.num2date(mid_x_num)
             
             if params.show_doubling_rate:
-                rate_text = f"{doubling_rate:.1f} dbl./yr"
-                ax.text(mid_x, mid_y * 1.1, rate_text, fontsize=10, color=color, 
-                        ha='center', va='bottom', bbox=dict(facecolor='white', alpha=0.7, pad=2))
+                rate_text = f"dbl./{months_per_doubling:.1f} months"
+                ax.text(0.02, 0.98, rate_text, fontsize=10, color=color, 
+                        ha='left', va='top', transform=ax.transAxes, 
+                        bbox=dict(facecolor='white', alpha=0.7, pad=2, edgecolor='none'))
 
             x_line_date = np.array(mdates.num2date(x_line_num))
             y_line = 2.0**y_line_log
@@ -263,19 +266,25 @@ def plot_lines_over_time(df, output_file,
                 first_frontier_point = frontier_data_sorted.iloc[0]
                 last_frontier_point = frontier_data_sorted.iloc[-1]
 
-                def text_label(point):
+                def text_label(point, current_ax=None):
                     model_name = point['model']
                     if model_name in plotting_aliases:
                         model_name = plotting_aliases[model_name]
                     else:
                         model_name = point['model']
-                    texts.append(ax.text(point['release_date'],
-                                         point['horizon_minutes'],
-                                         model_name,
-                                         fontsize=10, color=color))
+                    
+                    text_obj = current_ax.text(point['release_date'],
+                                               point['horizon_minutes'],
+                                               model_name,
+                                               fontsize=10, color=color)
+                    
+                    if params.subplots:
+                        texts_per_ax[current_ax].append(text_obj)
+                    else:
+                        texts.append(text_obj)
 
-                text_label(first_frontier_point)
-                text_label(last_frontier_point)
+                text_label(first_frontier_point, current_ax=ax)
+                text_label(last_frontier_point, current_ax=ax)
 
     ax.set_yscale('log')
     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter('{x}'))
@@ -346,6 +355,19 @@ def plot_lines_over_time(df, output_file,
     if params.subplots:
         for i in range(len(benchmarks), len(axs)):
             axs[i].set_axis_off()
+
+    # After all plotting is done, adjust texts
+    if params.subplots:
+        # Adjust texts for each subplot
+        for ax_idx, ax in enumerate(axs[:len(benchmarks)]):
+            if texts_per_ax[ax]:
+                adjustText.adjust_text(texts_per_ax[ax], ax=ax,
+                                     arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
+    else:
+        # Existing code for non-subplot case
+        if texts:
+            adjustText.adjust_text(texts, ax=ax,
+                                 arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
 
     plt.tight_layout()
 

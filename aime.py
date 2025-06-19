@@ -11,6 +11,8 @@ TOTAL_TIME_PER_EXAM = 180  # minutes
 HARDEST_TO_EASIEST_RATIO = 5
 CHANCE_ACCURACY = 0.001
 
+SUCCESS_RATES = [.98, .97, .96, .94, .91, .87, .82, .76, .67, .58, .46, .34, .24, .16, .10]
+
 # Calculate time per question assuming geometric progression
 # r^(n-1) = ratio, where n = QUESTIONS_PER_EXAM
 # t1 * (r^n - 1) / (r - 1) = total_time
@@ -25,10 +27,10 @@ times_per_exam = [t1 * math.pow(r, k) for k in range(n)]
 assert abs(sum(times_per_exam) - total_time) < 1e-6, f"Total time {sum(times_per_exam)} != {total_time}"
 
 # Format to one decimal place
-formatted_times_per_exam = [round(t, 1) for t in times_per_exam]
+adjusted_times_per_q = [round(t / s, 1) for t, s in zip(times_per_exam, SUCCESS_RATES)]
 
 # Combine times for all exams
-all_times = formatted_times_per_exam * N_EXAMS
+all_times = adjusted_times_per_q * N_EXAMS
 total_questions = n * N_EXAMS
 
 # Prepare data for TOML output
@@ -52,7 +54,7 @@ with open(DATASET_OUTPUT_FILE, "w") as f:
     toml.dump(data, f)
 
 print(f"Successfully generated {DATASET_OUTPUT_FILE}")
-print(f"Calculated times for one exam (sum={sum(times_per_exam):.2f} min): {formatted_times_per_exam}")
+print(f"Calculated times for one exam (sum={sum(times_per_exam):.2f} min): {adjusted_times_per_q}")
 
 
 

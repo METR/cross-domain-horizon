@@ -55,6 +55,7 @@ class LinesPlotParams:
     title: str = "Time Horizon vs. Release Date (Log Scale, Trend on Frontier)"
     verbose: bool = False
     xbound: tuple[str, str] | None = None
+    ybound: tuple[float, float] | None = None
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.35):
     """Add a watermark to the current plot or specified axes."""
@@ -312,6 +313,9 @@ def plot_lines_over_time(df, output_file,
     if params.xbound is not None:
         start_date, end_date = params.xbound
         ax.set_xlim(pd.to_datetime(start_date), pd.to_datetime(end_date))
+
+    if params.ybound is not None:
+        ax.set_ylim(params.ybound)
 
 
     # Create a legend
@@ -690,7 +694,7 @@ def main():
 
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:
-        plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.NONE, verbose=False, show_dotted_lines=False))
+        plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.NONE, verbose=False, show_dotted_lines=False, ybound=(0.05, 400)))
 
         # Generate and save the lines over time plot using the original loaded data
         plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))

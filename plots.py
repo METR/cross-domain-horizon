@@ -33,6 +33,7 @@ SPLITS_OUTPUT_FILE = 'plots/splits_plot.png'
 SPECULATION_OUTPUT_FILE = pathlib.Path('plots/speculation.png')
 PERCENT_OVER_TIME_OUTPUT_FILE = 'plots/percent_over_time.png'
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
+WATERMARK = False
 
 
 @total_ordering
@@ -60,6 +61,8 @@ class LinesPlotParams:
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.35):
     """Add a watermark to the current plot or specified axes."""
+    if not WATERMARK:
+        return
     if ax is None:
         ax = plt.gca()
     
@@ -361,6 +364,22 @@ def plot_lines_over_time(df, output_file,
 
     # Add background image if this is an overlay plot
     if hasattr(fig, '_overlay_image_path'):
+        # Hide all axes elements for clean overlay
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_xlabel('')
+        ax.set_ylabel('')
+        ax.set_title('')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        # Hide legend if it exists
+        legend = ax.get_legend()
+        if legend:
+            legend.set_visible(False)
+        # Hide grid
+        ax.grid(False)
         import matplotlib.image as mpimg
         from PIL import Image
         try:
@@ -376,7 +395,7 @@ def plot_lines_over_time(df, output_file,
             resized_array = np.array(resized_img) / 255.0
             
             # Add the background image covering the entire figure
-            fig.figimage(resized_array, xo=0, yo=0, alpha=0.4, zorder=-100)
+            fig.figimage(resized_array, xo=0, yo=0, alpha=0.4, zorder=100)
         except FileNotFoundError:
             print(f"Warning: Background image {fig._overlay_image_path} not found.")
         except ImportError:

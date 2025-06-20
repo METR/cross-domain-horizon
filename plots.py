@@ -253,7 +253,8 @@ def plot_lines_over_time(df, output_file,
             mid_x = mdates.num2date(mid_x_num)
             
             if params.show_doubling_rate:
-                rate_text = f"{doubling_rate:.1f} dbl./yr"
+
+                rate_text = f"{doubling_rate_per_year:.1f} dbl./yr"
                 # Place text in top left corner of each subplot
                 ax.text(0.02, 0.99, rate_text, fontsize=10, color=color, 
                         ha='left', va='top', transform=ax.transAxes)

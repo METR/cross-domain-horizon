@@ -37,3 +37,19 @@ date:
   PerAct: 2022-09-12
   Image-BC VIT: 2022-09-12
   Image-BC CNN: 2022-09-12
+  equact: 2025-05-27
+  sam2act: 2025-01-30
+  arp_: 2024-10-04
+  3d_lotus: 2024-10-02
+  rvt_2: 2024-06-12
+  3d_diffuser_actor: 2024-02-18
+  mini_diffuser: 2025-05-14
+  sam_e: 2024-05-30
+  act3d: 2023-06-30
+  rvt: 2023-06-26
+  polarnet: 2023-09-27
+  hiveformer: 2022-09-11
+  peract: 2022-09-12
+  image_bc_vit: 2022-09-12
+  image_bc_cnn: 2022-09-12
+  c2farm_bc: 2022-01-01

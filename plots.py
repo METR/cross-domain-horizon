@@ -139,13 +139,14 @@ def plot_lines_over_time(df, output_file,
         fig._overlay_image_path = 'plots/original_time_horizon_plot.png'
     elif params.subplots:
         # last subplot contains legend
-        nrows = (len(benchmarks) + 1) // 2
-        fig, axs = plt.subplots(figsize=(12, nrows * 4), nrows=nrows, ncols=2, sharex=True, sharey=True)
+        nrows = (len(benchmarks) + 1) // 4
+        fig, axs = plt.subplots(figsize=(12, nrows * 4), nrows=nrows, ncols=4, sharex=True, sharey=True)
         axs = axs.flatten()
     else:
         fig, ax = plt.subplots(figsize=(12, 8))
 
     texts = [] # Initialize list to store text objects for adjustText
+    subplot_texts = {} # Store texts for each subplot separately
 
     if params.hide_benchmarks:
         benchmarks = [bench for bench in benchmarks if bench not in params.hide_benchmarks]
@@ -157,6 +158,7 @@ def plot_lines_over_time(df, output_file,
         if params.subplots:
             ax = axs[benchmarks.index(bench)]
             ax.set_title(benchmark_aliases[bench], fontsize=10)
+            subplot_texts[bench] = []  # Initialize text list for this subplot
 
         bench_data = plot_df[plot_df['benchmark'] == bench]
         color = benchmark_colors[bench]
@@ -248,8 +250,9 @@ def plot_lines_over_time(df, output_file,
             
             if params.show_doubling_rate:
                 rate_text = f"{doubling_rate:.1f} dbl./yr"
-                ax.text(mid_x, mid_y * 1.1, rate_text, fontsize=10, color=color, 
-                        ha='center', va='bottom', bbox=dict(facecolor='white', alpha=0.7, pad=2))
+                # Place text in top left corner of each subplot
+                ax.text(0.02, 0.99, rate_text, fontsize=10, color=color, 
+                        ha='left', va='top', transform=ax.transAxes)
 
             x_line_date = np.array(mdates.num2date(x_line_num))
             y_line = 2.0**y_line_log
@@ -279,10 +282,25 @@ def plot_lines_over_time(df, output_file,
                         model_name = plotting_aliases[model_name]
                     else:
                         model_name = point['model']
-                    texts.append(ax.text(point['release_date'],
-                                         point['horizon_minutes'],
-                                         model_name,
-                                         fontsize=10, color=color))
+                    if point['horizon_minutes'] < 0.1:  
+                        y_offset = 0.20  # fixed position
+                        va = 'bottom'
+                    else:
+                        y_offset = point['horizon_minutes'] * 1.1  # 10% above the point
+                        va = 'bottom'
+                    
+                    text_obj = ax.text(point['release_date'],
+                                      y_offset,
+                                      model_name,
+                                      fontsize=8 if params.subplots else 10, 
+                                      color=color,
+                                      ha='center',
+                                      va=va,
+                                      bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.7, edgecolor='none'))
+                    if params.subplots:
+                        subplot_texts[bench].append(text_obj)
+                    else:
+                        texts.append(text_obj)
 
                 text_label(first_frontier_point)
                 text_label(last_frontier_point)
@@ -357,6 +375,19 @@ def plot_lines_over_time(df, output_file,
         add_watermark(ax)
 
     if params.subplots:
+        # Apply adjustText to each subplot individually
+        for bench in benchmarks:
+            if bench in subplot_texts and subplot_texts[bench]:
+                ax = axs[benchmarks.index(bench)]
+                adjustText.adjust_text(subplot_texts[bench], ax=ax,
+                                     force_text=(0.3, 0.3),
+                                     force_points=(0.2, 0.2),
+                                     expand_text=(1.2, 1.5),
+                                     expand_points=(1.2, 1.2),
+                                     avoid_self=True,
+                                     avoid_points=True,
+                                     avoid_text=True)
+        
         for i in range(len(benchmarks), len(axs)):
             axs[i].set_axis_off()
 

@@ -31,6 +31,7 @@ def beta_nlog_likelihood(params: tuple[float, float], observed_scores:dict[str, 
     for split_idx, score in observed_scores.items():
         # Predicted probability for each question in this split
         predicted_scores = sigmoid(h, task_lengths[split_idx], slope, chance_accuracy)
+        assert not np.isnan(predicted_scores).any(), f"model: {model_name}, h: {h}, slope: {slope}, chance_accuracy: {chance_accuracy}, task_lengths: {task_lengths[split_idx]}"
 
         split_size = len(predicted_scores)
         score_on_split = score * split_size
@@ -40,11 +41,13 @@ def beta_nlog_likelihood(params: tuple[float, float], observed_scores:dict[str, 
         else:
             score_ceil = score_floor + 1 # not exactly ceil if it's an integer
             split_lls = poisson_binom_dist.logpmf([score_floor,score_ceil], predicted_scores)
+            assert score_floor < score_ceil <= len(predicted_scores), f"model: {model_name} has a score of {score} on split {split_idx} with {len(predicted_scores)} questions"
             split_ll = (score_ceil - score_on_split) * split_lls[0] + (score_on_split - score_floor) * split_lls[1]
             assert (split_lls[0] >= split_ll >= split_lls[1]) or (split_lls[1] >= split_ll >= split_lls[0]), f"model: {model_name}, split_lls: {split_lls}, split_ll: {split_ll}, split_size: {split_size}, score: {score}, score_on_split: {score_on_split}, score_floor: {score_floor}, score_ceil: {score_ceil}, h: {h}, slope: {slope}, task_lengths: {task_lengths[split_idx]}"
         lls.append(split_ll)
 
     ll = sum(lls)
+    if verbose: print(f"{model_name}: h: {h}, slope: {slope}, ll: {ll}, lls: {lls}")
     return -ll
 
 def estimate_params_mle(model_name: str, bspec: BenchmarkScoresSpec):
@@ -61,5 +64,17 @@ def estimate_params_mle(model_name: str, bspec: BenchmarkScoresSpec):
     observed_scores = {split_name: split.scores[model_name] for split_name, split in distinct_splits.items()}
     chance_accuracy = bspec.chance_accuracy
  
-    result = minimize(beta_nlog_likelihood, x0=[5.0, 0.5], bounds=[(0, None), (0.01, None)], args=(observed_scores, task_lengths, chance_accuracy, model_name))
+    result = minimize(beta_nlog_likelihood, x0=[5.0, 0.5], bounds=[(0.01, None), (0.01, None)], args=(observed_scores, task_lengths, chance_accuracy, model_name), method="SLSQP")
     return ModelParams(horizon=float(result.x[0]), slope=float(result.x[1]), slope_method="mle", score=np.mean(list(observed_scores.values())))
+
+if __name__ == "__main__":
+    from classes import SplitScoresSpec
+    estimate_params_mle("google_gemini_2_5_pro_exp", BenchmarkScoresSpec(
+        name="example_benchmark",
+        chance_accuracy=0.01,
+        splits={
+            "short": SplitScoresSpec(lengths=[10, 20, 30], scores={"google_gemini_2_5_pro_exp": 0.5}),
+            "med": SplitScoresSpec(lengths=[10, 20, 30], scores={"google_gemini_2_5_pro_exp": 0.5}),
+            "long": SplitScoresSpec(lengths=[10, 20, 30], scores={"google_gemini_2_5_pro_exp": 0.5}),
+        }
+    ))

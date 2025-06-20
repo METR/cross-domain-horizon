@@ -141,7 +141,10 @@ def plot_lines_over_time(df, output_file,
         # last subplot contains legend
         nrows = (len(benchmarks) + 1) // 4
         fig, axs = plt.subplots(figsize=(12, nrows * 4), nrows=nrows, ncols=4, sharex=True, sharey=True)
+        nrows = (len(benchmarks) + 1) // 4
+        fig, axs = plt.subplots(figsize=(12, nrows * 4), nrows=nrows, ncols=4, sharex=True, sharey=True)
         axs = axs.flatten()
+        texts_per_ax = {ax: [] for ax in axs}  # Track texts per axis
     else:
         fig, ax = plt.subplots(figsize=(12, 8))
 
@@ -233,7 +236,8 @@ def plot_lines_over_time(df, output_file,
 
             # Keep linear regression for doubling rate calculation
             coeffs = np.polyfit(X, Y_log, 1)
-            doubling_rate = coeffs[0] * 365  # Convert from per day to per year
+            doubling_rate_per_year = coeffs[0] * 365  # Convert from per day to per year
+            months_per_doubling = 12 / doubling_rate_per_year
             slope = coeffs[0]  # Store raw slope for marker selection
 
             # degree-1 spline to avoid negative slopes
@@ -276,7 +280,7 @@ def plot_lines_over_time(df, output_file,
                 first_frontier_point = frontier_data_sorted.iloc[0]
                 last_frontier_point = frontier_data_sorted.iloc[-1]
 
-                def text_label(point):
+                def text_label(point, current_ax=None):
                     model_name = point['model']
                     if model_name in plotting_aliases:
                         model_name = plotting_aliases[model_name]
@@ -302,8 +306,8 @@ def plot_lines_over_time(df, output_file,
                     else:
                         texts.append(text_obj)
 
-                text_label(first_frontier_point)
-                text_label(last_frontier_point)
+                text_label(first_frontier_point, current_ax=ax)
+                text_label(last_frontier_point, current_ax=ax)
 
     ax.set_yscale('log')
     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter('{x}'))
@@ -390,6 +394,19 @@ def plot_lines_over_time(df, output_file,
         
         for i in range(len(benchmarks), len(axs)):
             axs[i].set_axis_off()
+
+    # After all plotting is done, adjust texts
+    if params.subplots:
+        # Adjust texts for each subplot
+        for ax_idx, ax in enumerate(axs[:len(benchmarks)]):
+            if texts_per_ax[ax]:
+                adjustText.adjust_text(texts_per_ax[ax], ax=ax,
+                                     arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
+    else:
+        # Existing code for non-subplot case
+        if texts:
+            adjustText.adjust_text(texts, ax=ax,
+                                 arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
 
     plt.tight_layout()
 

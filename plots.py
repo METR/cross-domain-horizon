@@ -477,6 +477,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
         "hcast_r_s_full_method": benchmark_colors["hcast_r_s_full_method"],
         "video_mme": benchmark_colors["video_mme"],
         "gpqa_diamond": benchmark_colors["gpqa_diamond"],
+        "livecodebench_2411_2505": benchmark_colors["livecodebench_2411_2505"],
     }
     
     for bench in benchmark_to_ellipse_color.keys():
@@ -549,7 +550,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     def beta_formatter(x, pos):
         return f'{x:.2f}'
     ax2.yaxis.set_major_formatter(FuncFormatter(beta_formatter))
-    ax2.set_ylabel(r'$\beta$')
+    ax2.set_ylabel(r'$\beta$ (log scale)')
     
     # Ensure the right spine is visible
     ax2.spines['right'].set_visible(True)
@@ -559,7 +560,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     # Update legend to use benchmark aliases
     handles, labels = ax.get_legend_handles_labels()
     aliased_labels = [benchmark_aliases.get(label, label) for label in labels]
-    ax.legend(handles, aliased_labels)
+    ax.legend(handles, aliased_labels, loc="upper right")
 
     plt.savefig(output_file)
     print(f"Length dependence plot saved to {output_file}")

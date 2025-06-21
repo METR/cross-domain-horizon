@@ -10,6 +10,7 @@ benchmark_aliases = {
     "hendrycks_math": "MATH",
     "livecodebench_2411_2505": "LiveCodeBench",
     "osworld": "OSWorld",
+    "rlbench": "RLBench",
     "swe_bench_verified": "SWE-bench Verified",
     "tesla_fsd": "Tesla FSD",
     "video_mme": "Video-MME",
@@ -25,6 +26,7 @@ benchmark_colors = defaultdict(lambda: '#808080', {
     "hendrycks_math": "#7c664b",
     "livecodebench_2411_2505": "#e377c2",
     "osworld": "#7f7f7f",
+    "rlbench": "#9467bd",
     "swe_bench_verified": "#111111",
     "tesla_fsd": "#bcbd22",
     "video_mme": "#17becf",
@@ -60,4 +62,6 @@ plotting_aliases = {
     "claude 3.7 sonnet": "Sonnet 3.7",
     "o4 mini": "o4-mini",
     "claude 3 haiku": "Claude 3 Haiku",
+    "equact": "EquAct",
+    "c2farm_bc": "C2FARM-BC"
 }

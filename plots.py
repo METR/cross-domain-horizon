@@ -33,6 +33,7 @@ SPLITS_OUTPUT_FILE = 'plots/splits_plot.png'
 SPECULATION_OUTPUT_FILE = pathlib.Path('plots/speculation.png')
 PERCENT_OVER_TIME_OUTPUT_FILE = 'plots/percent_over_time.png'
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
+WATERMARK = False
 
 
 @total_ordering
@@ -56,9 +57,12 @@ class LinesPlotParams:
     verbose: bool = False
     xbound: tuple[str, str] | None = None
     ybound: tuple[float, float] | None = None
+    overlay: bool = False
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.35):
     """Add a watermark to the current plot or specified axes."""
+    if not WATERMARK:
+        return
     if ax is None:
         ax = plt.gca()
     
@@ -128,8 +132,15 @@ def plot_lines_over_time(df, output_file,
         if frontier_indices:
             plot_df.loc[frontier_indices, 'is_frontier'] = True
 
-    if params.subplots:
+    if params.overlay:
+        # Create figure normally - we'll add the background image later
+        fig, ax = plt.subplots(figsize=(12, 8))
+        # Store the background image path for later use
+        fig._overlay_image_path = 'plots/original_time_horizon_plot.png'
+    elif params.subplots:
         # last subplot contains legend
+        nrows = (len(benchmarks) + 1) // 4
+        fig, axs = plt.subplots(figsize=(12, nrows * 4), nrows=nrows, ncols=4, sharex=True, sharey=True)
         nrows = (len(benchmarks) + 1) // 4
         fig, axs = plt.subplots(figsize=(12, nrows * 4), nrows=nrows, ncols=4, sharex=True, sharey=True)
         axs = axs.flatten()
@@ -138,6 +149,7 @@ def plot_lines_over_time(df, output_file,
         fig, ax = plt.subplots(figsize=(12, 8))
 
     texts = [] # Initialize list to store text objects for adjustText
+    subplot_texts = {} # Store texts for each subplot separately
 
     if params.hide_benchmarks:
         benchmarks = [bench for bench in benchmarks if bench not in params.hide_benchmarks]
@@ -149,6 +161,7 @@ def plot_lines_over_time(df, output_file,
         if params.subplots:
             ax = axs[benchmarks.index(bench)]
             ax.set_title(benchmark_aliases[bench], fontsize=10)
+            subplot_texts[bench] = []  # Initialize text list for this subplot
 
         bench_data = plot_df[plot_df['benchmark'] == bench]
         color = benchmark_colors[bench]
@@ -241,7 +254,7 @@ def plot_lines_over_time(df, output_file,
             
             if params.show_doubling_rate:
                 rate_text = f"Doubling time:\n{months_per_doubling:.1f} months"
-                ax.text(0.02, 0.98, rate_text, fontsize=14, color=color, 
+                ax.text(0.02, 0.99, rate_text, fontsize=14, color=color, 
                         ha='left', va='top', transform=ax.transAxes, 
                         bbox=dict(facecolor='white', alpha=0.7, pad=2, edgecolor='none'))
 
@@ -273,14 +286,23 @@ def plot_lines_over_time(df, output_file,
                         model_name = plotting_aliases[model_name]
                     else:
                         model_name = point['model']
+                    if point['horizon_minutes'] < 0.1:  
+                        y_offset = 0.20  # fixed position
+                        va = 'bottom'
+                    else:
+                        y_offset = point['horizon_minutes'] * 1.1  # 10% above the point
+                        va = 'bottom'
                     
-                    text_obj = current_ax.text(point['release_date'],
-                                               point['horizon_minutes'],
-                                               model_name,
-                                               fontsize=10, color=color)
-                    
+                    text_obj = ax.text(point['release_date'],
+                                      y_offset,
+                                      model_name,
+                                      fontsize=8 if params.subplots else 10, 
+                                      color=color,
+                                      ha='center',
+                                      va=va,
+                                      bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.7, edgecolor='none'))
                     if params.subplots:
-                        texts_per_ax[current_ax].append(text_obj)
+                        subplot_texts[bench].append(text_obj)
                     else:
                         texts.append(text_obj)
 
@@ -359,6 +381,19 @@ def plot_lines_over_time(df, output_file,
         add_watermark(ax)
 
     if params.subplots:
+        # Apply adjustText to each subplot individually
+        for bench in benchmarks:
+            if bench in subplot_texts and subplot_texts[bench]:
+                ax = axs[benchmarks.index(bench)]
+                adjustText.adjust_text(subplot_texts[bench], ax=ax,
+                                     force_text=(0.3, 0.3),
+                                     force_points=(0.2, 0.2),
+                                     expand_text=(1.2, 1.5),
+                                     expand_points=(1.2, 1.2),
+                                     avoid_self=True,
+                                     avoid_points=True,
+                                     avoid_text=True)
+        
         for i in range(len(benchmarks), len(axs)):
             axs[i].set_axis_off()
 
@@ -376,6 +411,45 @@ def plot_lines_over_time(df, output_file,
                                  arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
 
     plt.tight_layout()
+
+    # Add background image if this is an overlay plot
+    if hasattr(fig, '_overlay_image_path'):
+        # Hide all axes elements for clean overlay
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_xlabel('')
+        ax.set_ylabel('')
+        ax.set_title('')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        # Hide legend if it exists
+        legend = ax.get_legend()
+        if legend:
+            legend.set_visible(False)
+        # Hide grid
+        ax.grid(False)
+        import matplotlib.image as mpimg
+        from PIL import Image
+        try:
+            background_img = mpimg.imread(fig._overlay_image_path)
+            
+            # Get figure dimensions in pixels
+            fig_width_px = fig.get_figwidth() * fig.dpi / 2
+            fig_height_px = fig.get_figheight() * fig.dpi / 2
+            
+            # Resize background image to match figure size
+            pil_img = Image.fromarray((background_img * 255).astype('uint8'))
+            resized_img = pil_img.resize((int(fig_width_px), int(fig_height_px)), Image.Resampling.LANCZOS)
+            resized_array = np.array(resized_img) / 255.0
+            
+            # Add the background image covering the entire figure
+            fig.figimage(resized_array, xo=0, yo=0, alpha=0.4, zorder=100)
+        except FileNotFoundError:
+            print(f"Warning: Background image {fig._overlay_image_path} not found.")
+        except ImportError:
+            print("Warning: PIL/Pillow not available for image resizing. Using original size.")
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
@@ -706,6 +780,18 @@ def main():
             title="HRS Time Horizons (full method vs average-scores-only)",
             show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER,)
         )
+        
+        # Overlay plot - like headline but overlaid on original plot
+        plot_lines_over_time(all_df.copy(), "plots/overlay.png", benchmark_data, LinesPlotParams(
+            hide_benchmarks=["hcast_r_s", "hcast_r_s_full_method", "video_mme", "gpqa", "aime"], 
+            show_points_level=ShowPointsLevel.NONE, 
+            verbose=False, 
+            show_dotted_lines=False, 
+            ybound=(0.05, 400),
+            overlay=True,
+            title="Time Horizon vs. Release Date (Overlay)"
+        ))
+        
         plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2025-08-01"), ybound=(0.05, 400)))
 
 

@@ -1,0 +1,622 @@
+{
+    "metadata": {
+      "timestep": 0.05,
+      "timestamp": "2025-06-20T06:44:32.527480",
+      "total_tasks": 18,
+      "source": "Subset from baseline_timings.json"
+    },
+    "tasks": {
+      "put_item_in_drawer": {
+        "variations": {
+          "var_0": {
+            "num_steps": 285,
+            "simulation_time": 14.25,
+            "descriptions": [
+              "put item in bottom drawer",
+              "put the block away in the bottom drawer",
+              "open the bottom drawer and place the block inside of it",
+              "leave the block in the bottom drawer"
+            ]
+          },
+          "var_1": {
+            "num_steps": 305,
+            "simulation_time": 15.25,
+            "descriptions": [
+              "put item in middle drawer",
+              "put the block away in the middle drawer",
+              "open the middle drawer and place the block inside of it",
+              "leave the block in the middle drawer"
+            ]
+          },
+          "var_2": {
+            "num_steps": 334,
+            "simulation_time": 16.7,
+            "descriptions": [
+              "put item in top drawer",
+              "put the block away in the top drawer",
+              "open the top drawer and place the block inside of it",
+              "leave the block in the top drawer"
+            ]
+          }
+        },
+        "average_time": 15.4,
+        "min_time": 14.25,
+        "max_time": 16.7
+      },
+      "reach_and_drag": {
+        "variations": {
+          "var_0": {
+            "num_steps": 172,
+            "simulation_time": 8.6,
+            "descriptions": [
+              "use the stick to drag the cube onto the red target",
+              "pick up the stick and use it to push or pull the cube onto the red target",
+              "drag the block towards the red square on the table top",
+              "grasping the stick by one end, pick it up and use the its other end to move the block onto the red target"
+            ]
+          },
+          "var_1": {
+            "num_steps": 199,
+            "simulation_time": 9.950000000000001,
+            "descriptions": [
+              "use the stick to drag the cube onto the maroon target",
+              "pick up the stick and use it to push or pull the cube onto the maroon target",
+              "drag the block towards the maroon square on the table top",
+              "grasping the stick by one end, pick it up and use the its other end to move the block onto the maroon target"
+            ]
+          },
+          "var_2": {
+            "num_steps": 162,
+            "simulation_time": 8.1,
+            "descriptions": [
+              "use the stick to drag the cube onto the lime target",
+              "pick up the stick and use it to push or pull the cube onto the lime target",
+              "drag the block towards the lime square on the table top",
+              "grasping the stick by one end, pick it up and use the its other end to move the block onto the lime target"
+            ]
+          }
+        },
+        "average_time": 8.883333333333333,
+        "min_time": 8.1,
+        "max_time": 9.950000000000001
+      },
+      "turn_tap": {
+        "variations": {
+          "var_0": {
+            "num_steps": 177,
+            "simulation_time": 8.85,
+            "descriptions": [
+              "turn left tap",
+              "rotate the left tap",
+              "grasp the left tap and turn it"
+            ]
+          },
+          "var_1": {
+            "num_steps": 111,
+            "simulation_time": 5.550000000000001,
+            "descriptions": [
+              "turn right tap",
+              "rotate the right tap",
+              "grasp the right tap and turn it"
+            ]
+          }
+        },
+        "average_time": 7.2,
+        "min_time": 5.550000000000001,
+        "max_time": 8.85
+      },
+      "slide_block_to_target": {
+        "variations": {
+          "var_0": {
+            "num_steps": 89,
+            "simulation_time": 4.45,
+            "descriptions": [
+              "slide the block to target",
+              "slide the block onto the target",
+              "push the block until it is sitting on top of the target",
+              "slide the block towards the green target",
+              "cover the target with the block by pushing the block in its direction"
+            ]
+          }
+        },
+        "average_time": 4.45,
+        "min_time": 4.45,
+        "max_time": 4.45
+      },
+      "open_drawer": {
+        "variations": {
+          "var_0": {
+            "num_steps": 121,
+            "simulation_time": 6.050000000000001,
+            "descriptions": [
+              "open bottom drawer",
+              "grip the bottom handle and pull the bottom drawer open",
+              "slide the bottom drawer open"
+            ]
+          },
+          "var_1": {
+            "num_steps": 109,
+            "simulation_time": 5.45,
+            "descriptions": [
+              "open middle drawer",
+              "grip the middle handle and pull the middle drawer open",
+              "slide the middle drawer open"
+            ]
+          },
+          "var_2": {
+            "num_steps": 126,
+            "simulation_time": 6.300000000000001,
+            "descriptions": [
+              "open top drawer",
+              "grip the top handle and pull the top drawer open",
+              "slide the top drawer open"
+            ]
+          }
+        },
+        "average_time": 5.933333333333334,
+        "min_time": 5.45,
+        "max_time": 6.300000000000001
+      },
+      "put_groceries_in_cupboard": {
+        "variations": {
+          "var_0": {
+            "num_steps": 176,
+            "simulation_time": 8.8,
+            "descriptions": [
+              "put the crackers in the cupboard",
+              "pick up the crackers and place it in the cupboard",
+              "move the crackers to the bottom shelf",
+              "put away the crackers in the cupboard"
+            ]
+          },
+          "var_1": {
+            "num_steps": 234,
+            "simulation_time": 11.700000000000001,
+            "descriptions": [
+              "put the chocolate jello in the cupboard",
+              "pick up the chocolate jello and place it in the cupboard",
+              "move the chocolate jello to the bottom shelf",
+              "put away the chocolate jello in the cupboard"
+            ]
+          },
+          "var_2": {
+            "num_steps": 239,
+            "simulation_time": 11.950000000000001,
+            "descriptions": [
+              "put the strawberry jello in the cupboard",
+              "pick up the strawberry jello and place it in the cupboard",
+              "move the strawberry jello to the bottom shelf",
+              "put away the strawberry jello in the cupboard"
+            ]
+          }
+        },
+        "average_time": 10.816666666666668,
+        "min_time": 8.8,
+        "max_time": 11.950000000000001
+      },
+      "place_shape_in_shape_sorter": {
+        "variations": {
+          "var_0": {
+            "num_steps": 146,
+            "simulation_time": 7.300000000000001,
+            "descriptions": [
+              "put the cube in the shape sorter",
+              "pick up the cube and put it in the sorter",
+              "place the cube into its slot in the shape sorter",
+              "slot the cube into the shape sorter"
+            ]
+          },
+          "var_1": {
+            "num_steps": 176,
+            "simulation_time": 8.8,
+            "descriptions": [
+              "put the cylinder in the shape sorter",
+              "pick up the cylinder and put it in the sorter",
+              "place the cylinder into its slot in the shape sorter",
+              "slot the cylinder into the shape sorter"
+            ]
+          },
+          "var_2": {
+            "num_steps": 255,
+            "simulation_time": 12.75,
+            "descriptions": [
+              "put the triangular prism in the shape sorter",
+              "pick up the triangular prism and put it in the sorter",
+              "place the triangular prism into its slot in the shape sorter",
+              "slot the triangular prism into the shape sorter"
+            ]
+          }
+        },
+        "average_time": 9.616666666666667,
+        "min_time": 7.300000000000001,
+        "max_time": 12.75
+      },
+      "put_money_in_safe": {
+        "variations": {
+          "var_0": {
+            "num_steps": 209,
+            "simulation_time": 10.450000000000001,
+            "descriptions": [
+              "put the money away in the safe on the bottom shelf",
+              "leave the money on the bottom shelf on the safe",
+              "place the stack of bank notes on the bottom shelf of the safe"
+            ]
+          },
+          "var_1": {
+            "num_steps": 194,
+            "simulation_time": 9.700000000000001,
+            "descriptions": [
+              "put the money away in the safe on the middle shelf",
+              "leave the money on the middle shelf on the safe",
+              "place the stack of bank notes on the middle shelf of the safe"
+            ]
+          },
+          "var_2": {
+            "num_steps": 179,
+            "simulation_time": 8.950000000000001,
+            "descriptions": [
+              "put the money away in the safe on the top shelf",
+              "leave the money on the top shelf on the safe",
+              "place the stack of bank notes on the top shelf of the safe"
+            ]
+          }
+        },
+        "average_time": 9.700000000000001,
+        "min_time": 8.950000000000001,
+        "max_time": 10.450000000000001
+      },
+      "push_buttons": {
+        "variations": {
+          "var_0": {
+            "num_steps": 65,
+            "simulation_time": 3.25,
+            "descriptions": [
+              "push the maroon button",
+              "press the maroon button",
+              "push down the button with the maroon base"
+            ]
+          },
+          "var_1": {
+            "num_steps": 141,
+            "simulation_time": 7.050000000000001,
+            "descriptions": [
+              "push the maroon button, then push the green button",
+              "press the maroon button, then press the green button",
+              "push down the button with the maroon base, then the green one"
+            ]
+          },
+          "var_2": {
+            "num_steps": 168,
+            "simulation_time": 8.4,
+            "descriptions": [
+              "push the maroon button, then push the green button, then push the blue button",
+              "press the maroon button, then press the green button, then press the blue button",
+              "push down the button with the maroon base, then the green one, then the blue one"
+            ]
+          }
+        },
+        "average_time": 6.233333333333334,
+        "min_time": 3.25,
+        "max_time": 8.4
+      },
+      "close_jar": {
+        "variations": {
+          "var_0": {
+            "num_steps": 156,
+            "simulation_time": 7.800000000000001,
+            "descriptions": [
+              "close the red jar",
+              "screw on the red jar lid",
+              "grasping the lid, lift it from the table and use it to seal the red jar",
+              "pick up the lid from the table and put it on the red jar"
+            ]
+          },
+          "var_1": {
+            "num_steps": 234,
+            "simulation_time": 11.700000000000001,
+            "descriptions": [
+              "close the maroon jar",
+              "screw on the maroon jar lid",
+              "grasping the lid, lift it from the table and use it to seal the maroon jar",
+              "pick up the lid from the table and put it on the maroon jar"
+            ]
+          },
+          "var_2": {
+            "num_steps": 165,
+            "simulation_time": 8.25,
+            "descriptions": [
+              "close the lime jar",
+              "screw on the lime jar lid",
+              "grasping the lid, lift it from the table and use it to seal the lime jar",
+              "pick up the lid from the table and put it on the lime jar"
+            ]
+          }
+        },
+        "average_time": 9.25,
+        "min_time": 7.800000000000001,
+        "max_time": 11.700000000000001
+      },
+      "stack_blocks": {
+        "variations": {
+          "var_0": {
+            "num_steps": 262,
+            "simulation_time": 13.100000000000001,
+            "descriptions": [
+              "stack 2 red blocks",
+              "place 2 of the red cubes on top of each other",
+              "pick up and set down 2 red blocks on top of each other",
+              "build a tall tower out of 2 red cubes",
+              "arrange 2 red blocks in a vertical stack on the table top",
+              "set 2 red cubes on top of each other"
+            ]
+          },
+          "var_1": {
+            "num_steps": 411,
+            "simulation_time": 20.55,
+            "descriptions": [
+              "stack 3 red blocks",
+              "place 3 of the red cubes on top of each other",
+              "pick up and set down 3 red blocks on top of each other",
+              "build a tall tower out of 3 red cubes",
+              "arrange 3 red blocks in a vertical stack on the table top",
+              "set 3 red cubes on top of each other"
+            ]
+          },
+          "var_2": {
+            "num_steps": 652,
+            "simulation_time": 32.6,
+            "descriptions": [
+              "stack 4 red blocks",
+              "place 4 of the red cubes on top of each other",
+              "pick up and set down 4 red blocks on top of each other",
+              "build a tall tower out of 4 red cubes",
+              "arrange 4 red blocks in a vertical stack on the table top",
+              "set 4 red cubes on top of each other"
+            ]
+          }
+        },
+        "average_time": 22.083333333333332,
+        "min_time": 13.100000000000001,
+        "max_time": 32.6
+      },
+      "place_cups": {
+        "variations": {
+          "var_0": {
+            "num_steps": 170,
+            "simulation_time": 8.5,
+            "descriptions": [
+              "place 1 cup on the cup holder",
+              "pick up one cup and put it on the mug tree",
+              "move 1 mug from the table to the cup holder",
+              "pick up one cup and slide its handle onto a spoke on the mug holder"
+            ]
+          },
+          "var_1": {
+            "num_steps": 398,
+            "simulation_time": 19.900000000000002,
+            "descriptions": [
+              "place 2 cups on the cup holder",
+              "pick up 2 cups and place them on the holder",
+              "move 2 cups from the table to the mug tree",
+              "pick up 2 mugs and slide their handles onto the cup holder spokes"
+            ]
+          },
+          "var_2": {
+            "num_steps": 613,
+            "simulation_time": 30.650000000000002,
+            "descriptions": [
+              "place 3 cups on the cup holder",
+              "pick up 3 cups and place them on the holder",
+              "move 3 cups from the table to the mug tree",
+              "pick up 3 mugs and slide their handles onto the cup holder spokes"
+            ]
+          }
+        },
+        "average_time": 19.683333333333334,
+        "min_time": 8.5,
+        "max_time": 30.650000000000002
+      },
+      "place_hanger_on_rack": {
+        "variations": {
+          "var_0": {
+            "num_steps": 222,
+            "simulation_time": 11.100000000000001,
+            "descriptions": [
+              "pick up the hanger and place in on the rackput the hanger on the rack",
+              "hang the hanger up",
+              "grasp the hanger and hang it up"
+            ]
+          }
+        },
+        "average_time": 11.100000000000001,
+        "min_time": 11.100000000000001,
+        "max_time": 11.100000000000001
+      },
+      "light_bulb_in": {
+        "variations": {
+          "var_0": {
+            "num_steps": 217,
+            "simulation_time": 10.850000000000001,
+            "descriptions": [
+              "screw in the red light bulb",
+              "screw the light bulb from the red holder into the lamp",
+              "pick up the light bulb from the red stand, lift it up to just above the lamp, then screw it down into the lamp in a clockwise fashion",
+              "put the light bulb from the red casing into the lamp"
+            ]
+          },
+          "var_1": {
+            "num_steps": 179,
+            "simulation_time": 8.950000000000001,
+            "descriptions": [
+              "screw in the maroon light bulb",
+              "screw the light bulb from the maroon holder into the lamp",
+              "pick up the light bulb from the maroon stand, lift it up to just above the lamp, then screw it down into the lamp in a clockwise fashion",
+              "put the light bulb from the maroon casing into the lamp"
+            ]
+          },
+          "var_2": {
+            "num_steps": 220,
+            "simulation_time": 11.0,
+            "descriptions": [
+              "screw in the lime light bulb",
+              "screw the light bulb from the lime holder into the lamp",
+              "pick up the light bulb from the lime stand, lift it up to just above the lamp, then screw it down into the lamp in a clockwise fashion",
+              "put the light bulb from the lime casing into the lamp"
+            ]
+          }
+        },
+        "average_time": 10.266666666666667,
+        "min_time": 8.950000000000001,
+        "max_time": 11.0
+      },
+      "sweep_to_dustpan": {
+        "variations": {
+          "var_0": {
+            "num_steps": 122,
+            "simulation_time": 6.1000000000000005,
+            "descriptions": [
+              "sweep dirt to dustpan",
+              "sweep the dirt up",
+              "use the broom to brush the dirt into the dustpan",
+              "clean up the dirt",
+              "pick up the brush and clean up the table",
+              "grasping the broom by its handle, clear way the dirt from the table",
+              "leave the table clean"
+            ]
+          }
+        },
+        "average_time": 6.1000000000000005,
+        "min_time": 6.1000000000000005,
+        "max_time": 6.1000000000000005
+      },
+      "insert_onto_square_peg": {
+        "variations": {
+          "var_0": {
+            "num_steps": 158,
+            "simulation_time": 7.9,
+            "descriptions": [
+              "put the ring on the red spoke",
+              "slide the ring onto the red colored spoke",
+              "place the ring onto the red spoke"
+            ]
+          },
+          "var_1": {
+            "num_steps": 182,
+            "simulation_time": 9.1,
+            "descriptions": [
+              "put the ring on the maroon spoke",
+              "slide the ring onto the maroon colored spoke",
+              "place the ring onto the maroon spoke"
+            ]
+          },
+          "var_2": {
+            "num_steps": 164,
+            "simulation_time": 8.200000000000001,
+            "descriptions": [
+              "put the ring on the lime spoke",
+              "slide the ring onto the lime colored spoke",
+              "place the ring onto the lime spoke"
+            ]
+          }
+        },
+        "average_time": 8.4,
+        "min_time": 7.9,
+        "max_time": 9.1
+      },
+      "meat_off_grill": {
+        "variations": {
+          "var_0": {
+            "num_steps": 104,
+            "simulation_time": 5.2,
+            "descriptions": [
+              "take the chicken off the grill",
+              "pick up the chicken and place it next to the grill",
+              "remove the chicken from the grill and set it down to the side"
+            ]
+          },
+          "var_1": {
+            "num_steps": 105,
+            "simulation_time": 5.25,
+            "descriptions": [
+              "take the steak off the grill",
+              "pick up the steak and place it next to the grill",
+              "remove the steak from the grill and set it down to the side"
+            ]
+          }
+        },
+        "average_time": 5.225,
+        "min_time": 5.2,
+        "max_time": 5.25
+      },
+      "stack_cups": {
+        "variations": {
+          "var_0": {
+            "num_steps": 312,
+            "simulation_time": 15.600000000000001,
+            "descriptions": [
+              "stack the other cups on top of the red cup",
+              "place two of the cups onto the odd cup out",
+              "put the remaining two cups on top of the red cup",
+              "pick up and set the cups down into the red cup",
+              "create a stack of cups with the red cup as its base",
+              "keeping the red cup on the table, stack the other two onto it"
+            ]
+          },
+          "var_1": {
+            "num_steps": 196,
+            "simulation_time": 9.8,
+            "descriptions": [
+              "stack the other cups on top of the maroon cup",
+              "place two of the cups onto the odd cup out",
+              "put the remaining two cups on top of the maroon cup",
+              "pick up and set the cups down into the maroon cup",
+              "create a stack of cups with the maroon cup as its base",
+              "keeping the maroon cup on the table, stack the other two onto it"
+            ]
+          },
+          "var_2": {
+            "num_steps": 390,
+            "simulation_time": 19.5,
+            "descriptions": [
+              "stack the other cups on top of the lime cup",
+              "place two of the cups onto the odd cup out",
+              "put the remaining two cups on top of the lime cup",
+              "pick up and set the cups down into the lime cup",
+              "create a stack of cups with the lime cup as its base",
+              "keeping the lime cup on the table, stack the other two onto it"
+            ]
+          }
+        },
+        "average_time": 14.966666666666669,
+        "min_time": 9.8,
+        "max_time": 19.5
+      }
+    },
+    "summary": {
+      "total_tasks_processed": 18,
+      "total_trajectories": 48,
+      "average_time": 10.658796296296297,
+      "tasks_with_variations": [
+        "put_item_in_drawer",
+        "reach_and_drag", 
+        "turn_tap",
+        "open_drawer",
+        "put_groceries_in_cupboard",
+        "place_shape_in_shape_sorter",
+        "put_money_in_safe",
+        "push_buttons",
+        "close_jar",
+        "stack_blocks",
+        "place_cups",
+        "light_bulb_in",
+        "insert_onto_square_peg",
+        "meat_off_grill",
+        "stack_cups"
+      ],
+      "tasks_single_variation": [
+        "slide_block_to_target",
+        "place_hanger_on_rack", 
+        "sweep_to_dustpan"
+      ]
+    }
+  }

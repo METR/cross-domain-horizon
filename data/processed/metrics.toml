@@ -25,6 +25,9 @@ max_horizon_minutes = 417.7353
 [gpqa]
 max_horizon_minutes = 77.5852
 
+[rlbench]
+max_horizon_minutes = 1.7583999999999997
+
 [tesla_fsd]
 max_horizon_minutes = 93.1816976555271
 

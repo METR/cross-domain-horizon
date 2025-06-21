@@ -240,8 +240,8 @@ def plot_lines_over_time(df, output_file,
             mid_x = mdates.num2date(mid_x_num)
             
             if params.show_doubling_rate:
-                rate_text = f"dbl./{months_per_doubling:.1f} months"
-                ax.text(0.02, 0.98, rate_text, fontsize=10, color=color, 
+                rate_text = f"Doubling time:\n{months_per_doubling:.1f} months"
+                ax.text(0.02, 0.98, rate_text, fontsize=14, color=color, 
                         ha='left', va='top', transform=ax.transAxes, 
                         bbox=dict(facecolor='white', alpha=0.7, pad=2, edgecolor='none'))
 
@@ -289,7 +289,7 @@ def plot_lines_over_time(df, output_file,
 
     ax.set_yscale('log')
     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter('{x}'))
-    plt.ylim(0.05, 3000)
+
 
     if params.subplots:
         fig.suptitle(params.title)
@@ -316,6 +316,8 @@ def plot_lines_over_time(df, output_file,
 
     if params.ybound is not None:
         ax.set_ylim(params.ybound)
+    else:
+        plt.ylim(0.05, 3000)
 
 
     # Create a legend
@@ -704,7 +706,7 @@ def main():
             title="HRS Time Horizons (full method vs average-scores-only)",
             show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER,)
         )
-        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2026-01-01")))
+        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2025-08-01"), ybound=(0.05, 400)))
 
 
     # --- Benchmark Task Lengths Plot ---

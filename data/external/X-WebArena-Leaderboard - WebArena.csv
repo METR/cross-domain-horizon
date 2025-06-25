@@ -1,0 +1,49 @@
+a,Open?,Model Size (billion),Model,Success Rate (%),Result Source,Work,Traj,Note
+02/2025,✗,-,IBM CUGA,61.7,IBM CUGA,IBM CUGA,html+ json,
+01/2025,✗,-,OpenAI Operator,58.1,OpenAI CUA,OpenAI CUA,Link,System card
+08/2024,✗,-,Jace.AI,57.1,Reported by zetalabs.ai,https://www.jace.ai/,Action description + Screenshots,"Note from the developer of the work, see the comment of the cell"
+12/2024,✗,-,ScribeAgent + GPT-4o,53,ScribeAgent,ScribeAgent,Link,ScribeAgent is finetuned with proprietary data
+01/2025,✔,-,AgentSymbiotic,52.1,AgentSymbiotic,AgentSymbiotic,Link,Code
+01/2025,✔,-,Learn-by-Interact,48,Learn-by-interact,Learn-by-interact,Link,
+10/2024,✔,-,AgentOccam-Judge,45.7,AgentOccam-Judge,AgentOccam-Judge,Link,
+08/2024,✗,-,WebPilot,37.2,WebPilot,WebPilot,,No open source code or trajectory released from the work
+10/2024,✔,-,GUI-API Hybrid Agent,35.8,Beyond Browsing,Beyond Browsing,Link,Using both API and GUI
+09/2024,✔,-,Agent Workflow Memory,35.5,AWM,AWM,,
+04/2024,✔,-,SteP,33.5,SteP,SteP,Link,High-level plans are derived by human
+06/2025,✔,12,TTI,26.1,TTI,TTI,Link,
+04/2024,✔,-,BrowserGym + GPT-4,23.5,WorkArena,BrowserGym,,different observation representation
+01/2025,✔,32,AgentTrek-1.0-32B,22.4,AgentTrek,AgentTrek,Link,
+04/2024,✔,-,GPT-4 + Auto Eval,20.2,Auto Eval & Refine,Auto Eval & Refine,,
+06/2024,✔,-,GPT-4o + Tree Search,19.2,Tree Search for LM Agents,Tree Search for LM Agents,,
+04/2024,✔,7,AutoWebGLM,18.2,AutoWebGLM,AutoWebGLM,,
+01/2025,✔,8,NNetNav,16.3,NNetscape,NNetscape,Link,"LLama 3.1-8B-instruct fine-tuned on NNetNav6k (a newer version of the dataset where the work keeps the best of 3 trajectories for each instruction, where we use a llama 3.1 70b as the reward model). 
+The model is available here: https://huggingface.co/stanfordnlp/llama8b-nnetnav-wa"
+06/2023,✔,-,gpt-4-0613,14.9,WebArena,GPT,Link,"when ""not achievable"" hint is not provided"
+05/2024,✔,-,gpt-4o-2024-05-13,13.1,WebArena Team,GPT,Link,"when ""not achievable"" hint is provided"
+06/2023,✔,-,gpt-4-0613,11.7,WebArena,GPT,,"when ""not achievable"" hint is provided"
+05/2024,✔,72,Patel et al + 2024,9.36,Patel et al + 2024,Patel et al + 2024,,
+03/2023,✔,-,gpt-3.5-turbo-16k-0613,8.87,WebArena,GPT,Link,
+09/2023,✔,72,Qwen-1.5-chat-72b,7.14,Patel et al + 2024,Qwen,,
+12/2023,✔,-,Gemini Pro,7.12,WebArena,Gemini Pro,,
+04/2024,✔,70,Llama3-chat-70b,7.02,WebArena Team,Llama3,,
+10/2024,✔,7,Synatra-CodeLLama7b,6.28,Synatra,Synatra,Link,
+10/2023,✔,70,Lemur-chat-70b,5.3,Lemur,Lemur,,
+03/2024,✔,7,Agent Flan,4.68,Agent Flan,Agent Flan,,
+08/2023,✔,34,CodeLlama-instruct-34b,4.06,Lemur,Llama2,,
+10/2023,✔,70,AgentLM-70b,3.81,Agent Tuning,Agent Tuning,,
+04/2024,✔,8,Llama3-chat-8b,3.32,WebArena Team,Llama3,,
+02/2024,✔,7,CodeAct Agent,2.3,WebArena Team,CodeAct,,
+10/2023,✔,13,AgentLM-13b,1.6,Agent Tuning,Agent Tuning,,
+01/2024,✔,8x7,Mixtral,1.39,Gemini In-depth look,Mixtral,,
+10/2023,✔,7,AgentLM-7b,0.74,Agent Tuning,Agent Tuning,,
+10/2023,✔,7,FireAct,0.25,Agent Flan,FireAct,,
+08/2023,✔,7,CodeLlama-instruct-7b,0,WebArena Team,CodeLLama,,
+,,,,,,,,
+WebArena Subset,,,,,,,,
+03/2024,-,AutoGuide,43.7,AutoGuide,AutoGuide,,✔,Reddit subset
+09/2024,,AutoManual,65.1,AutoManual,AutoManual,Link,✔,Reddit subset
+Human Performance,,,,,,,,
+,,Human,78.24,WebArena,,,,Selected tasks by templates
+,,,,,,,,
+Comment here or email shuyanzhxxx@gmail.com to submit your work! Please attach how should the data entry look like. ,,,,,,,,
+"Starting in September 2024, we require submissions to include raw trajectories (per-step observation and predicted action), to enhance transparency on the leaderboard.",,,,,,,,

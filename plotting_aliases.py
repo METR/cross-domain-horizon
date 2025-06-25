@@ -14,6 +14,7 @@ benchmark_aliases = {
     "swe_bench_verified": "SWE-bench Verified",
     "tesla_fsd": "Tesla FSD",
     "video_mme": "Video-MME",
+    "webarena": "WebArena",
 }
 
 benchmark_colors = defaultdict(lambda: '#808080', {

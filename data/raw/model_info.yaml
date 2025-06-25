@@ -241,3 +241,101 @@ model_info:
     aliases:
       - xai_grok_3_mini_fast_beta_high_reasoning
       - xai_grok_3_mini_fast_beta_low_reasoning
+  equact: 
+    release_date: 2025-05-27
+  sam2act: 
+    release_date: 2025-01-30
+  arp_: 
+    release_date: 2024-10-04
+  3d_lotus: 
+    release_date: 2024-10-02
+  rvt_2: 
+    release_date: 2024-06-12
+  3d_diffuser_actor: 
+    release_date: 2024-02-18
+  mini_diffuser: 
+    release_date: 2025-05-14
+  sam_e: 
+    release_date: 2024-05-30
+  act3d: 
+    release_date: 2023-06-30
+  rvt: 
+    release_date: 2023-06-26
+  polarnet: 
+    release_date: 2023-09-27
+  hiveformer: 
+    release_date: 2022-09-11
+  peract: 
+    release_date: 2022-09-12
+  image_bc_vit: 
+    release_date: 2022-09-12
+  image_bc_cnn: 
+    release_date: 2022-09-12
+  c2farm_bc: 
+    release_date: 2022-01-01
+  ibm_cuga: 
+    release_date: 2025-02-01
+  openai_operator: 
+    release_date: 2025-01-01
+  jace_ai: 
+    release_date: 2024-08-01
+  scribeagent_gpt_4o: 
+    release_date: 2024-12-01
+  agentsymbiotic: 
+    release_date: 2025-01-01
+  learn_by_interact: 
+    release_date: 2025-01-01
+  agentoccam_judge: 
+    release_date: 2024-10-01
+  webpilot: 
+    release_date: 2024-08-01
+  gui_api_hybrid_agent: 
+    release_date: 2024-10-01
+  agent_workflow_memory: 
+    release_date: 2024-09-01
+  step: 
+    release_date: 2024-04-01
+  tti: 
+    release_date: 2025-06-01
+  browsergym_gpt_4: 
+    release_date: 2024-04-01
+  agenttrek_1_0_32b: 
+    release_date: 2025-01-01
+  gpt_4o_tree_search: 
+    release_date: 2024-06-01
+  autowebglm: 
+    release_date: 2024-04-01
+  nnetnav: 
+    release_date: 2025-01-01
+  gpt_4_0613: 
+    release_date: 2023-06-01
+  gpt_4o_2024_05_13: 
+    release_date: 2024-05-01
+  patel_et_al_2024: 
+    release_date: 2024-05-01
+  gpt_3_5_turbo_16k_0613: 
+    release_date: 2023-03-01
+  qwen_1_5_chat_72b: 
+    release_date: 2023-09-01
+  gemini_pro: 
+    release_date: 2023-12-01
+  llama3_chat_70b: 
+    release_date: 2024-04-01
+  synatra_codellama7b: 
+    release_date: 2024-10-01
+  lemur_chat_70b: 
+    release_date: 2023-10-01
+  agent_flan: 
+    release_date: 2024-03-01
+  codellama_instruct_34b: 
+    release_date: 2023-08-01
+  agentlm_13b: 
+    release_date: 2023-10-01
+  mixtral: 
+    release_date: 2024-01-01
+  agentlm_7b: 
+    release_date: 2023-10-01
+  fireact: 
+    release_date: 2023-10-01
+  codellama_instruct_7b: 
+    release_date: 2023-08-01

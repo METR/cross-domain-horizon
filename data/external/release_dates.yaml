@@ -22,21 +22,6 @@ date:
   GPT-4 0613: 2023-06-13
   o3: 2025-04-16
   o4-mini: 2025-04-16
-  EquAct: 2025-05-27
-  SAM2Act: 2025-01-30
-  ARP+: 2024-10-04
-  3D-LOTUS: 2024-10-02
-  RVT-2: 2024-06-12
-  3D Diffuser Actor: 2024-02-18
-  Mini Diffuser: 2025-05-14
-  SAM-E: 2024-05-30
-  Act3D: 2023-06-30
-  RVT: 2023-06-26
-  PolarNet: 2023-09-27
-  Hiveformer: 2022-09-11
-  PerAct: 2022-09-12
-  Image-BC VIT: 2022-09-12
-  Image-BC CNN: 2022-09-12
   equact: 2025-05-27
   sam2act: 2025-01-30
   arp_: 2024-10-04
@@ -53,3 +38,38 @@ date:
   image_bc_vit: 2022-09-12
   image_bc_cnn: 2022-09-12
   c2farm_bc: 2022-01-01
+  ibm_cuga: 2025-02-01
+  openai_operator: 2025-01-01
+  jace_ai: 2024-08-01
+  scribeagent_gpt_4o: 2024-12-01
+  agentsymbiotic: 2025-01-01
+  learn_by_interact: 2025-01-01
+  agentoccam_judge: 2024-10-01
+  webpilot: 2024-08-01
+  gui_api_hybrid_agent: 2024-10-01
+  agent_workflow_memory: 2024-09-01
+  step: 2024-04-01
+  tti: 2025-06-01
+  browsergym_gpt_4: 2024-04-01
+  agenttrek_1_0_32b: 2025-01-01
+  gpt_4_auto_eval: 2024-04-01
+  gpt_4o_tree_search: 2024-06-01
+  autowebglm: 2024-04-01
+  nnetnav: 2025-01-01
+  gpt_4_0613: 2023-06-01
+  gpt_4o_2024_05_13: 2024-05-01
+  gpt_4_0613: 2023-06-01
+  patel_et_al_2024: 2024-05-01
+  gpt_3_5_turbo_16k_0613: 2023-03-01
+  qwen_1_5_chat_72b: 2023-09-01
+  gemini_pro: 2023-12-01
+  llama3_chat_70b: 2024-04-01
+  synatra_codellama7b: 2024-10-01
+  lemur_chat_70b: 2023-10-01
+  agent_flan: 2024-03-01
+  codellama_instruct_34b: 2023-08-01
+  agentlm_13b: 2023-10-01
+  mixtral: 2024-01-01
+  agentlm_7b: 2023-10-01
+  fireact: 2023-10-01
+  codellama_instruct_7b: 2023-08-01

@@ -118,9 +118,8 @@ model_info:
     release_date: 2025-05-20
     aliases: []
   gemini_pro:
-    release_date: 2023-12-13
-    aliases:
-    - Gemini Pro
+    release_date: 2023-12-01
+    aliases: []
   gemini_pro_vision:
     release_date: 2024-02-15
     aliases: []
@@ -185,10 +184,8 @@ model_info:
     aliases:
     - GPT-4
   gpt_4_0613:
-    release_date: 2023-06-13
-    aliases:
-    - GPT-4-code model
-    - GPT-4-code model (CSV, w/ code, SC, k=16)
+    release_date: 2023-06-01
+    aliases: []
   gpt_4_turbo:
     release_date: 2023-11-06
     aliases:
@@ -287,6 +284,147 @@ model_info:
     aliases:
     - xai_grok_3_mini_fast_beta_high_reasoning
     - xai_grok_3_mini_fast_beta_low_reasoning
+  equact:
+    release_date: 2025-05-27
+    aliases: []
+  sam2act:
+    release_date: 2025-01-30
+    aliases: []
+  arp_:
+    release_date: 2024-10-04
+    aliases: []
+  3d_lotus:
+    release_date: 2024-10-02
+    aliases: []
+  rvt_2:
+    release_date: 2024-06-12
+    aliases: []
+  3d_diffuser_actor:
+    release_date: 2024-02-18
+    aliases: []
+  mini_diffuser:
+    release_date: 2025-05-14
+    aliases: []
+  sam_e:
+    release_date: 2024-05-30
+    aliases: []
+  act3d:
+    release_date: 2023-06-30
+    aliases: []
+  rvt:
+    release_date: 2023-06-26
+    aliases: []
+  polarnet:
+    release_date: 2023-09-27
+    aliases: []
+  hiveformer:
+    release_date: 2022-09-11
+    aliases: []
+  peract:
+    release_date: 2022-09-12
+    aliases: []
+  image_bc_vit:
+    release_date: 2022-09-12
+    aliases: []
+  image_bc_cnn:
+    release_date: 2022-09-12
+    aliases: []
+  c2farm_bc:
+    release_date: 2022-01-01
+    aliases: []
+  ibm_cuga:
+    release_date: 2025-02-01
+    aliases: []
+  operator:
+    release_date: 2025-01-01
+    aliases: []
+  jace_ai:
+    release_date: 2024-08-01
+    aliases: []
+  scribeagent_gpt_4o:
+    release_date: 2024-12-01
+    aliases: []
+  agentsymbiotic:
+    release_date: 2025-01-01
+    aliases: []
+  learn_by_interact:
+    release_date: 2025-01-01
+    aliases: []
+  agentoccam_judge:
+    release_date: 2024-10-01
+    aliases: []
+  webpilot:
+    release_date: 2024-08-01
+    aliases: []
+  gui_api_hybrid_agent:
+    release_date: 2024-10-01
+    aliases: []
+  agent_workflow_memory:
+    release_date: 2024-09-01
+    aliases: []
+  step:
+    release_date: 2024-04-01
+    aliases: []
+  tti:
+    release_date: 2025-06-01
+    aliases: []
+  browsergym_gpt_4:
+    release_date: 2024-04-01
+    aliases: []
+  agenttrek_1_0_32b:
+    release_date: 2025-01-01
+    aliases: []
+  gpt_4o_tree_search:
+    release_date: 2024-06-01
+    aliases: []
+  autowebglm:
+    release_date: 2024-04-01
+    aliases: []
+  nnetnav:
+    release_date: 2025-01-01
+    aliases: []
+  gpt_4o_2024_05_13:
+    release_date: 2024-05-01
+    aliases: []
+  patel_et_al_2024:
+    release_date: 2024-05-01
+    aliases: []
+  gpt_3_5_turbo_16k_0613:
+    release_date: 2023-03-01
+    aliases: []
+  qwen_1_5_chat_72b:
+    release_date: 2023-09-01
+    aliases: []
+  llama3_chat_70b:
+    release_date: 2024-04-01
+    aliases: []
+  synatra_codellama7b:
+    release_date: 2024-10-01
+    aliases: []
+  lemur_chat_70b:
+    release_date: 2023-10-01
+    aliases: []
+  agent_flan:
+    release_date: 2024-03-01
+    aliases: []
+  codellama_instruct_34b:
+    release_date: 2023-08-01
+    aliases: []
+  agentlm_13b:
+    release_date: 2023-10-01
+    aliases: []
+  mixtral:
+    release_date: 2024-01-01
+    aliases: []
+  agentlm_7b:
+    release_date: 2023-10-01
+    aliases: []
+  fireact:
+    release_date: 2023-10-01
+    aliases: []
+  codellama_instruct_7b:
+    release_date: 2023-08-01
+    aliases: []
   code_davinci_002:
     release_date: unknown
     aliases: []
@@ -435,9 +573,6 @@ model_info:
     release_date: 2023-06-13
     aliases: []
   gpt_4_32k_0613:
-    release_date: 2023-06-13
-    aliases: []
-  gpt_3_5_turbo_16k_0613:
     release_date: 2023-06-13
     aliases: []
   mpt_30b_instruct:
@@ -693,9 +828,6 @@ model_info:
     release_date: 2024-05-09
     aliases: []
   yi_1_5_34b_chat:
-    release_date: 2024-05-13
-    aliases: []
-  gpt_4o_2024_05_13:
     release_date: 2024-05-13
     aliases: []
   yi_1_5_34b:

@@ -472,12 +472,16 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
         "default": "grey"
     }
 
+    benchmarks_to_use = ["hcast_r_s", "video_mme", "gpqa_diamond", "livecodebench_2411_2505", "mock_aime", "hendrycks_math", "osworld", "rlbench", "swe_bench_verified"]
+
     # Create a DataFrame for seaborn
     lengths_df = benchmark_data.copy()
     lengths_df['length_type'] = pd.Categorical(lengths_df['length_type'], categories=length_to_color_map.keys(), ordered=True)
 
     benchmarks = lengths_df['benchmark'].unique().tolist()
+    benchmarks = [b for b in benchmarks_to_use if b in benchmarks]
     lengths_df.sort_values(by='benchmark', inplace=True)
+    lengths_df = lengths_df[lengths_df['benchmark'].isin(benchmarks)]
 
     plt.figure(figsize=(10, 6))
     sns.boxplot(data=lengths_df, y='length', x='benchmark', whis=(10, 90),
@@ -491,15 +495,15 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
 
     s_frontier = s_frontier[s_frontier.index.isin(benchmarks)]
     
-    kwargs = {"label": f"Frontier (max horizon)"}
+    kwargs = {"label": f"Best performance\nof tested models"}
     for benchmark, horizon in s_frontier.items():
         plt.scatter(benchmark, horizon, color='white', edgecolor='black', marker='*', s=130, zorder=3, **kwargs)
         kwargs = {}
 
     # Legend
-    plt.plot([], [], color='black', linewidth=2, label="Quantiles (10/25/50/75/90%)")
-    plt.scatter([], [], color='royalblue', marker='o', s=20, label="Individual task")
-    plt.scatter([], [], color='darkred', marker='o', s=20, label="Individual task (estimated)")
+    plt.plot([], [], color='black', linewidth=2, label="Quantiles\n(10/25/50/75/90%)")
+    plt.scatter([], [], color='royalblue', marker='o', s=20, label="Individual\ntask")
+    plt.scatter([], [], color='darkred', marker='o', s=20, label="Individual task\n(estimated)")
     plt.legend()
 
     plt.grid(True, which="major", axis="y",ls="--", linewidth=0.5, alpha=0.4)
@@ -513,7 +517,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
     # Replace x-axis tick labels with benchmark aliases
     ax = plt.gca()
     tick_labels = ax.get_xticklabels()
-    new_labels = [benchmark_aliases.get(label.get_text(), label.get_text()) for label in tick_labels]
+    new_labels = [benchmark_aliases.get(label.get_text(), label.get_text()).replace(' ', '\n') for label in tick_labels]
     ax.set_xticklabels(new_labels)
 
     plt.tight_layout()

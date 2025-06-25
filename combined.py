@@ -330,6 +330,10 @@ def add_bootstrap_confidence_region(
                 # Add HRS label at the end of the solid portion
                 hrs_label_x = time_points[mask_solid][-1]
                 hrs_label_y = median_predictions[mask_solid][-1]
+                
+                # Manual x-axis adjustment for HRS label
+                hrs_label_x += pd.Timedelta(days=240)  
+                
                 hrs_text = ax.text(hrs_label_x, hrs_label_y, "  HRS", 
                                  color="#2c7c58", fontsize=11, 
                                  va='center', ha='left',
@@ -727,22 +731,43 @@ def plot_combined(df, output_file,
                 ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.3, 
                        linestyle=densely_dotted, linewidth=2)
             
-            # Add label at the end of the line
-            # Find the rightmost point of the line that's within the plot bounds
+            # Add label at the midpoint of the line
+            # Find the middle point of the line that's within the plot bounds
             valid_mask = mask_within | (mask_above if params.show_dotted_lines else np.zeros_like(mask_above, dtype=bool))
             if np.any(valid_mask):
-                # Get the last valid point
-                last_idx = np.where(valid_mask)[0][-1]
-                label_x = x_line_date[last_idx]
-                label_y = y_line[last_idx]
+                valid_indices = np.where(valid_mask)[0]
+                mid_idx = valid_indices[len(valid_indices) // 2]
+                label_x = x_line_date[mid_idx]
+                label_y = y_line[mid_idx]
                 
                 # Create text label with benchmark name
                 label_text = benchmark_aliases[bench]
-                text = ax.text(label_x, label_y, f"  {label_text}", 
-                              color=color, fontsize=11, 
-                              va='center', ha='left',
-                              weight='bold')
-                line_end_labels.append(text)
+                
+                if bench in ['mock_aime', 'livecodebench_2411_2505', 'gpqa_diamond']:
+                    continue  
+                
+                if bench in ['hendrycks_math', 'tesla_fsd', 'swe_bench_verified']:
+                    # Manual positioning for these specific benchmarks
+                    if bench == 'hendrycks_math':
+                        label_y *= 3
+                    elif bench == 'tesla_fsd':
+                        label_y *= 2
+                    elif bench == 'swe_bench_verified':
+                        label_y *= 1.5  
+                        label_x += pd.Timedelta(days=120)  
+                    
+                    # Create text but don't add to line_end_labels (won't be adjusted by adjustText)
+                    text = ax.text(label_x, label_y, f"  {label_text}", 
+                                  color=color, fontsize=11, 
+                                  va='center', ha='left',
+                                  weight='bold')
+                else:
+                    # Normal label handling - will be adjusted by adjustText
+                    text = ax.text(label_x, label_y, f"  {label_text}", 
+                                  color=color, fontsize=11, 
+                                  va='center', ha='left',
+                                  weight='bold')
+                    line_end_labels.append(text)
             
             # Add text labels for first and last frontier points if requested
             if params.show_model_names and not frontier_data.empty and params.show_points_level >= ShowPointsLevel.FIRST_AND_LAST:

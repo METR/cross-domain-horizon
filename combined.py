@@ -21,6 +21,7 @@ from matplotlib.offsetbox import AnnotationBbox, HPacker, OffsetImage, TextArea
 import pathlib
 
 import util_plots as utils_plots
+from util_plots import make_y_axis
 from plotting_aliases import benchmark_aliases, plotting_aliases, benchmark_colors
 
 logger = logging.getLogger(__name__)
@@ -509,7 +510,7 @@ def plot_combined(df, output_file,
                 # Add bootstrap confidence region
                 # Use x-axis start for visualization to prevent cutoff
                 visual_start = params.xbound[0] if params.xbound else "2018-09-03"
-                doubling_times, hrs_labels = add_bootstrap_confidence_region(
+                doubling_times, agent_summary_df, hrs_labels = add_bootstrap_confidence_region(
                     ax=ax,
                     bootstrap_results=bootstrap_results,
                     release_dates=release_dates,
@@ -766,8 +767,11 @@ def plot_combined(df, output_file,
     
     # Configure plot appearance
     ax.set_yscale('log')  # Log scale for y-axis (time horizon)
-    ax.yaxis.set_major_formatter(mticker.StrMethodFormatter('{x}'))
     plt.ylim(0.0083333, 240)  # Y-axis range in minutes (0.0083333 = 0.5 seconds), high is 2000 minutes which is hard-coded
+    
+    # Create script params with y_ticks_skip to show every other tick
+    script_params = {'y_ticks_skip': 2}
+    make_y_axis(ax, scale='log', unit='minutes', script_params=script_params)
     
     # Labels and title
     plt.xlabel("Model release date", fontsize=14)

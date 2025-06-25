@@ -854,19 +854,6 @@ def main():
                         help='Show model names on the plot (for red dots and first/last benchmark points)')
     args = parser.parse_args()
     
-    # Load configuration from figs.yaml
-    config_file = 'fig_params/figs.yaml'
-    if os.path.exists(config_file):
-        with open(config_file, 'r') as f:
-            config = yaml.safe_load(f)
-        # Get twitter_headline config (which inherits from plot_headline)
-        twitter_config = config['figs']['plot_logistic_regression']['twitter_headline']
-        # Get plot_headline config for inherited values
-        plot_headline_config = config['figs']['plot_logistic_regression']['headline']
-    else:
-        print(f"Warning: Config file {config_file} not found. Using defaults.")
-        twitter_config = {}
-        plot_headline_config = {}
     # Load benchmark performance data (created by wrangle.py)
     data_file = 'data/processed/all_data.csv'
     if not os.path.exists(data_file):
@@ -898,8 +885,8 @@ def main():
     
     # Get configuration values with fallbacks
     title = "NEW TITLE"
-    x_lim_start = plot_headline_config.get('x_lim_start', '2018-09-03')
-    x_lim_end = plot_headline_config.get('x_lim_end', '2027-01-01')
+    x_lim_start = '2018-09-03'
+    x_lim_end = '2027-01-01'
     
     # Configure plot parameters
     params = CombinedPlotParams(

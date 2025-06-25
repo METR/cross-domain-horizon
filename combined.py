@@ -753,7 +753,7 @@ def plot_combined(df, output_file,
                     elif bench == 'tesla_fsd':
                         label_y *= 2
                     elif bench == 'swe_bench_verified':
-                        label_y *= 1.5  
+                        label_y *= 1.3  
                         label_x += pd.Timedelta(days=120)  
                     
                     # Create text but don't add to line_end_labels (won't be adjusted by adjustText)

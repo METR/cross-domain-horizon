@@ -817,7 +817,7 @@ def plot_combined(df, output_file,
     # Use configured x-axis limits from params
     if params.xbound:
         # x_lim_start = pd.Timestamp(params.xbound[0])
-        x_lim_start = pd.Timestamp("2019-01-01")
+        x_lim_start = pd.Timestamp("2018-09-03")
         x_lim_end = pd.Timestamp(params.xbound[1])
     else:
         # Fallback to default values if not configured
@@ -828,9 +828,9 @@ def plot_combined(df, output_file,
     ax.set_xlim(x_lim_start, x_lim_end)
     
     # Calculate year range for ticks based on the limits
-    start_year = x_lim_start.year
+    start_year = x_lim_start.year + 1
     end_year = x_lim_end.year + 1
-    utils_plots.make_quarterly_xticks(ax, start_year, end_year, skip=2)
+    utils_plots.make_quarterly_xticks(ax, start_year+1, end_year, skip=2)
     
     if params.ybound is not None:
         ax.set_ylim(params.ybound)

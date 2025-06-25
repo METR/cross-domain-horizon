@@ -60,7 +60,7 @@ class CombinedPlotParams:
     show_points_level: ShowPointsLevel  # Which points to show on benchmark lines
     show_benchmarks: list[str] = field(default_factory=list)  # Only show these benchmarks (if specified)
     hide_benchmarks: list[str] = field(default_factory=list)  # Hide these benchmarks
-    show_dotted_lines: bool = True  # Show dotted lines for task length ranges
+    show_dotted_lines: bool = False 
     show_doubling_rate: bool = False  # Display doubling rate annotations on lines
     title: str = "Time Horizon vs. Release Date with Bootstrap CI"
     verbose: bool = False  # Print debug information
@@ -157,7 +157,7 @@ def add_bootstrap_confidence_region(
     success_percent: int = 50,
     benchmark_data: pd.DataFrame = None,
     visual_start_date: str = None,
-) -> tuple[list[float], pd.DataFrame]:
+) -> tuple[list[float], pd.DataFrame, list]:
     """
     Add bootstrap confidence intervals and median trend to the plot.
     
@@ -186,6 +186,7 @@ def add_bootstrap_confidence_region(
         Tuple of:
         - List of doubling times calculated from each bootstrap sample
         - DataFrame with agent summary data (name, date, median performance)
+        - List of text labels to be adjusted
     """
     # Extract release dates and filter agents
     dates = release_dates["date"]
@@ -214,6 +215,7 @@ def add_bootstrap_confidence_region(
     
     agent_summary_df = pd.DataFrame(agent_data)
     
+    hrs_labels = []  # Store HRS labels to return
     # Now calculate confidence bounds by fitting trends to each bootstrap sample
     n_bootstraps = len(bootstrap_results)
     
@@ -292,7 +294,7 @@ def add_bootstrap_confidence_region(
             upper_bound_minutes,
             color="#d2dfd7",  # Light green color
             alpha=0.4,
-            label=f"{int(confidence_level*100)}% Bootstrap CI",
+            label=f"_{int(confidence_level*100)}% Bootstrap CI",  # Underscore to hide from legend
             zorder=10  # Behind benchmark lines but above grid
         )
         
@@ -320,10 +322,18 @@ def add_bootstrap_confidence_region(
                     color="#2c7c58",  # Darker green
                     linestyle='-',  # Solid line
                     linewidth=2,
-                    label="Bootstrap Median Trend",
+                    label="_HRS_median",  # Underscore to hide from legend
                     zorder=60,  # Above confidence region but below main lines
                     alpha=0.8
                 )
+                # Add HRS label at the end of the solid portion
+                hrs_label_x = time_points[mask_solid][-1]
+                hrs_label_y = median_predictions[mask_solid][-1]
+                hrs_text = ax.text(hrs_label_x, hrs_label_y, "  HRS", 
+                                 color="#2c7c58", fontsize=11, 
+                                 va='center', ha='left',
+                                 weight='bold')
+                hrs_labels.append(hrs_text)
             
             # Plot dashed portions (extrapolation beyond data)
             if np.any(mask_before):
@@ -360,7 +370,7 @@ def add_bootstrap_confidence_region(
                 alpha=0.8
             )
     
-    return doubling_times, agent_summary_df
+    return doubling_times, agent_summary_df, hrs_labels
 
 
 def _add_watermark(fig, logo_path):
@@ -463,7 +473,8 @@ def plot_combined(df, output_file,
     # Create the plot
     fig, ax = plt.subplots(figsize=(12, 6))
     
-    texts = []  # Will store text labels for automatic positioning
+    texts = []  # text labels for automatic positioning
+    line_end_labels = []  # labels for benchmark lines at their endpoints
     
     # Filter benchmarks based on parameters
     if params.hide_benchmarks:
@@ -498,7 +509,7 @@ def plot_combined(df, output_file,
                 # Add bootstrap confidence region
                 # Use x-axis start for visualization to prevent cutoff
                 visual_start = params.xbound[0] if params.xbound else "2018-09-03"
-                doubling_times, agent_summary_df = add_bootstrap_confidence_region(
+                doubling_times, hrs_labels = add_bootstrap_confidence_region(
                     ax=ax,
                     bootstrap_results=bootstrap_results,
                     release_dates=release_dates,
@@ -510,6 +521,9 @@ def plot_combined(df, output_file,
                     benchmark_data=benchmark_data,
                     visual_start_date=visual_start,
                 )
+                
+                # Add HRS labels to the list of labels to adjust
+                line_end_labels.extend(hrs_labels)
                 
                 if doubling_times:
                     lower_bound = np.percentile(doubling_times, 2.5)
@@ -673,7 +687,6 @@ def plot_combined(df, output_file,
             # Calculate doubling rate using linear regression in log space
             coeffs = np.polyfit(X, Y_log, 1)
             doubling_rate = coeffs[0] * 365  # Convert from per day to per year
-            slope = coeffs[0]  # Store raw slope
             
             # Fit degree-1 spline for smooth visualization
             # k=1 (linear) prevents unrealistic curves
@@ -705,13 +718,30 @@ def plot_combined(df, output_file,
             thick = (bench == "hcast_r_s")
             
             ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', 
-                   linewidth=5 if thick else 2.5, label=f"{benchmark_aliases[bench]}", 
+                   linewidth=5 if thick else 2.5, label=f"_{benchmark_aliases[bench]}", 
                    zorder=100 if thick else None)
             if params.show_dotted_lines:
                 ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.3, 
                        linestyle=densely_dotted, linewidth=2)
                 ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.3, 
                        linestyle=densely_dotted, linewidth=2)
+            
+            # Add label at the end of the line
+            # Find the rightmost point of the line that's within the plot bounds
+            valid_mask = mask_within | (mask_above if params.show_dotted_lines else np.zeros_like(mask_above, dtype=bool))
+            if np.any(valid_mask):
+                # Get the last valid point
+                last_idx = np.where(valid_mask)[0][-1]
+                label_x = x_line_date[last_idx]
+                label_y = y_line[last_idx]
+                
+                # Create text label with benchmark name
+                label_text = benchmark_aliases[bench]
+                text = ax.text(label_x, label_y, f"  {label_text}", 
+                              color=color, fontsize=11, 
+                              va='center', ha='left',
+                              weight='bold')
+                line_end_labels.append(text)
             
             # Add text labels for first and last frontier points if requested
             if params.show_model_names and not frontier_data.empty and params.show_points_level >= ShowPointsLevel.FIRST_AND_LAST:
@@ -742,7 +772,7 @@ def plot_combined(df, output_file,
     # Labels and title
     plt.xlabel("Model release date", fontsize=14)
     # Position y-axis label above the y-axis like in reference image
-    ax.text(0.0, 1.02, "Task length (in minutes) (at 50% success rate)", 
+    ax.text(0.0, 1.02, "Task length (at 50% success rate)", 
             transform=ax.transAxes, 
             fontsize=14, 
             rotation=0, 
@@ -776,34 +806,11 @@ def plot_combined(df, output_file,
     if params.ybound is not None:
         ax.set_ylim(params.ybound)
     
-    # Create and organize legend
-    handles, labels = ax.get_legend_handles_labels()
-    
-    # Filter out internal labels (those starting with underscore)
-    visible_items = [(h, l) for h, l in zip(handles, labels) if not l.startswith('_')]
-    if visible_items:
-        handles, labels = zip(*visible_items)
-        
-        # Sort legend: benchmark lines first, then bootstrap items
-        sorted_items = []
-        bootstrap_items = []
-        for h, l in zip(handles, labels):
-            if "Bootstrap" in l:
-                bootstrap_items.append((h, l))
-            else:
-                sorted_items.append((h, l))
-        
-        # Add bootstrap items at the end
-        sorted_items.extend(bootstrap_items)
-        
-        if sorted_items:
-            handles, labels = zip(*sorted_items)
-            ax.legend(handles, labels, loc='upper left', fontsize=10, frameon=True)
-    
     # Adjust text positions to prevent overlap
-    if texts:
-        adjustText.adjust_text(texts, ax=ax,
-                            arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
+    all_texts = texts + line_end_labels
+    if all_texts:
+        adjustText.adjust_text(all_texts, ax=ax,
+                            arrowprops=dict(arrowstyle='->', color='gray', lw=0.5, alpha=0.7))
     
     # Add METR watermark
     _add_watermark(fig, pathlib.Path("data/external/metr-logo.svg"))

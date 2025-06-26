@@ -743,7 +743,7 @@ def plot_combined(df, output_file,
                 # Create text label with benchmark name
                 label_text = benchmark_aliases[bench]
                 
-                if bench in ['mock_aime', 'livecodebench_2411_2505', 'gpqa_diamond']:
+                if bench in ['mock_aime', 'livecodebench_2411_2505', 'gpqa_diamond','webarena']:
                     continue  
                 
                 if bench in ['hendrycks_math', 'tesla_fsd', 'swe_bench_verified']:
@@ -751,7 +751,7 @@ def plot_combined(df, output_file,
                     if bench == 'hendrycks_math':
                         label_y *= 3
                     elif bench == 'tesla_fsd':
-                        label_y *= 2
+                        label_y *= 2 
                     elif bench == 'swe_bench_verified':
                         label_y *= 1.3  
                         label_x += pd.Timedelta(days=120)  

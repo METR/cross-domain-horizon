@@ -571,8 +571,8 @@ def plot_combined_plotly(df, output_file, benchmark_data: pd.DataFrame, params: 
             # Main trend line
             customdata = np.full(len(x_smooth_dates[mask_within]), doubling_rate)
             
-            # Skip certain benchmarks from having labels
-            show_label = bench not in ['mock_aime', 'livecodebench_2411_2505', 'gpqa_diamond', 'webarena']
+            # Show all benchmarks in the legend
+            show_label = True
             
             fig.add_trace(go.Scatter(
                 x=x_smooth_dates[mask_within],

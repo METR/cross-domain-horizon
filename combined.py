@@ -813,6 +813,7 @@ def plot_combined(df, output_file,
     
     # Grid for readability
     ax.grid(True, which="major", ls="--", linewidth=0.5, alpha=0.4)
+    ax.grid(which="minor", linestyle=":", alpha=0.6, color="#d2dfd7")
     
     # Use configured x-axis limits from params
     if params.xbound:

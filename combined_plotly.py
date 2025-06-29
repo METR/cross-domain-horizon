@@ -609,8 +609,8 @@ def plot_combined_plotly(df, output_file, benchmark_data: pd.DataFrame, params: 
     # Configure layout
     fig.update_layout(
         title=dict(
-            text=params.title,
-            x=0,
+            text=f"{params.title}<br><sub>Task length (at 50% success rate)</sub>",
+            x=0.08,  # Adjusted to align with y-axis (80px margin / 1000px width)
             xanchor='left',
             font=dict(size=20)
         ),
@@ -626,10 +626,7 @@ def plot_combined_plotly(df, output_file, benchmark_data: pd.DataFrame, params: 
                    params.xbound[1] if params.xbound else "2027-01-01"]
         ),
         yaxis=dict(
-            title=dict(
-                text="Task length (at 50% success rate)",
-                font=dict(size=14)
-            ),
+            title="",  # Empty string to ensure no y-axis title
             type="log",
             showgrid=True,
             gridwidth=0.5,
@@ -641,7 +638,7 @@ def plot_combined_plotly(df, output_file, benchmark_data: pd.DataFrame, params: 
         ),
         hovermode='closest',
         plot_bgcolor='white',
-        width=1200,
+        width=1000,
         height=600,
         legend=dict(
             x=0.02,
@@ -652,46 +649,47 @@ def plot_combined_plotly(df, output_file, benchmark_data: pd.DataFrame, params: 
             bordercolor='rgba(0,0,0,0.2)',
             borderwidth=1
         ),
-        margin=dict(l=80, r=50, t=80, b=60)
+        margin=dict(l=80, r=50, t=80, b=80)
     )
     
-    # Add watermark image if available
-    logo_path = pathlib.Path("data/external/metr-logo.svg")
-    if logo_path.exists():
-        # For SVG, we'd need to convert it first. For now, add text watermark
-        fig.add_annotation(
-            text="METR",
-            xref="paper",
-            yref="paper",
-            x=0.90,
-            y=1.05,
-            showarrow=False,
-            font=dict(size=22, color="black"),
-            opacity=0.6
-        )
+    
+    # # Add watermark image if available
+    # logo_path = pathlib.Path("data/external/metr-logo.svg")
+    # if logo_path.exists():
+    #     # For SVG, we'd need to convert it first. For now, add text watermark
+    #     fig.add_annotation(
+    #         text="METR",
+    #         xref="paper",
+    #         yref="paper",
+    #         x=0.90,
+    #         y=1.05,
+    #         showarrow=False,
+    #         font=dict(size=22, color="black"),
+    #         opacity=0.6
+    #     )
     
     # Add website text
-    fig.add_annotation(
-        text="metr.org",
-        xref="paper",
-        yref="paper",
-        x=0.90,
-        y=-0.05,
-        showarrow=False,
-        font=dict(size=16, color="#2c7c58"),
-        opacity=0.6
-    )
+    # fig.add_annotation(
+    #     text="metr.org",
+    #     xref="paper",
+    #     yref="paper",
+    #     x=0.90,
+    #     y=0.02,
+    #     showarrow=False,
+    #     font=dict(size=16, color="#2c7c58"),
+    #     opacity=0.6
+    # )
     
-    fig.add_annotation(
-        text="CC-BY",
-        xref="paper",
-        yref="paper",
-        x=0.05,
-        y=-0.05,
-        showarrow=False,
-        font=dict(size=16, color="#2c7c58"),
-        opacity=0.6
-    )
+    # fig.add_annotation(
+    #     text="CC-BY",
+    #     xref="paper",
+    #     yref="paper",
+    #     x=0.02,
+    #     y=0.02,
+    #     showarrow=False,
+    #     font=dict(size=16, color="#2c7c58"),
+    #     opacity=0.6
+    # )
     
     # Save outputs
     if params.output_html:

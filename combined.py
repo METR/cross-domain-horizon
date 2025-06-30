@@ -746,7 +746,7 @@ def plot_combined(df, output_file,
                 if bench in ['mock_aime', 'livecodebench_2411_2505', 'gpqa_diamond']:
                     continue  
                 
-                if bench in ['hendrycks_math', 'tesla_fsd', 'swe_bench_verified']:
+                if bench in ['hendrycks_math', 'tesla_fsd', 'swe_bench_verified','webarena','rlbench']:
                     # Manual positioning for these specific benchmarks
                     if bench == 'hendrycks_math':
                         label_y *= 3
@@ -755,6 +755,12 @@ def plot_combined(df, output_file,
                     elif bench == 'swe_bench_verified':
                         label_y *= 1.3  
                         label_x += pd.Timedelta(days=120)  
+                    elif bench == 'webarena':
+                        label_y *= 0.3
+                        label_x += pd.Timedelta(days=-180)
+                    elif bench == 'rlbench':
+                        label_y *= 0.4
+                        label_x += pd.Timedelta(days=-110)
                     
                     # Create text but don't add to line_end_labels (won't be adjusted by adjustText)
                     text = ax.text(label_x, label_y, f"  {label_text}", 

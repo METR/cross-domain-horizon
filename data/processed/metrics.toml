@@ -14,7 +14,7 @@ max_horizon_minutes = 41.9209
 max_horizon_minutes = 37.8161
 
 [webarena]
-max_horizon_minutes = 1.9496
+max_horizon_minutes = 2.5034
 
 [gpqa_diamond]
 max_horizon_minutes = 1717.1831

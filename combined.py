@@ -79,7 +79,7 @@ class CombinedPlotParams:
     # Individual agent point parameters
     show_individual_agents: bool = False  # Show individual model points from bootstrap data
     agent_point_color: str = "#2c7c58"  # Color for individual agent points (same green as HRS line)
-    agent_point_size: int = 100  # Size of individual agent points
+    agent_point_size: int = 80 # Size of individual agent points
     show_model_names: bool = False  # Show model names on points (controlled by --model-names flag)
 
 

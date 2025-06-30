@@ -743,7 +743,7 @@ def plot_combined(df, output_file,
                 # Create text label with benchmark name
                 label_text = benchmark_aliases[bench]
                 
-                if bench in ['mock_aime', 'livecodebench_2411_2505', 'gpqa_diamond','webarena']:
+                if bench in ['mock_aime', 'livecodebench_2411_2505', 'gpqa_diamond']:
                     continue  
                 
                 if bench in ['hendrycks_math', 'tesla_fsd', 'swe_bench_verified']:
@@ -921,7 +921,7 @@ def main():
         print("Bootstrap data not found, plotting benchmarks only")
     
     # Get configuration values with fallbacks
-    title = "NEW TITLE"
+    title = "AI time horizons are increasing in many domains" # !!!! A/B testing OPTION
     x_lim_start = '2018-09-03'
     x_lim_end = '2027-01-01'
     
@@ -929,7 +929,7 @@ def main():
     params = CombinedPlotParams(
         # Benchmark settings
         hide_benchmarks=["hcast_r_s", "hcast_r_s_full_method", "video_mme", "gpqa", "aime"], 
-        show_points_level=ShowPointsLevel.FRONTIER,  # Show frontier points only
+        show_points_level=ShowPointsLevel.NONE,  # Show frontier points only !!!! A/B testing OPTION
         verbose=False,
         
         # Bootstrap CI settings

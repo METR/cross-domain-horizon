@@ -2,7 +2,7 @@
 max_horizon_minutes = 363.6955
 
 [mock_aime]
-max_horizon_minutes = 119.4518
+max_horizon_minutes = 119.45
 
 [osworld]
 max_horizon_minutes = 1.7899
@@ -11,13 +11,13 @@ max_horizon_minutes = 1.7899
 max_horizon_minutes = 41.9209
 
 [swe_bench_verified]
-max_horizon_minutes = 37.8182
+max_horizon_minutes = 37.8161
 
 [webarena]
-max_horizon_minutes = 112.5642
+max_horizon_minutes = 1.9496
 
 [gpqa_diamond]
-max_horizon_minutes = 1820.4386
+max_horizon_minutes = 1717.1831
 
 [hcast_r_s]
 max_horizon_minutes = 117.61370000000001
@@ -38,4 +38,4 @@ max_horizon_minutes = 93.1816976555271
 max_horizon_minutes = 111.303394
 
 [video_mme]
-max_horizon_minutes = 33217.4917
+max_horizon_minutes = 32180.48

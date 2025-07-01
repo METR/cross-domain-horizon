@@ -806,16 +806,20 @@ def plot_combined(df, output_file,
     
     # Labels and title
     plt.xlabel("Model release date", fontsize=14)
-    # Position y-axis label above the y-axis like in reference image
-    ax.text(0.0, 1.02, "Task length (at 50% success rate)", 
+    
+    # Position y-axis label above the y-axis, shifted left to align with title
+    ax.text(-0.1, 1.04, "Task length (at 50% success rate)", 
             transform=ax.transAxes, 
             fontsize=14, 
             rotation=0, 
             verticalalignment='bottom',
             horizontalalignment='left')
-    # Align title to the left
+    
     ax.set_title(params.title, 
-                fontsize=20, pad=30, loc='left')
+                fontsize=20, 
+                pad=36, 
+                x=-0.1,
+                loc='left')
     
     # Grid for readability
     ax.grid(True, which="major", ls="--", linewidth=0.5, alpha=0.4)

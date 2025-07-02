@@ -12,10 +12,13 @@ import pathlib
 import matplotlib.patheffects as patheffects
 import seaborn as sns
 import toml
+import tempfile
+import matplotlib.image as mpimg
 from scipy.interpolate import make_splrep
 from enum import Enum
 from dataclasses import dataclass, field
 from functools import total_ordering
+import dataclasses
 
 from plotting_aliases import benchmark_aliases, plotting_aliases, benchmark_colors
 from plot_splits import plot_splits
@@ -34,6 +37,7 @@ SPECULATION_OUTPUT_FILE = pathlib.Path('plots/speculation.png')
 PERCENT_OVER_TIME_OUTPUT_FILE = 'plots/percent_over_time.png'
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
 WATERMARK = False
+AIME_GPQA_SUBPLOTS_OUTPUT_FILE = 'plots/aime_gpqa_subplots.png'
 
 
 @total_ordering
@@ -92,7 +96,8 @@ def get_benchmark_data(benchmarks_path) -> dict[str, list[float]]:
 
 def plot_lines_over_time(df, output_file,
                          benchmark_data: pd.DataFrame,
-                         params: LinesPlotParams):
+                         params: LinesPlotParams,
+                         ax: plt.Axes | None = None):
     """Generates and saves a scatter plot of horizon vs. release date with trendlines fitted in log space to frontier models."""
 
     if df.empty:
@@ -146,7 +151,10 @@ def plot_lines_over_time(df, output_file,
         axs = axs.flatten()
         texts_per_ax = {ax: [] for ax in axs}  # Track texts per axis
     else:
-        fig, ax = plt.subplots(figsize=(12, 8))
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(12, 8))
+        else:
+            fig = ax.figure
 
     texts = [] # Initialize list to store text objects for adjustText
     subplot_texts = {} # Store texts for each subplot separately
@@ -451,11 +459,9 @@ def plot_lines_over_time(df, output_file,
         except ImportError:
             print("Warning: PIL/Pillow not available for image resizing. Using original size.")
 
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-
-    plt.savefig(output_file)
-    print(f"Lines over time plot saved to {output_file}")
-    plt.close(fig)
+    if output_file and ax is fig.axes[0]:   # only for self-created figs
+        plt.savefig(output_file)
+        plt.close(fig)
 
 
 def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], output_file: pathlib.Path):
@@ -722,6 +728,69 @@ def plot_percent_over_time(df, output_file):
     print(f"Percent over time plot saved to {output_file}")
     plt.close(fig)
 
+def _plot_bench_group(ax, df, benchmark_data, benches, params):
+    tmp_png = os.path.join(tempfile.gettempdir(), "tmp_plot.png")
+
+    # draw the mini-plot and save it to a file
+    plot_lines_over_time(
+        df.copy(),
+        output_file=tmp_png,
+        benchmark_data=benchmark_data,
+        params=dataclasses.replace(
+            params,
+            show_benchmarks=benches,
+            hide_benchmarks=[],
+            subplots=False
+        )
+    )
+
+    # paste it into the ta
+    ax.imshow(mpimg.imread(tmp_png))
+    ax.axis("off")        
+
+
+def plot_aime_gpqa_subplots(df: pd.DataFrame,
+                            benchmark_data: pd.DataFrame,
+                            output_file: str):
+    """
+    Two-panel (1x2) version of the big subplot figure.
+    """
+    fig, axs = plt.subplots(1, 2, figsize=(10, 4), sharex=True, sharey=True)
+
+    common_params = LinesPlotParams(
+        show_points_level=ShowPointsLevel.ALL,
+        show_dotted_lines=False,
+        verbose=False,
+        xbound=("2022-01-01", "2025-12-31"),
+    )
+
+    # left panel – AIME family
+    _plot_bench_group(
+        ax=axs[0],
+        df=df,
+        benchmark_data=benchmark_data,
+        benches=["aime", "mock_aime"],
+        params=common_params
+    )
+    axs[0].set_title("AIME family", fontsize=10)
+
+    # right panel – GPQA family
+    _plot_bench_group(
+        ax=axs[1],
+        df=df,
+        benchmark_data=benchmark_data,
+        benches=["gpqa", "gpqa_diamond"],
+        params=common_params
+    )
+    axs[1].set_title("GPQA family", fontsize=10)
+
+    fig.tight_layout()
+
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    fig.savefig(output_file, dpi=300)
+    plt.close(fig)
+    print(f"AIME/GPQA subplot saved to {output_file}")
+
 def main():
     parser = argparse.ArgumentParser(description='Generate various plots for model analysis')
     parser.add_argument('--all', action='store_true', help='Generate all plots')
@@ -732,11 +801,13 @@ def main():
     parser.add_argument('--speculation', action='store_true', help='Generate speculation plot')
     parser.add_argument('--splits', action='store_true', help='Generate splits plot')
     parser.add_argument('--percent', action='store_true', help='Generate percent over time plot')
+    parser.add_argument('--aime-gpqa', action='store_true',
+                        help='Generate AIME vs GPQA two-subplot figure')
     args = parser.parse_args()
 
     plots_to_make = []
     if args.all or not any(vars(args).values()):
-        plots_to_make = ["lines", "hcast", "lengths", "length_dependence"]
+        plots_to_make = ["lines", "hcast", "lengths", "length_dependence", "aime_gpqa"]
     elif args.lines:
         plots_to_make += ["lines"]
     elif args.hcast:
@@ -751,6 +822,8 @@ def main():
         plots_to_make += ["splits"]
     elif args.percent:
         plots_to_make += ["percent"]
+    elif args.aime_gpqa:
+        plots_to_make += ["aime_gpqa"]
 
     # If no arguments provided, default to --all
     if not any(vars(args).values()):
@@ -815,6 +888,11 @@ def main():
 
     if "percent" in plots_to_make:
         plot_percent_over_time(all_df.copy(), PERCENT_OVER_TIME_OUTPUT_FILE)
+
+    if "aime_gpqa" in plots_to_make:
+        plot_aime_gpqa_subplots(all_df.copy(),
+                                benchmark_data,
+                                AIME_GPQA_SUBPLOTS_OUTPUT_FILE)
 
 if __name__ == "__main__":
     main()

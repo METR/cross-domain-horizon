@@ -157,7 +157,8 @@ def add_bootstrap_confidence_region(
     benchmark_data: pd.DataFrame = None,
     visual_start_date: str = None,
     agent_summaries_file: str | None = None,
-) -> tuple[list[float], pd.DataFrame, list, float | None]:
+    frontier_agents: list[dict] = None,
+) -> tuple[list[float], pd.DataFrame, list]:
     """
     Add bootstrap confidence intervals and median trend to the plot.
     
@@ -180,6 +181,7 @@ def add_bootstrap_confidence_region(
         benchmark_data: Optional benchmark data (not currently used)
         visual_start_date: Start date for visualization (defaults to after_date if not provided)
         agent_summaries_file: Path to pre-computed agent summaries CSV file
+        frontier_agents: Optional list of frontier agents to determine solid line boundaries
         
     Returns:
         Tuple of:
@@ -300,78 +302,61 @@ def add_bootstrap_confidence_region(
         # Use the single fitted trend line for predictions
         time_x = date2num(time_points)
         median_predictions = np.exp(main_reg.predict(time_x.reshape(-1, 1)))
+
+        data_start = min(agent['date'] for agent in frontier_agents)
+        data_end = max(agent['date'] for agent in frontier_agents)
+        print(data_start, data_end)
+        # Create masks for solid vs dashed portions
+        # Solid portion is between first and last actual data points
+        mask_solid = (time_points >= data_start) & (time_points <= data_end)
+        mask_before = time_points < data_start
+        mask_after = time_points > data_end
         
-        # Determine which agents are included in the data to find the actual data range
-        included_agents_dates = [pd.to_datetime(dates[agent]) for agent in focus_agents 
-                                if agent in dates]
-        if included_agents_dates:
-            data_start = min(included_agents_dates)
-            data_end = max(included_agents_dates)
-            print(data_start, data_end)
-            
-            # Create masks for solid vs dashed portions
-            # Solid portion is between first and last actual data points
-            mask_solid = (time_points >= data_start) & (time_points <= data_end)
-            mask_before = time_points < data_start
-            mask_after = time_points > data_end
-            
-            # Plot solid portion
-            if np.any(mask_solid):
-                ax.plot(
-                    time_points[mask_solid],
-                    median_predictions[mask_solid],
-                    color="#2c7c58",  # Darker green
-                    linestyle='-',  # Solid line
-                    linewidth=2,
-                    label="_HRS_median",  # Underscore to hide from legend
-                    zorder=60,  # Above confidence region but below main lines
-                    alpha=0.8
-                )
-                # Add HRS label at the end of the solid portion
-                hrs_label_x = time_points[mask_solid][-1]
-                hrs_label_y = median_predictions[mask_solid][-1]
-                
-                # Manual x-axis adjustment for HRS label
-                hrs_label_x += pd.Timedelta(days=220)  
-                hrs_label_y *= 0.8
-                
-                hrs_text = ax.text(hrs_label_x, hrs_label_y, "  Original Graph", 
-                                 color="#2c7c58", fontsize=11, 
-                                 va='center', ha='left',
-                                 weight='bold')
-                hrs_labels.append(hrs_text)
-            
-            # Plot dashed portions (extrapolation beyond data)
-            if np.any(mask_before):
-                ax.plot(
-                    time_points[mask_before],
-                    median_predictions[mask_before],
-                    color="#2c7c58",  # Darker green
-                    linestyle='--',  # Dashed line
-                    linewidth=2,
-                    zorder=60,
-                    alpha=0.8
-                )
-            
-            if np.any(mask_after):
-                ax.plot(
-                    time_points[mask_after],
-                    median_predictions[mask_after],
-                    color="#2c7c58",  # Darker green
-                    linestyle='--',  # Dashed line
-                    linewidth=2,
-                    zorder=60,
-                    alpha=0.8
-                )
-        else:
-            # Fallback to all dashed if no valid agents found
+        # Plot solid portion
+        if np.any(mask_solid):
             ax.plot(
-                time_points,
-                median_predictions,
+                time_points[mask_solid],
+                median_predictions[mask_solid],
+                color="#2c7c58",  # Darker green
+                linestyle='-',  # Solid line
+                linewidth=2,
+                label="_HRS_median",  # Underscore to hide from legend
+                zorder=60,  # Above confidence region but below main lines
+                alpha=0.8
+            )
+            # Add HRS label at the end of the solid portion
+            hrs_label_x = time_points[mask_solid][-1]
+            hrs_label_y = median_predictions[mask_solid][-1]
+            
+            # Manual x-axis adjustment for HRS label
+            hrs_label_x += pd.Timedelta(days=220)  
+            hrs_label_y *= 0.8
+            
+            hrs_text = ax.text(hrs_label_x, hrs_label_y, "  Original Graph", 
+                             color="#2c7c58", fontsize=11, 
+                             va='center', ha='left',
+                             weight='bold')
+            hrs_labels.append(hrs_text)
+        
+        # Plot dashed portions (extrapolation beyond data)
+        if np.any(mask_before):
+            ax.plot(
+                time_points[mask_before],
+                median_predictions[mask_before],
                 color="#2c7c58",  # Darker green
                 linestyle='--',  # Dashed line
                 linewidth=2,
-                label="Bootstrap Median Trend",
+                zorder=60,
+                alpha=0.8
+            )
+        
+        if np.any(mask_after):
+            ax.plot(
+                time_points[mask_after],
+                median_predictions[mask_after],
+                color="#2c7c58",  # Darker green
+                linestyle='--',  # Dashed line
+                linewidth=2,
                 zorder=60,
                 alpha=0.8
             )
@@ -511,40 +496,10 @@ def plot_combined(df, output_file,
                 focus_agents = sorted(list(dates.keys()), key=lambda x: dates[x])
                 focus_agents = [agent for agent in focus_agents if agent not in params.exclude_agents]
                 
-               
-                # Add bootstrap confidence region
-                # Use x-axis start for visualization to prevent cutoff
-                visual_start = params.xbound[0] if params.xbound else "2018-09-03"
-                doubling_times, agent_summary_df, hrs_labels= add_bootstrap_confidence_region(
-                    ax=ax,
-                    bootstrap_results=bootstrap_results,
-                    release_dates=release_dates,
-                    after_date=after_date.strftime('%Y-%m-%d'),
-                    max_date=max_date,
-                    confidence_level=params.confidence_level,
-                    exclude_agents=params.exclude_agents,
-                    benchmark_data=benchmark_data,
-                    visual_start_date=visual_start,
-                    agent_summaries_file=params.agent_summaries_file,
-                )
-                
-                # Add HRS labels to the list of labels to adjust
-                line_end_labels.extend(hrs_labels)
-                
-                if doubling_times:
-                    lower_bound = np.percentile(doubling_times, 2.5)
-                    upper_bound = np.percentile(doubling_times, 97.5)
-                    median = np.median(doubling_times)
-                    logger.info(
-                        f"95% CI for doubling times: [{lower_bound:.0f}, {upper_bound:.0f}] days "
-                        f"(+{(upper_bound - median) / median:.0%}/-{(median - lower_bound) / median:.0%})"
-                    )
-                
-                # Optionally add individual agent points on top of CI
+                # Calculate frontier agents if needed
+                frontier_agents = []
                 if params.show_individual_agents:
-                    agent_texts = []  # List to store text labels for adjustment
-                    
-                    # First, collect all agent data with dates and values
+                    # Collect all agent data with dates and values
                     agent_data_list = []
                     for agent in focus_agents:
                         col_name = f"{agent}_p50"
@@ -564,13 +519,45 @@ def plot_combined(df, output_file,
                     # Sort by date and identify frontier models
                     agent_data_list.sort(key=lambda x: x['date'])
                     max_value_so_far = -np.inf
-                    frontier_agents = []
                     
                     for agent_data in agent_data_list:
                         # Only include if this model improves on all previous models
                         if agent_data['value'] > max_value_so_far:
                             frontier_agents.append(agent_data)
                             max_value_so_far = agent_data['value']
+               
+                # Add bootstrap confidence region
+                # Use x-axis start for visualization to prevent cutoff
+                visual_start = params.xbound[0] if params.xbound else "2018-09-03"
+                doubling_times, agent_summary_df, hrs_labels = add_bootstrap_confidence_region(
+                    ax=ax,
+                    bootstrap_results=bootstrap_results,
+                    release_dates=release_dates,
+                    after_date=after_date.strftime('%Y-%m-%d'),
+                    max_date=max_date,
+                    confidence_level=params.confidence_level,
+                    exclude_agents=params.exclude_agents,
+                    benchmark_data=benchmark_data,
+                    visual_start_date=visual_start,
+                    agent_summaries_file=params.agent_summaries_file,
+                    frontier_agents=frontier_agents,
+                )
+                
+                # Add HRS labels to the list of labels to adjust
+                line_end_labels.extend(hrs_labels)
+                
+                if doubling_times:
+                    lower_bound = np.percentile(doubling_times, 2.5)
+                    upper_bound = np.percentile(doubling_times, 97.5)
+                    median = np.median(doubling_times)
+                    logger.info(
+                        f"95% CI for doubling times: [{lower_bound:.0f}, {upper_bound:.0f}] days "
+                        f"(+{(upper_bound - median) / median:.0%}/-{(median - lower_bound) / median:.0%})"
+                    )
+                
+                # Optionally add individual agent points on top of CI
+                if params.show_individual_agents and frontier_agents:
+                    agent_texts = []  # List to store text labels for adjustment
                     
                     # Plot only frontier models
                     for agent_data in frontier_agents:

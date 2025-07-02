@@ -1,0 +1,41 @@
+sources = "https://docs.google.com/spreadsheets/d/1M801lEpBbKSNwP-vDBkC_pF7LdyGU1f_ufZb_NWNBZQ/edit"
+
+
+[splits.all]
+ibm_cuga = 61.7
+openai_operator = 58.1
+jace_ai = 57.1
+scribeagent_gpt_4o = 53.0
+agentsymbiotic = 52.1
+learn_by_interact = 48.0
+agentoccam_judge = 45.7
+webpilot = 37.2
+gui_api_hybrid_agent = 35.8
+agent_workflow_memory = 35.5
+step = 33.5
+tti = 26.1
+browsergym_gpt_4 = 23.5
+agenttrek_1_0_32b = 22.4
+gpt_4_auto_eval = 20.2
+gpt_4o_tree_search = 19.2
+autowebglm = 18.2
+nnetnav = 16.3
+gpt_4_0613 = 14.9
+gpt_4o_2024_05_13 = 13.1
+patel_et_al_2024 = 9.36
+gpt_3_5_turbo_16k_0613 = 8.87
+qwen_1_5_chat_72b = 7.14
+gemini_pro = 7.12
+llama3_chat_70b = 7.02
+synatra_codellama7b = 6.28
+lemur_chat_70b = 5.3
+agent_flan = 4.68
+codellama_instruct_34b = 4.06
+agentlm_70b = 3.81
+llama3_chat_8b = 3.32
+codeact_agent = 2.3
+agentlm_13b = 1.6
+mixtral = 1.39
+agentlm_7b = 0.74
+fireact = 0.25
+codellama_instruct_7b = 0.0

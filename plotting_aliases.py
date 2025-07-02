@@ -14,6 +14,7 @@ benchmark_aliases = {
     "swe_bench_verified": "SWE-bench Verified",
     "tesla_fsd": "Tesla FSD",
     "video_mme": "Video-MME",
+    "webarena": "WebArena",
 }
 
 benchmark_colors = defaultdict(lambda: '#808080', {
@@ -30,6 +31,7 @@ benchmark_colors = defaultdict(lambda: '#808080', {
     "swe_bench_verified": "#111111",
     "tesla_fsd": "#bcbd22",
     "video_mme": "#17becf",
+    "webarena": "#dc4733"
 })
 plotting_aliases = {
     "gemini_1_5_pro_002": "G 1.5 Pro",

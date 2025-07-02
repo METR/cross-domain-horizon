@@ -176,6 +176,10 @@ def plot_lines_over_time(df, output_file,
         non_frontier_data = bench_data[~bench_data['is_frontier']]
 
         length_data = benchmark_data[benchmark_data['benchmark'] == bench]['length']
+        # Flag indicating whether any model for this benchmark has the special β (=0.6) value.
+        # This will later control whether the main (within-range) portion of the trend line
+        # is rendered dashed (β = 0.6) or solid (otherwise).
+        has_slope_06 = bench_data['slope'].eq(0.6).any()
         p2 = length_data.quantile(0.02)
         p98 = length_data.quantile(0.98)
         if pd.isna(p2) or pd.isna(p98):
@@ -183,38 +187,38 @@ def plot_lines_over_time(df, output_file,
             p98 = 10**10
 
         def scatter_points(data, label, **kwargs):
-            if 'slope' in data.columns and len(data) > 0:
-                # Plot each point individually with its own marker based on slope
-                for idx, row in data.iterrows():
-                    slope_val = row['slope']
-                    if pd.isna(slope_val):
-                        marker = 'o'  # Keep as circle if slope is NaN
-                    elif row['benchmark'] == 'hcast_r_s':
-                        marker = '^'
-                    else:
-                        marker = 'x' if slope_val < 0.25 else 'o' if slope_val == 0.6 else '^'
+            # if 'slope' in data.columns and len(data) > 0:
+            #     # Plot each point individually with its own marker based on slope
+            #     for idx, row in data.iterrows():
+            #         slope_val = row['slope']
+            #         if pd.isna(slope_val):
+            #             marker = 'o'  # Keep as circle if slope is NaN
+            #         elif row['benchmark'] == 'hcast_r_s':
+            #             marker = '^'
+            #         else:
+            #             marker = 'x' if slope_val < 0.25 else 'o' if slope_val == 0.6 else '^'
                     
-                    # Only add label to the first point to avoid duplicate legend entries
-                    point_label = label if idx == data.index[0] else None
+            #         # Only add label to the first point to avoid duplicate legend entries
+            #         point_label = label if idx == data.index[0] else None
                     
-                    ax.scatter(
-                        row['release_date'],
-                        row['horizon_minutes'],
-                        color=color,
-                        label=point_label,
-                        marker=marker,
-                        **kwargs
-                    )
-            else:
+            #         ax.scatter(
+            #             row['release_date'],
+            #             row['horizon_minutes'],
+            #             color=color,
+            #             label=point_label,
+            #             marker=marker,
+            #             **kwargs
+            #         )
+            # else:
                 # Default to circles for all points
-                ax.scatter(
-                    data['release_date'],
-                    data['horizon_minutes'],
-                    color=color,
-                    label=label,
-                    marker='o',
-                    **kwargs
-                )
+            ax.scatter(
+                data['release_date'],
+                data['horizon_minutes'],
+                color=color,
+                label=label,
+                marker='o',
+                **kwargs
+            )
 
         # Plot non-frontier points
         if params.show_points_level >= ShowPointsLevel.ALL:
@@ -275,7 +279,21 @@ def plot_lines_over_time(df, output_file,
 
             thick = (bench == "hcast_r_s") and not params.subplots
 
-            ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', linewidth=5 if thick else 2.5, label=f"{benchmark_aliases[bench]}", zorder=100 if thick else None)
+            # Render all main trend lines as solid. Increase thickness slightly when
+            # the benchmark *does not* include any model with β = 0.6 (previously
+            # indicated by "triangles").
+            base_width = 2
+            line_width = base_width if has_slope_06 else base_width + 1.0
+
+            ax.plot(
+                x_line_date[mask_within],
+                y_line[mask_within],
+                color=color,
+                linestyle='-',
+                linewidth=line_width,
+                label=f"{benchmark_aliases[bench]}",
+                zorder=100 if thick else None
+            )
             if params.show_dotted_lines:
                 ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.3, linestyle=densely_dotted, linewidth=2)
                 ax.plot(x_line_date[mask_below], y_line[mask_below], color=color, alpha=0.3, linestyle=densely_dotted, linewidth=2)
@@ -322,7 +340,7 @@ def plot_lines_over_time(df, output_file,
                 # Hide the *first* frontier label if it is for a model released *after* the
                 # specified cutoff (helps reduce clutter for very recent models).
                 DATE_CUTOFF = date(2023, 1, 1)
-                if first_frontier_point['release_date'] <= DATE_CUTOFF:
+                if params.subplots or first_frontier_point['release_date'] <= DATE_CUTOFF:
                     text_label(first_frontier_point, current_ax=ax)
                 text_label(last_frontier_point, current_ax=ax)
 
@@ -449,7 +467,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
         "default": "grey"
     }
 
-    benchmarks_to_use = ["hcast_r_s", "video_mme", "gpqa_diamond", "livecodebench_2411_2505", "mock_aime", "hendrycks_math", "osworld", "rlbench", "swe_bench_verified"]
+    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "gpqa_diamond", "livecodebench_2411_2505", "mock_aime", "hendrycks_math", "osworld", "rlbench", "swe_bench_verified"]
 
     # Create a DataFrame for seaborn
     lengths_df = benchmark_data.copy()
@@ -519,7 +537,19 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     hcast_data = df[df['benchmark'] == 'hcast_r_s']
     hcast_avg_slope = hcast_data['slope'].mean() if not hcast_data.empty else 0.6
 
-    ax.axhline(y=hcast_avg_slope, color='gray', linestyle='--', alpha=0.7, label=f'HRS average (β={hcast_avg_slope:.2f})')
+    # Draw the HRS average β line using the same styling rule:
+    #   – standard width when β≈0.6
+    #   – slightly thicker when β differs from 0.6.
+    base_width = 2.5
+    hrs_line_width = base_width if np.isclose(hcast_avg_slope, 0.6) else base_width + 1.0
+    ax.axhline(
+        y=hcast_avg_slope,
+        color='gray',
+        linestyle='-',
+        linewidth=hrs_line_width,
+        alpha=0.7,
+        label=f'HRS average (β={hcast_avg_slope:.2f})'
+    )
 
     ax.annotate("Model success\n$\\mathbf{strongly}$ related\nto task length", (0.05, 0.95), xycoords='axes fraction', ha='left', va='top', fontsize=12)
     ax.annotate("Model success\n$\\mathbf{weakly}$ related\nto task length", (0.05, 0.05), xycoords='axes fraction', ha='left', va='bottom', fontsize=12)
@@ -819,17 +849,17 @@ def main():
 
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:
-        plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.NONE, verbose=False, show_dotted_lines=False, ybound=(0.05, 400)))
+        plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.NONE, verbose=False, show_dotted_lines=False, ybound=(0.05, 400)))
 
         # Generate and save the lines over time plot using the original loaded data
-        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))
+        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))
 
         plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, LinesPlotParams(
             title="HRS Time Horizons (full method vs average-scores-only)",
             show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER,)
         )
         
-        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s_full_method", "video_mme"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2025-08-01"), ybound=(0.05, 400)))
+        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2025-08-01"), ybound=(0.05, 400)))
 
 
     # --- Benchmark Task Lengths Plot ---

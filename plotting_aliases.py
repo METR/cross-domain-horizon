@@ -41,6 +41,7 @@ plotting_aliases = {
     "gpt_3_5": "GPT-3.5",
     "claude_3_7_sonnet": "C 3.7 S",
     "openai_gpt_2": "GPT-2",
+    "gpt_2": "GPT-2",
     "davinci_002_175b": "GPT-3",
     "ui_tars_1_5": "TARS 1.5",
     "claude_3_haiku": "C 3 Haiku",
@@ -65,5 +66,7 @@ plotting_aliases = {
     "o4 mini": "o4-mini",
     "claude 3 haiku": "Claude 3 Haiku",
     "equact": "EquAct",
-    "c2farm_bc": "C2FARM-BC"
+    "c2farm_bc": "C2FARM-BC",
+    "ibm_cuga": "IBM CUGA",
+    "gpt_3_5_turbo_16k_0613": "GPT-3.5 Turbo",
 }

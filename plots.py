@@ -19,6 +19,7 @@ from enum import Enum
 from dataclasses import dataclass, field
 from functools import total_ordering
 import dataclasses
+from datetime import date
 
 from plotting_aliases import benchmark_aliases, plotting_aliases, benchmark_colors
 from plot_splits import plot_splits
@@ -110,6 +111,7 @@ def plot_lines_over_time(df, output_file,
 
     plot_df = df.dropna(subset=['release_date']).copy()
     plot_df = plot_df[plot_df['horizon'] > 0] # Log scale needs positive values
+    plot_df = plot_df[(plot_df['slope'].isna()) | (plot_df['slope'] > 0.25)]
 
     if plot_df.empty:
         print("No valid data points (with release date and positive horizon) found for lines over time plot.")
@@ -151,7 +153,9 @@ def plot_lines_over_time(df, output_file,
             fig = ax.figure
 
     texts = [] # Initialize list to store text objects for adjustText
+    points = [] # Track actual data point coordinates for adjustText
     subplot_texts = {} # Store texts for each subplot separately
+    subplot_points = {} # Store points for each subplot separately
 
     if params.hide_benchmarks:
         benchmarks = [bench for bench in benchmarks if bench not in params.hide_benchmarks]
@@ -164,6 +168,7 @@ def plot_lines_over_time(df, output_file,
             ax = axs[benchmarks.index(bench)]
             ax.set_title(benchmark_aliases[bench], fontsize=10)
             subplot_texts[bench] = []  # Initialize text list for this subplot
+            subplot_points[bench] = []  # Initialize points list for this subplot
 
         bench_data = plot_df[plot_df['benchmark'] == bench]
         color = benchmark_colors[bench]
@@ -289,11 +294,15 @@ def plot_lines_over_time(df, output_file,
                     else:
                         model_name = point['model']
                     if point['horizon_minutes'] < 0.1:  
-                        y_offset = 0.20  # fixed position
+                        y_offset = max(point['horizon_minutes'] * 1.5, 0.06)
                         va = 'bottom'
                     else:
                         y_offset = point['horizon_minutes'] * 1.1  # 10% above the point
                         va = 'bottom'
+                    
+                    # Store actual data point coordinates
+                    point_x = point['release_date']
+                    point_y = point['horizon_minutes']
                     
                     text_obj = ax.text(point['release_date'],
                                       y_offset,
@@ -305,10 +314,16 @@ def plot_lines_over_time(df, output_file,
                                       bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.7, edgecolor='none'))
                     if params.subplots:
                         subplot_texts[bench].append(text_obj)
+                        subplot_points[bench].append((mdates.date2num(point_x), point_y))
                     else:
                         texts.append(text_obj)
+                        points.append((mdates.date2num(point_x), point_y))
 
-                text_label(first_frontier_point, current_ax=ax)
+                # Hide the *first* frontier label if it is for a model released *after* the
+                # specified cutoff (helps reduce clutter for very recent models).
+                DATE_CUTOFF = date(2023, 1, 1)
+                if first_frontier_point['release_date'] <= DATE_CUTOFF:
+                    text_label(first_frontier_point, current_ax=ax)
                 text_label(last_frontier_point, current_ax=ax)
 
     ax.set_yscale('log')
@@ -355,30 +370,31 @@ def plot_lines_over_time(df, output_file,
         trend_legend_handles.append(handle2)
 
     # Create fit quality legend
-    fit_quality_handles = []
-    handle3 = ax.scatter([], [], color='black', marker='^', s=30, label="Good (β > 0.25)")
-    fit_quality_handles.append(handle3)
-    handle4 = ax.scatter([], [], color='black', marker='x', s=30, label="Poor (β < 0.25)")
-    fit_quality_handles.append(handle4)
-    handle5 = ax.scatter([], [], color='black', marker='o', s=30, label="Unknown")
-    fit_quality_handles.append(handle5)
+    # fit_quality_handles = []
+    # handle3 = ax.scatter([], [], color='black', marker='^', s=30, label="Good (β > 0.25)")
+    # fit_quality_handles.append(handle3)
+    # handle4 = ax.scatter([], [], color='black', marker='x', s=30, label="Poor (β < 0.25)")
+    # fit_quality_handles.append(handle4)
+    # handle5 = ax.scatter([], [], color='black', marker='o', s=30, label="Unknown")
+    # fit_quality_handles.append(handle5)
 
     trend_legend_ax = axs[-1] if params.subplots else ax
 
     trend_legend = trend_legend_ax.legend(handles=trend_legend_handles, title="Range of task lengths\n in benchmark", bbox_to_anchor=(0.02, 0.5), loc='center left')
     
-    fit_quality_legend = trend_legend_ax.legend(handles=fit_quality_handles, title="Logistic fit quality", bbox_to_anchor=(0.02, 0.3), loc='center left')
+    # fit_quality_legend = trend_legend_ax.legend(handles=fit_quality_handles, title="Logistic fit quality", bbox_to_anchor=(0.02, 0.3), loc='center left')
 
     
     if not params.subplots:
         bench_legend = ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(0.02, 1), loc='upper left')
         if params.show_dotted_lines:
             ax.add_artist(trend_legend)
-            ax.add_artist(fit_quality_legend)
+            # ax.add_artist(fit_quality_legend)
 
         if texts:
             adjustText.adjust_text(texts, ax=ax,
-                                arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
+                                points=points,
+                                only_move={'points':'y', 'texts':'y'})
 
         add_watermark(ax)
 
@@ -388,6 +404,8 @@ def plot_lines_over_time(df, output_file,
             if bench in subplot_texts and subplot_texts[bench]:
                 ax = axs[benchmarks.index(bench)]
                 adjustText.adjust_text(subplot_texts[bench], ax=ax,
+                                     points=subplot_points[bench],
+                                     only_move={'points':'y', 'texts':'y'},
                                      force_text=(0.3, 0.3),
                                      force_points=(0.2, 0.2),
                                      expand_text=(1.2, 1.5),
@@ -402,15 +420,13 @@ def plot_lines_over_time(df, output_file,
     # After all plotting is done, adjust texts
     if params.subplots:
         # Adjust texts for each subplot
-        for ax_idx, ax in enumerate(axs[:len(benchmarks)]):
+        for ax in axs[:len(benchmarks)]:
             if texts_per_ax[ax]:
-                adjustText.adjust_text(texts_per_ax[ax], ax=ax,
-                                     arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
+                adjustText.adjust_text(texts_per_ax[ax], ax=ax)
     else:
         # Existing code for non-subplot case
         if texts:
-            adjustText.adjust_text(texts, ax=ax,
-                                 arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
+            adjustText.adjust_text(texts, ax=ax)
 
     plt.tight_layout()
 
@@ -492,7 +508,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     """
     Plots the relationship between task length and difficulty
     """
-    fig, ax = plt.subplots(figsize=(10, 6))
+    _, ax = plt.subplots(figsize=(10, 6))
     add_watermark(ax)
 
     benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "gpqa_diamond", "livecodebench_2411_2505", "mock_aime"]
@@ -572,7 +588,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     
     # Format y-axis ticks to show odds ratios (exp of slope values)
     from matplotlib.ticker import FuncFormatter, FixedLocator
-    def odds_ratio_formatter(x, pos):
+    def odds_ratio_formatter(x, _):
         return f'{np.exp(x):.2f}x'
     
     # Set specific tick locations for denser labeling
@@ -588,7 +604,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     ax2.yaxis.set_major_locator(FixedLocator(tick_locations))
     ax2.yaxis.set_minor_locator(FixedLocator([]))  # Remove minor ticks
     
-    def beta_formatter(x, pos):
+    def beta_formatter(x, _):
         return f'{x:.2f}'
     ax2.yaxis.set_major_formatter(FuncFormatter(beta_formatter))
     ax2.set_ylabel(r'$\beta$ (log scale)')

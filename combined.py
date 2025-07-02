@@ -135,10 +135,11 @@ def fit_trendline(
     # Convert dates to numeric values for regression
     X = date2num(release_dates).reshape(-1, 1)
     
+    p50s_clipped = p50s.clip(1e-3, np.inf)
     if log_scale:
-        y = np.log(p50s)  # Log transform for exponential fitting
+        y = np.log(p50s_clipped)  # Log transform for exponential fitting
     else:
-        y = p50s
+        y = p50s_clipped
     
     reg = LinearRegression().fit(X, y)
     score = reg.score(X, y)
@@ -194,7 +195,7 @@ def add_bootstrap_confidence_region(
     focus_agents = sorted(list(dates.keys()), key=lambda x: dates[x])
     focus_agents = [agent for agent in focus_agents if agent not in exclude_agents]
     doubling_times = []
-    
+   
     # Load pre-computed agent summaries
     agent_summary_df = pd.read_csv(agent_summaries_file)
     
@@ -220,6 +221,7 @@ def add_bootstrap_confidence_region(
     valid_mask = (agent_summary_df['p50'] > 0) & \
                  (~agent_summary_df['p50'].isna())
     valid_agents = agent_summary_df[valid_mask]
+
     
     if len(valid_agents) < 2:
         raise ValueError(f"Not enough valid agents to fit trend line. Found {len(valid_agents)} valid agents, need at least 2")
@@ -229,6 +231,12 @@ def add_bootstrap_confidence_region(
         valid_agents['release_date'],
         log_scale=True
     )
+    # this was where the bug was. the four excluded models showed up here but not in the eval-pipeline repo
+    # print(valid_agents)
+    # print("COMBINED PLOT - agents included in trendline:",
+    #     list(valid_agents["agent"]))
+    # print(len(valid_agents))
+    # print("COMBINED PLOT - intercept (log-min):", main_reg.intercept_)
     
     # Fit exponential trend to each bootstrap sample
     valid_samples = 0
@@ -936,7 +944,7 @@ def main():
         bootstrap_data_file=bootstrap_data_file if show_bootstrap else None,
         agent_summaries_file=agent_summaries_file if show_bootstrap else None,
         confidence_level=0.95,  # 95% confidence interval
-        exclude_agents=[],  # Include all agents (GPT-2, GPT-3, etc.)
+        exclude_agents=["Claude 3 Opus", "GPT-4 0125", "GPT-4 Turbo", "o4-mini"],  
   
         # Visual settings
         show_individual_agents=True,  # Show red dots for individual models

@@ -22,7 +22,7 @@ benchmark_colors = defaultdict(lambda: '#808080', {
     "mock_aime": "#1f27b4",
     "gpqa": "#ff7f0e", 
     "gpqa_diamond": "#2ca02c",
-    "hcast_r_s": "#d60028",
+    "hcast_r_s": "#2c7c58",
     "hcast_r_s_full_method": "#9467bd",
     "hendrycks_math": "#7c664b",
     "livecodebench_2411_2505": "#e377c2",

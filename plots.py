@@ -414,8 +414,8 @@ def plot_lines_over_time(df, output_file,
 
     plt.tight_layout()
 
-    if output_file and ax is fig.axes[0]:   # only for self-created figs
-        plt.savefig(output_file)
+    if output_file:
+        fig.savefig(output_file)
         plt.close(fig)
 
 

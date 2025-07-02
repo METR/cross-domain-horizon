@@ -246,7 +246,7 @@ def add_bootstrap_confidence_region(
                 bootstrap_results[col_name].iloc[sample_idx], errors="coerce"
             )
             
-            if pd.isna(p_val) or np.isinf(p_val) or p_val <= 0:
+            if pd.isna(p_val) or np.isinf(p_val) or p_val <= 1e-3:
                 continue
                 
             # Bootstrap data is already in minutes, no conversion needed

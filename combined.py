@@ -71,10 +71,9 @@ class CombinedPlotParams:
     # Bootstrap CI parameters
     show_bootstrap_ci: bool = True  # Whether to overlay bootstrap confidence intervals
     bootstrap_data_file: str | None = None  # Path to bootstrap results CSV
-    agent_summaries_file: str | None = None  # Path to agent summaries (optional)
+    agent_summaries_file: str | None = 'data/external/logistic_fits/headline.csv'  # Path to pre-computed agent summaries
     confidence_level: float = 0.95  # Confidence level for bootstrap CI (e.g., 0.95 for 95%)
     exclude_agents: list[str] = field(default_factory=list)  # Agents to exclude from bootstrap
-    success_percent: int = 50  # Which percentile to use (50 = median)
     
     # Individual agent point parameters
     show_individual_agents: bool = False  # Show individual model points from bootstrap data
@@ -155,21 +154,20 @@ def add_bootstrap_confidence_region(
     max_date: pd.Timestamp,
     confidence_level: float,
     exclude_agents: list[str],
-    success_percent: int = 50,
     benchmark_data: pd.DataFrame = None,
     visual_start_date: str = None,
-) -> tuple[list[float], pd.DataFrame, list]:
+    agent_summaries_file: str | None = None,
+) -> tuple[list[float], pd.DataFrame, list, float | None]:
     """
     Add bootstrap confidence intervals and median trend to the plot.
     
     This function calculates and displays:
     1. A shaded confidence region showing uncertainty in AI progress trends
-    2. A median trend line from bootstrap samples
+    2. A single trend line fitted to pre-computed agent summaries
     3. Collects data for individual agent points (if requested)
     
-    The bootstrap results contain multiple samples (rows) with performance values
-    for each agent (columns). This function fits exponential trends to each sample
-    and calculates confidence bounds.
+    The function now uses pre-computed agent summaries for the main trend line,
+    while bootstrap results are only used for confidence interval calculation.
     
     Args:
         ax: Matplotlib axes to plot on
@@ -179,9 +177,9 @@ def add_bootstrap_confidence_region(
         max_date: End date for confidence region projection
         confidence_level: Confidence level (e.g., 0.95 for 95% CI)
         exclude_agents: List of agent names to exclude from analysis
-        success_percent: Which percentile to use (e.g., 50 for median)
         benchmark_data: Optional benchmark data (not currently used)
         visual_start_date: Start date for visualization (defaults to after_date if not provided)
+        agent_summaries_file: Path to pre-computed agent summaries CSV file
         
     Returns:
         Tuple of:
@@ -195,26 +193,12 @@ def add_bootstrap_confidence_region(
     focus_agents = [agent for agent in focus_agents if agent not in exclude_agents]
     doubling_times = []
     
-    # First, collect median performance for each agent across all bootstrap samples
-    # This will be used for plotting individual agent points
-    agent_data = []
-    for agent in focus_agents:
-        col_name = f"{agent}_p{success_percent}"
-        if col_name not in bootstrap_results.columns:
-            continue
-        
-        # Calculate median value across all bootstrap samples for this agent
-        agent_values = pd.to_numeric(bootstrap_results[col_name], errors="coerce")
-        median_val = agent_values.median()
-        
-        if not pd.isna(median_val) and median_val > 0:
-            agent_data.append({
-                'agent': agent,
-                'release_date': dates[agent],
-                f'p{success_percent}': median_val
-            })
+    # Load pre-computed agent summaries
+    agent_summary_df = pd.read_csv(agent_summaries_file)
     
-    agent_summary_df = pd.DataFrame(agent_data)
+    # Filter by focus agents and convert dates
+    agent_summary_df = agent_summary_df[agent_summary_df['agent'].isin(focus_agents)]
+    agent_summary_df['release_date'] = pd.to_datetime(agent_summary_df['release_date'])
     
     hrs_labels = []  # Store HRS labels to return
     # Now calculate confidence bounds by fitting trends to each bootstrap sample
@@ -229,6 +213,20 @@ def add_bootstrap_confidence_region(
         freq="D",
     )
     predictions = np.zeros((n_bootstraps, len(time_points)))
+       
+    # Filter for valid values
+    valid_mask = (agent_summary_df['p50'] > 0) & \
+                 (~agent_summary_df['p50'].isna())
+    valid_agents = agent_summary_df[valid_mask]
+    
+    if len(valid_agents) < 2:
+        raise ValueError(f"Not enough valid agents to fit trend line. Found {len(valid_agents)} valid agents, need at least 2")
+    
+    main_reg, _ = fit_trendline(
+        valid_agents['p50'],
+        valid_agents['release_date'],
+        log_scale=True
+    )
     
     # Fit exponential trend to each bootstrap sample
     valid_samples = 0
@@ -238,7 +236,7 @@ def add_bootstrap_confidence_region(
         valid_dates = []
         
         for agent in focus_agents:
-            col_name = f"{agent}_p{success_percent}"
+            col_name = f"{agent}_p50"
             if col_name not in bootstrap_results.columns:
                 continue
                 
@@ -299,8 +297,9 @@ def add_bootstrap_confidence_region(
             zorder=10  # Behind benchmark lines but above grid
         )
         
-        # Plot median trend line from bootstrap predictions
-        median_predictions = np.nanmedian(predictions, axis=0)
+        # Use the single fitted trend line for predictions
+        time_x = date2num(time_points)
+        median_predictions = np.exp(main_reg.predict(time_x.reshape(-1, 1)))
         
         # Determine which agents are included in the data to find the actual data range
         included_agents_dates = [pd.to_datetime(dates[agent]) for agent in focus_agents 
@@ -308,6 +307,7 @@ def add_bootstrap_confidence_region(
         if included_agents_dates:
             data_start = min(included_agents_dates)
             data_end = max(included_agents_dates)
+            print(data_start, data_end)
             
             # Create masks for solid vs dashed portions
             # Solid portion is between first and last actual data points
@@ -332,9 +332,10 @@ def add_bootstrap_confidence_region(
                 hrs_label_y = median_predictions[mask_solid][-1]
                 
                 # Manual x-axis adjustment for HRS label
-                hrs_label_x += pd.Timedelta(days=240)  
+                hrs_label_x += pd.Timedelta(days=220)  
+                hrs_label_y *= 0.8
                 
-                hrs_text = ax.text(hrs_label_x, hrs_label_y, "  HRS", 
+                hrs_text = ax.text(hrs_label_x, hrs_label_y, "  Original Graph", 
                                  color="#2c7c58", fontsize=11, 
                                  va='center', ha='left',
                                  weight='bold')
@@ -514,7 +515,7 @@ def plot_combined(df, output_file,
                 # Add bootstrap confidence region
                 # Use x-axis start for visualization to prevent cutoff
                 visual_start = params.xbound[0] if params.xbound else "2018-09-03"
-                doubling_times, agent_summary_df, hrs_labels = add_bootstrap_confidence_region(
+                doubling_times, agent_summary_df, hrs_labels= add_bootstrap_confidence_region(
                     ax=ax,
                     bootstrap_results=bootstrap_results,
                     release_dates=release_dates,
@@ -522,9 +523,9 @@ def plot_combined(df, output_file,
                     max_date=max_date,
                     confidence_level=params.confidence_level,
                     exclude_agents=params.exclude_agents,
-                    success_percent=params.success_percent,
                     benchmark_data=benchmark_data,
                     visual_start_date=visual_start,
+                    agent_summaries_file=params.agent_summaries_file,
                 )
                 
                 # Add HRS labels to the list of labels to adjust
@@ -546,7 +547,7 @@ def plot_combined(df, output_file,
                     # First, collect all agent data with dates and values
                     agent_data_list = []
                     for agent in focus_agents:
-                        col_name = f"{agent}_p{params.success_percent}"
+                        col_name = f"{agent}_p50"
                         if col_name in bootstrap_results.columns:
                             # Get median value across bootstrap samples
                             agent_values = pd.to_numeric(bootstrap_results[col_name], errors="coerce")
@@ -753,8 +754,8 @@ def plot_combined(df, output_file,
                     elif bench == 'tesla_fsd':
                         label_y *= 2 
                     elif bench == 'swe_bench_verified':
-                        label_y *= 1.3  
-                        label_x += pd.Timedelta(days=120)  
+                        label_y *= 0.9  
+                        label_x += pd.Timedelta(days=40)  
                     elif bench == 'webarena':
                         label_y *= 0.3
                         label_x += pd.Timedelta(days=-180)
@@ -921,9 +922,10 @@ def main():
     # Configure bootstrap CI data paths
     bootstrap_data_file = 'data/external/bootstrap/headline.csv'
     release_dates_file = 'data/external/release_dates.yaml'
+    agent_summaries_file = 'data/external/logistic_fits/headline.csv'
     
     # Check if bootstrap files exist
-    show_bootstrap = os.path.exists(bootstrap_data_file) and os.path.exists(release_dates_file)
+    show_bootstrap = os.path.exists(bootstrap_data_file) and os.path.exists(release_dates_file) and os.path.exists(agent_summaries_file)
     
     if show_bootstrap:
         print(f"Found bootstrap data at {bootstrap_data_file}")
@@ -931,7 +933,7 @@ def main():
         print("Bootstrap data not found, plotting benchmarks only")
     
     # Get configuration values with fallbacks
-    title = "AI time horizons are increasing in many domains" # !!!! A/B testing OPTION
+    title = "AI time horizons are increasing in many domains" 
     x_lim_start = '2018-09-03'
     x_lim_end = '2027-01-01'
     
@@ -939,17 +941,16 @@ def main():
     params = CombinedPlotParams(
         # Benchmark settings
         hide_benchmarks=["hcast_r_s", "hcast_r_s_full_method", "video_mme", "gpqa", "aime"], 
-        show_points_level=ShowPointsLevel.NONE,  # Show frontier points only !!!! A/B testing OPTION
+        show_points_level=ShowPointsLevel.NONE,  # Show frontier points  
         verbose=False,
         
         # Bootstrap CI settings
         show_bootstrap_ci=show_bootstrap,
         bootstrap_data_file=bootstrap_data_file if show_bootstrap else None,
-        agent_summaries_file=None,  # Not needed - we extract from bootstrap data
+        agent_summaries_file=agent_summaries_file if show_bootstrap else None,
         confidence_level=0.95,  # 95% confidence interval
         exclude_agents=[],  # Include all agents (GPT-2, GPT-3, etc.)
-        success_percent=50,  # Use median (50th percentile)
-        
+  
         # Visual settings
         show_individual_agents=True,  # Show red dots for individual models
         show_model_names=args.model_names,  # Show model names based on command-line flag

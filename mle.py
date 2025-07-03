@@ -1,15 +1,8 @@
 import numpy as np
-import pandas as pd
-import pathlib
-from typing import Iterator
 from dataclasses import dataclass
-import tomllib
-import argparse
-import scipy.stats
 import math
-from scipy.stats import beta as beta_dist, poisson_binom as poisson_binom_dist
+from scipy.stats import poisson_binom as poisson_binom_dist
 from scipy.optimize import minimize
-from collections import namedtuple
 from classes import BenchmarkScoresSpec
 
 @dataclass
@@ -18,6 +11,8 @@ class ModelParams:
     slope: float | None
     slope_method: str | None = None
     score: float | None = None
+    # nll (or other error metric) for this parameter fit
+    loss: float | None = None
 
 def sigmoid(horizon, task_len, slope, chance_accuracy) -> np.ndarray:
     result = 1 / (1 + np.exp(slope * (-np.log2(horizon) + np.log2(task_len))))
@@ -65,7 +60,8 @@ def estimate_params_mle(model_name: str, bspec: BenchmarkScoresSpec):
     chance_accuracy = bspec.chance_accuracy
  
     result = minimize(beta_nlog_likelihood, x0=[5.0, 0.5], bounds=[(0.01, None), (0.01, None)], args=(observed_scores, task_lengths, chance_accuracy, model_name), method="SLSQP")
-    return ModelParams(horizon=float(result.x[0]), slope=float(result.x[1]), slope_method="mle", score=np.mean(list(observed_scores.values())))
+    # store optimizer's nll 
+    return ModelParams(horizon=float(result.x[0]), slope=float(result.x[1]), slope_method="mle", score=np.mean(list(observed_scores.values())), loss=float(result.fun))
 
 if __name__ == "__main__":
     from classes import SplitScoresSpec

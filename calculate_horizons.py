@@ -17,7 +17,6 @@ Note we can just do binary search if we know the slope which would be WAY simple
 import numpy as np
 import pandas as pd
 import pathlib
-from typing import Iterator
 import tomllib
 import argparse
 import logging
@@ -91,7 +90,7 @@ def estimate_horizon_binsearch(score: int, bspec: BenchmarkScoresSpec, n_iterati
     max_expected = expected_score(max_horizon, bspec=bspec)
     
     if score < min_expected or score > max_expected:
-        return ModelParams(horizon=float('nan'), slope=DEFAULT_SLOPE)
+        return ModelParams(horizon=float('nan'), slope=DEFAULT_SLOPE, loss=float('nan'))
     
     for _ in range(n_iterations):
         # Convert from log space to calculate expected score
@@ -110,7 +109,10 @@ def estimate_horizon_binsearch(score: int, bspec: BenchmarkScoresSpec, n_iterati
             log_max = log_horizon
             log_horizon = (log_min + log_horizon) / 2
             
-    return ModelParams(horizon=float(np.exp(log_horizon)), slope=DEFAULT_SLOPE, score=score)
+    # Final expected score for the chosen horizon – used to quantify fit quality.
+    final_expected = expected_score(np.exp(log_horizon), bspec=bspec)
+    loss = abs(final_expected - score)
+    return ModelParams(horizon=float(np.exp(log_horizon)), slope=DEFAULT_SLOPE, score=score, loss=loss)
 
 def estimate_horizons(scores: dict[str, int], bspec: BenchmarkScoresSpec, mle: bool) -> dict[str, float]:
     """
@@ -161,7 +163,6 @@ def process_dataset(dataset_name: str) -> None:
         scores = scores_data["splits"][split_name]
         scores = {k:float(v) / 100 for k, v in scores.items()}
         assert all(0 <= score <= 1 for score in scores.values())
-        n_questions = len(lengths)
         split_specs[split_name] = SplitScoresSpec(lengths=lengths, scores=scores)
 
 
@@ -174,6 +175,7 @@ def process_dataset(dataset_name: str) -> None:
         'horizon': [h.horizon for h in horizons.values()],
         'slope': [h.slope for h in horizons.values()],
         'score': [h.score for h in horizons.values()],
+        'loss':  [h.loss  for h in horizons.values()],
     })
     df = df.sort_values('horizon', ascending=False)
     df.to_csv(output_file, index=False, float_format='%.4f')

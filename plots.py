@@ -4,6 +4,7 @@ import glob
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
+from matplotlib.lines import Line2D
 import numpy as np
 import os
 import pandas as pd
@@ -162,7 +163,22 @@ def plot_lines_over_time(df, output_file,
     if params.show_benchmarks:
         benchmarks = [bench for bench in benchmarks if bench in params.show_benchmarks]
 
+    # Sort benchmarks by has_slope_06 for legend purposes
+    # Calculate has_slope_06 for each benchmark first
+    benchmark_slope_info = []
+    for bench in benchmarks:
+        bench_data = plot_df[plot_df['benchmark'] == bench]
+        has_placeholder_slope = bench_data['slope'].eq(0.6).any()
+        has_placeholder_slope |= bench_data['slope'].isna().all()
+        benchmark_slope_info.append((bench, has_placeholder_slope))
+    
+    # Sort by has_slope_06 (False first)
+    benchmark_slope_info.sort(key=lambda x: (x[1], x[0]))  # not x[1] puts True first
+    benchmarks = [bench for bench, _ in benchmark_slope_info]
+
     densely_dotted = (0, (1, 1))
+    BASE_LINE_WIDTH = 2
+    THICK_LINE_WIDTH = BASE_LINE_WIDTH + 1.0
     for bench in benchmarks:
         if params.subplots:
             ax = axs[benchmarks.index(bench)]
@@ -179,7 +195,7 @@ def plot_lines_over_time(df, output_file,
         # Flag indicating whether any model for this benchmark has the special β (=0.6) value.
         # This will later control whether the main (within-range) portion of the trend line
         # is rendered dashed (β = 0.6) or solid (otherwise).
-        has_slope_06 = bench_data['slope'].eq(0.6).any()
+        has_placeholder_slope = benchmark_slope_info[benchmarks.index(bench)][1]
         p2 = length_data.quantile(0.02)
         p98 = length_data.quantile(0.98)
         if pd.isna(p2) or pd.isna(p98):
@@ -277,13 +293,12 @@ def plot_lines_over_time(df, output_file,
             mask_above = y_line > p98
             mask_below = y_line < p2
 
-            thick = (bench == "hcast_r_s") and not params.subplots
+            is_hrs = (bench == "hcast_r_s_full_method") and not params.subplots
 
             # Render all main trend lines as solid. Increase thickness slightly when
             # the benchmark *does not* include any model with β = 0.6 (previously
             # indicated by "triangles").
-            base_width = 2
-            line_width = base_width if has_slope_06 else base_width + 1.0
+            line_width = THICK_LINE_WIDTH if not has_placeholder_slope else BASE_LINE_WIDTH
 
             ax.plot(
                 x_line_date[mask_within],
@@ -292,7 +307,7 @@ def plot_lines_over_time(df, output_file,
                 linestyle='-',
                 linewidth=line_width,
                 label=f"{benchmark_aliases[bench]}",
-                zorder=100 if thick else None
+                zorder=100 if is_hrs else None
             )
             if params.show_dotted_lines:
                 ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.3, linestyle=densely_dotted, linewidth=2)
@@ -379,35 +394,60 @@ def plot_lines_over_time(df, output_file,
 
     # Create a legend
     handles, labels = ax.get_legend_handles_labels()
-    trend_legend_handles = []
-    if params.show_dotted_lines:
-
-        handle1, = ax.plot([], [], color='black', linestyle='-', linewidth=2, label="Inside range")
-        trend_legend_handles.append(handle1)
-        handle2, = ax.plot([], [], color='black', linestyle=densely_dotted, alpha=0.4, linewidth=2, label="Outside range")
-        trend_legend_handles.append(handle2)
-
-    # Create fit quality legend
-    # fit_quality_handles = []
-    # handle3 = ax.scatter([], [], color='black', marker='^', s=30, label="Good (β > 0.25)")
-    # fit_quality_handles.append(handle3)
-    # handle4 = ax.scatter([], [], color='black', marker='x', s=30, label="Poor (β < 0.25)")
-    # fit_quality_handles.append(handle4)
-    # handle5 = ax.scatter([], [], color='black', marker='o', s=30, label="Unknown")
-    # fit_quality_handles.append(handle5)
-
-    trend_legend_ax = axs[-1] if params.subplots else ax
-
-    trend_legend = trend_legend_ax.legend(handles=trend_legend_handles, title="Range of task lengths\n in benchmark", bbox_to_anchor=(0.02, 0.5), loc='center left')
     
-    # fit_quality_legend = trend_legend_ax.legend(handles=fit_quality_handles, title="Logistic fit quality", bbox_to_anchor=(0.02, 0.3), loc='center left')
+    # Add section headings for known and unknown beta
+    if not params.subplots:
+        # Count how many benchmarks have thick lines (not has_slope_06)
+        num_unknown_beta = sum(1 for _, has_slope_06 in benchmark_slope_info if not has_slope_06)
+        num_known_beta = sum(1 for _, has_slope_06 in benchmark_slope_info if has_slope_06)
+        
+        # Add headings and reorganize
+        if num_unknown_beta > 0 and num_known_beta > 0:
+            # Insert "Known β" heading at the beginning
+            heading_handle = Line2D([0], [0], color='none')
+            handles.insert(0, heading_handle)
+            labels.insert(0, '**Known β**')
+
+            # Add divider between known and unknown beta
+            divider_handle = Line2D([0], [0], color='none')
+            # Insert "Unknown β" heading after known beta section
+            transition_index = num_known_beta + 1  # +1 for the "Known β" heading
+            heading_handle2 = Line2D([0], [0], color='none')
+            handles.insert(transition_index, divider_handle)
+            labels.insert(transition_index, '─────────────')
+            handles.insert(transition_index + 1, heading_handle2)
+            labels.insert(transition_index + 1, '**Unknown β**')
+        elif num_unknown_beta > 0:
+            # Only unknown beta benchmarks
+            heading_handle = Line2D([0], [0], color='none')
+            handles.insert(0, heading_handle)
+            labels.insert(0, '**Unknown β**')
+        elif num_known_beta > 0:
+            # Only known beta benchmarks
+            heading_handle = Line2D([0], [0], color='none')
+            handles.insert(0, heading_handle)
+            labels.insert(0, '**Known β**')
+
+    # Add divider before extrapolated line
+    divider_handle = Line2D([0], [0], color='none')
+    handles.append(divider_handle)
+    labels.append('─────────────')
+
+    # Add extrapolated line
+    handle4, = ax.plot([], [], color='black', linestyle=densely_dotted, alpha=0.4, linewidth=BASE_LINE_WIDTH)
+    handles.append(handle4)
+    labels.append("Extrapolated outside \nbenchmark range")
 
     
     if not params.subplots:
         bench_legend = ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(0.02, 1), loc='upper left')
-        if params.show_dotted_lines:
-            ax.add_artist(trend_legend)
-            # ax.add_artist(fit_quality_legend)
+        
+        # Make section headings bold and left-aligned
+        for text in bench_legend.get_texts():
+            if text.get_text().startswith('**') and text.get_text().endswith('**'):
+                x, y = text.get_position()
+                plt.setp(text, text=text.get_text().strip('*'), weight='bold', 
+                        position=(x - 0.05, y), ha='left')
 
         if texts:
             adjustText.adjust_text(texts, ax=ax,

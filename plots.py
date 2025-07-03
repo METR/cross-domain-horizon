@@ -40,7 +40,7 @@ PERCENT_OVER_TIME_OUTPUT_FILE = 'plots/percent_over_time.png'
 BETA_SWARMPLOT_OUTPUT_FILE = 'plots/beta_swarmplot.png'
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
 WATERMARK = False
-AIME_GPQA_SUBPLOTS_OUTPUT_FILE = 'plots/aime_gpqa_subplots.png'
+ROBUSTNESS_SUBPLOTS_OUTPUT_FILE = 'plots/robustness_subplots.png'
 
 
 @total_ordering
@@ -64,6 +64,7 @@ class LinesPlotParams:
     verbose: bool = False
     xbound: tuple[str, str] | None = None
     ybound: tuple[float, float] | None = None
+    date_cutoff: date | None = date(2023, 1, 1)
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.35):
     """Add a watermark to the current plot or specified axes."""
@@ -354,9 +355,10 @@ def plot_lines_over_time(df, output_file,
                         points.append((mdates.date2num(point_x), point_y))
 
                 # Hide the *first* frontier label if it is for a model released *after* the
-                # specified cutoff (helps reduce clutter for very recent models).
-                DATE_CUTOFF = date(2023, 1, 1)
-                if params.subplots or first_frontier_point['release_date'] <= DATE_CUTOFF:
+                # specified cutoff (helps reduce clutter for very recent models). Allow callers
+                # to disable the cutoff by passing `date_cutoff=None`.
+                DATE_CUTOFF = params.date_cutoff
+                if params.subplots or DATE_CUTOFF is None or first_frontier_point['release_date'] <= DATE_CUTOFF:
                     text_label(first_frontier_point, current_ax=ax)
                 text_label(last_frontier_point, current_ax=ax)
 
@@ -836,7 +838,7 @@ def plot_percent_over_time(df, output_file):
     print(f"Percent over time plot saved to {output_file}")
     plt.close(fig)
 
-def _plot_bench_group(ax, df, benchmark_data, benches, params):
+def _plot_bench_group(ax, df, benchmark_data, benches, params, date_cutoff):
     tmp_png = os.path.join(tempfile.gettempdir(), "tmp_plot.png")
 
     # draw the mini-plot and save it to a file
@@ -848,8 +850,9 @@ def _plot_bench_group(ax, df, benchmark_data, benches, params):
             params,
             show_benchmarks=benches,
             hide_benchmarks=[],
-            subplots=False
-        )
+            subplots=False,
+            date_cutoff=date_cutoff
+        ),
     )
 
     # paste it into the ta
@@ -857,47 +860,77 @@ def _plot_bench_group(ax, df, benchmark_data, benches, params):
     ax.axis("off")        
 
 
-def plot_aime_gpqa_subplots(df: pd.DataFrame,
+def plot_robustness_subplots(df: pd.DataFrame,
                             benchmark_data: pd.DataFrame,
                             output_file: str):
     """
     Two-panel (1x2) version of the big subplot figure.
     """
-    fig, axs = plt.subplots(1, 2, figsize=(10, 4), sharex=True, sharey=True)
+    # Create a 2×2 grid and keep the overall footprint compact
+    fig, axs = plt.subplots(2, 2, figsize=(8, 6), sharex=True, sharey=True)
+    # Flatten for easier indexing
+    axs_flat = axs.flatten()
 
     common_params = LinesPlotParams(
         show_points_level=ShowPointsLevel.ALL,
         show_dotted_lines=False,
         verbose=False,
         xbound=("2022-01-01", "2025-12-31"),
+        date_cutoff=None,  # show first-label even for post-cutoff models
     )
 
-    # left panel – AIME family
+    # Top-left – AIME family
     _plot_bench_group(
-        ax=axs[0],
+        ax=axs_flat[0],
         df=df,
         benchmark_data=benchmark_data,
         benches=["aime", "mock_aime"],
-        params=common_params
+        params=common_params,
+        date_cutoff=date(2025, 1, 1)
     )
-    axs[0].set_title("AIME family", fontsize=10)
+    axs_flat[0].set_title("AIME family", fontsize=10)
 
-    # right panel – GPQA family
+    # Top-right – HRS family
     _plot_bench_group(
-        ax=axs[1],
+        ax=axs_flat[1],
+        df=df,
+        benchmark_data=benchmark_data,
+        benches=["hcast_r_s", "hcast_r_s_full_method"],
+        params=common_params,
+        date_cutoff=date(2025, 1, 1)
+    )
+    axs_flat[1].set_title("HRS family", fontsize=10)
+
+    # Bottom-left – GPQA family
+    _plot_bench_group(
+        ax=axs_flat[2],
         df=df,
         benchmark_data=benchmark_data,
         benches=["gpqa", "gpqa_diamond"],
-        params=common_params
+        params=common_params,
+        date_cutoff=date(2025, 1, 1)
     )
-    axs[1].set_title("GPQA family", fontsize=10)
+    axs_flat[2].set_title("GPQA family", fontsize=10)
 
-    fig.tight_layout()
+    _plot_bench_group(
+        ax=axs_flat[3],
+        df=df,
+        benchmark_data=benchmark_data,
+        benches=["livecodebench_2411_2505","livecodebench_2411_2505_full_method"],
+        params=common_params,
+        date_cutoff=date(2024, 1, 1)
+    )
+    axs_flat[3].set_title("LiveCodeBench family", fontsize=10)
+
+
+    # Tighten spacing between panels
+    fig.tight_layout(pad=1.0)
+    fig.subplots_adjust(wspace=0.05, hspace=0.15)
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     fig.savefig(output_file, dpi=300)
     plt.close(fig)
-    print(f"AIME/GPQA subplot saved to {output_file}")
+    print(f"Robustness subplots saved to {output_file}")
 
 def main():
     parser = argparse.ArgumentParser(description='Generate various plots for model analysis')
@@ -909,15 +942,15 @@ def main():
     parser.add_argument('--speculation', action='store_true', help='Generate speculation plot')
     parser.add_argument('--splits', action='store_true', help='Generate splits plot')
     parser.add_argument('--percent', action='store_true', help='Generate percent over time plot')
-    parser.add_argument('--aime-gpqa', action='store_true',
-                        help='Generate AIME vs GPQA two-subplot figure')
+    parser.add_argument('--robustness', action='store_true',
+                        help='Generate robustness subplots')
     parser.add_argument('--beta-swarm', action='store_true',
                         help='Generate beta swarmplot')
     args = parser.parse_args()
 
     plots_to_make = []
     if args.all or not any(vars(args).values()):
-        plots_to_make = ["lines", "hcast", "lengths", "length_dependence", "aime_gpqa"]
+        plots_to_make = ["lines", "hcast", "lengths", "length_dependence", "robustness"]
     elif args.lines:
         plots_to_make += ["lines"]
     elif args.hcast:
@@ -932,8 +965,8 @@ def main():
         plots_to_make += ["splits"]
     elif args.percent:
         plots_to_make += ["percent"]
-    elif args.aime_gpqa:
-        plots_to_make += ["aime_gpqa"]
+    elif args.robustness:
+        plots_to_make += ["robustness"]
     elif args.beta_swarm:
         plots_to_make += ["beta_swarm"]
 
@@ -963,14 +996,14 @@ def main():
         plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.NONE, verbose=False, show_dotted_lines=False, ybound=(0.05, 400)))
 
         # Generate and save the lines over time plot using the original loaded data
-        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))
+        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme", "gpqa", "aime","livecodebench_2411_2505"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))
 
         plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, LinesPlotParams(
             title="HRS Time Horizons (full method vs average-scores-only)",
             show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER,)
         )
         
-        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2025-08-01"), ybound=(0.05, 400)))
+        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme","livecodebench_2411_2505"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2025-08-01"), ybound=(0.05, 400)))
 
 
     # --- Benchmark Task Lengths Plot ---
@@ -990,10 +1023,10 @@ def main():
     if "percent" in plots_to_make:
         plot_percent_over_time(all_df.copy(), PERCENT_OVER_TIME_OUTPUT_FILE)
 
-    if "aime_gpqa" in plots_to_make:
-        plot_aime_gpqa_subplots(all_df.copy(),
+    if "robustness" in plots_to_make:
+        plot_robustness_subplots(all_df.copy(),
                                 benchmark_data,
-                                AIME_GPQA_SUBPLOTS_OUTPUT_FILE)
+                                ROBUSTNESS_SUBPLOTS_OUTPUT_FILE)
 
     if "beta_swarm" in plots_to_make:
         plot_beta_swarmplot(all_df.copy(), BETA_SWARMPLOT_OUTPUT_FILE)

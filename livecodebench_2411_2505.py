@@ -26,6 +26,13 @@ N_QUESTIONS = 288
 
 assert sum(SPLIT_SIZES.values()) == N_QUESTIONS
 
+# Representative solution lengths (minutes) used for horizon fitting
+LENGTH_REPRESENTATIVES = {
+    "short": 8.0,
+    "med": 20.0,
+    "long": 40.0,
+}
+
 CHANCE_ACCURACY = 0.0
 
 def extract_scores():
@@ -59,7 +66,7 @@ def extract_scores():
 def generate_toml_file(scores):
     os.makedirs('data/scores', exist_ok=True)
 
-    extracted_scores = extract_scores()
+    extracted_scores = scores
 
     data = {
         "source": "https://livecodebench.github.io/leaderboard.html",
@@ -104,9 +111,74 @@ def generate_benchmark_file(output_filename=OUTPUT_LENGTHS_PATH):
     
     print(f"Generated benchmark file: {output_filename} with {N_QUESTIONS} questions.")
 
+def generate_horizon_file(scores, output_filename="data/horizons/livecodebench_2411_2505_full_method.csv"):
+    """Generate a full-method horizon CSV analogous to hcast_r_s_full_method.csv.
+
+    The horizon is defined as the length (in minutes) at which the model is
+    expected to reach 50 % accuracy, assuming an exponential decay of the form
+    accuracy = a * exp(b * length).
+    """
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_filename), exist_ok=True)
+
+    rows = []
+    eps = 1e-9
+
+    # Iterate over every model for which we have the three split accuracies
+    for model in scores["short"]:
+        # Skip models missing any split (should not happen, but guard anyway)
+        if any(model not in scores[split] for split in SPLIT_NAMES):
+            continue
+
+        # Accuracy values for each representative length
+        accs = np.array([
+            scores["short"][model],
+            scores["med"][model],
+            scores["long"][model],
+        ]) / 100.0  # convert to fraction
+
+        # Clip to avoid log(0) / division by zero errors
+        accs = np.clip(accs, eps, 1 - eps)
+
+        lengths = np.array([
+            LENGTH_REPRESENTATIVES["short"],
+            LENGTH_REPRESENTATIVES["med"],
+            LENGTH_REPRESENTATIVES["long"],
+        ])
+
+        # Fit power-law: ln(acc) = ln(a) + c * ln(length)
+        log_lengths = np.log(lengths)
+        c, log_a = np.polyfit(log_lengths, np.log(accs), 1)
+
+        if abs(c) < 1e-12:
+            continue  # degenerate fit
+
+        # Horizon (length at 50% accuracy)
+        log_L50 = (np.log(0.5) - log_a) / c
+        horizon = float(np.exp(log_L50))  # minutes
+
+        # Slope per log-length doubling (positive means steeper drop)
+        slope = float(-c)  # flip sign so larger = steeper degradation (align with HRS)
+
+        overall_score = scores["all"].get(model, float(np.mean(accs) * 100))
+
+        rows.append(dict(model=model, horizon=horizon, slope=slope, score=overall_score))
+
+    df = pd.DataFrame(rows)
+    df.to_csv(output_filename, index=False)
+    print(f"Generated horizon file: {output_filename} with {len(df)} models.")
+
 if __name__ == "__main__":
     scores = extract_scores()
     scores.update(MODELS_TO_ADD)
+
+    # Persist leaderboard scores
     generate_toml_file(scores)
+
+    # Persist estimated task length distribution
     generate_benchmark_file()
+
+    # Compute and write full-method horizon CSV
+    generate_horizon_file(scores)
 

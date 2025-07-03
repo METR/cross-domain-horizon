@@ -25,6 +25,9 @@ max_horizon_minutes = 117.61370000000001
 [aime]
 max_horizon_minutes = 417.7353
 
+[livecodebench_2411_2505_full_method]
+max_horizon_minutes = 58.85709218590585
+
 [gpqa]
 max_horizon_minutes = 77.5852
 

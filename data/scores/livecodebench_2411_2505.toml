@@ -1,5 +1,8 @@
 source = "https://livecodebench.github.io/leaderboard.html"
 
+[splits]
+google_gemini_2_5_pro_exp = 84.8
+
 [splits.short]
 "o4 mini" = 100.0
 "o3 mini 2025 01 31" = 100.0

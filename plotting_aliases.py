@@ -23,15 +23,15 @@ benchmark_colors = defaultdict(lambda: '#808080', {
     "gpqa": "#ff7f0e", 
     "gpqa_diamond": "#ae22ee",
     "hcast_r_s": "#105050",
-    "hcast_r_s_full_method": "#2c7c58",
-    "hendrycks_math": "#7c664b",
-    "livecodebench_2411_2505": "#e377c2",
+    "hcast_r_s_full_method": "#2ca858",
+    "hendrycks_math": "#8c765b",
+    "livecodebench_2411_2505": "#dc4733",
     "osworld": "#7f7f7f",
     "rlbench": "#bb1144",
     "swe_bench_verified": "#111111",
     "tesla_fsd": "#bcbd22",
     "video_mme": "#17becf",
-    "webarena": "#dc4733"
+    "webarena": "#e377c2"
 })
 plotting_aliases = {
     "gemini_1_5_pro_002": "G 1.5 Pro",

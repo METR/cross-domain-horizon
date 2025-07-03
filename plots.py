@@ -37,6 +37,7 @@ LENGTH_DEPENDENCE_OUTPUT_FILE = 'plots/length_dependence.png'
 SPLITS_OUTPUT_FILE = 'plots/splits_plot.png'
 SPECULATION_OUTPUT_FILE = pathlib.Path('plots/speculation.png')
 PERCENT_OVER_TIME_OUTPUT_FILE = 'plots/percent_over_time.png'
+BETA_SWARMPLOT_OUTPUT_FILE = 'plots/beta_swarmplot.png'
 Y_AXIS_MIN_SECONDS = 60  # 1 minute
 WATERMARK = False
 AIME_GPQA_SUBPLOTS_OUTPUT_FILE = 'plots/aime_gpqa_subplots.png'
@@ -562,6 +563,49 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
     print(f"Benchmark lengths plot saved to {output_file}")
 
 
+def setup_beta_dual_axis(ax, y_min=0.08, y_max=4):
+    """
+    Sets up dual y-axis for beta plots with beta values on left and odds ratio on right
+    """
+    from matplotlib.ticker import FuncFormatter, FixedLocator
+    
+    ax.set_ylim(y_min, y_max)
+    ax.set_yscale('log')
+    
+    # Format left y-axis to show β values
+    def beta_formatter(x, _):
+        return f'{x:.2f}'
+    
+    # Set specific tick locations for denser labeling
+    tick_locations = np.logspace(np.log10(y_min), np.log10(y_max), 10)
+    ax.yaxis.set_major_locator(FixedLocator(tick_locations))
+    ax.yaxis.set_minor_locator(FixedLocator([]))  # Remove minor ticks
+    ax.yaxis.set_major_formatter(FuncFormatter(beta_formatter))
+    ax.set_ylabel(r'$\beta$ (log scale)')
+    
+    # Add secondary y-axis on the right showing odds ratios
+    ax2 = ax.twinx()
+    ax2.set_ylim(ax.get_ylim())
+    ax2.set_yscale('log')
+    ax2.yaxis.set_major_locator(FixedLocator(tick_locations))
+    ax2.yaxis.set_minor_locator(FixedLocator([]))  # Remove minor ticks
+    
+    def odds_ratio_formatter(x, _):
+        return f'{np.exp(x):.2f}x'
+    ax2.yaxis.set_major_formatter(FuncFormatter(odds_ratio_formatter))
+    ax2.set_ylabel("Failure odds ratio per task length doubling")
+    
+    # Ensure the right spine is visible
+    ax2.spines['right'].set_visible(True)
+    
+    # Add text annotations for strongly/weakly related
+    ax.annotate("Model success\n$\\mathbf{strongly}$ related\nto task length", 
+                (0.05, 0.95), xycoords='axes fraction', ha='left', va='top', fontsize=12)
+    ax.annotate("Model success\n$\\mathbf{weakly}$ related\nto task length", 
+                (0.05, 0.05), xycoords='axes fraction', ha='left', va='bottom', fontsize=12)
+    
+    return ax2
+
 def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     """
     Plots the relationship between task length and difficulty
@@ -569,7 +613,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     _, ax = plt.subplots(figsize=(10, 6))
     add_watermark(ax)
 
-    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "gpqa_diamond", "livecodebench_2411_2505", "mock_aime"]
+    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "gpqa_diamond", "livecodebench_2411_2505"]
 
     df_to_use = df[df['benchmark'].isin(benchmarks_to_use)]
 
@@ -590,9 +634,6 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
         alpha=0.7,
         label=f'HRS average (β={hcast_avg_slope:.2f})'
     )
-
-    ax.annotate("Model success\n$\\mathbf{strongly}$ related\nto task length", (0.05, 0.95), xycoords='axes fraction', ha='left', va='top', fontsize=12)
-    ax.annotate("Model success\n$\\mathbf{weakly}$ related\nto task length", (0.05, 0.05), xycoords='axes fraction', ha='left', va='bottom', fontsize=12)
 
 
     # Create color palette using consistent benchmark colors
@@ -649,38 +690,11 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
             color = benchmark_colors[bench]
             ax.fill(ellipse_x_final, ellipse_y_final, color=color, alpha=0.1, edgecolor=color, linewidth=1)
 
-    ax.set_ylabel("Failure odds ratio per task length doubling")
     ax.set_xlabel("Model overall score on benchmark")
-
-    ax.set_ylim(0.08, 4)
-    ax.set_yscale('log')
     ax.set_xlim(0, 1)
     
-    # Format y-axis ticks to show odds ratios (exp of slope values)
-    from matplotlib.ticker import FuncFormatter, FixedLocator
-    def odds_ratio_formatter(x, _):
-        return f'{np.exp(x):.2f}x'
-    
-    # Set specific tick locations for denser labeling
-    tick_locations = np.logspace(np.log10(0.08), np.log10(4), 10)
-    ax.yaxis.set_major_locator(FixedLocator(tick_locations))
-    ax.yaxis.set_minor_locator(FixedLocator([]))  # Remove minor ticks
-    ax.yaxis.set_major_formatter(FuncFormatter(odds_ratio_formatter))
-    
-    # Add secondary y-axis on the right showing original β values
-    ax2 = ax.twinx()
-    ax2.set_ylim(ax.get_ylim())
-    ax2.set_yscale('log')
-    ax2.yaxis.set_major_locator(FixedLocator(tick_locations))
-    ax2.yaxis.set_minor_locator(FixedLocator([]))  # Remove minor ticks
-    
-    def beta_formatter(x, _):
-        return f'{x:.2f}'
-    ax2.yaxis.set_major_formatter(FuncFormatter(beta_formatter))
-    ax2.set_ylabel(r'$\beta$ (log scale)')
-    
-    # Ensure the right spine is visible
-    ax2.spines['right'].set_visible(True)
+    # Setup dual y-axis
+    setup_beta_dual_axis(ax, y_min=0.08, y_max=4)
     
     ax.set_title("Benchmarks have varying relationships between task length and difficulty\n(each point is a model)")
     
@@ -689,8 +703,61 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     aliased_labels = [benchmark_aliases.get(label, label) for label in labels]
     ax.legend(handles, aliased_labels, loc="upper right")
 
+    plt.tight_layout()
     plt.savefig(output_file)
     print(f"Length dependence plot saved to {output_file}")
+
+
+def plot_beta_swarmplot(df: pd.DataFrame, output_file: pathlib.Path):
+    """
+    Creates a vertical swarmplot showing beta (slope) values for each benchmark
+    """
+    _, ax = plt.subplots(figsize=(10, 6))
+    add_watermark(ax)
+    
+    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "gpqa_diamond", 
+                         "livecodebench_2411_2505", "mock_aime", "swe_bench_verified"]
+    
+    df_to_use = df[df['benchmark'].isin(benchmarks_to_use)].copy()
+    
+    # Sort benchmarks to put hcast_r_s_full_method first
+    df_to_use['benchmark'] = pd.Categorical(df_to_use['benchmark'], 
+                                           categories=benchmarks_to_use, 
+                                           ordered=True)
+    
+    # Filter out NaN slopes and placeholder values
+    df_to_use = df_to_use.dropna(subset=['slope'])
+    df_to_use = df_to_use[df_to_use['slope'] > 0]  # Remove any invalid slopes
+    
+    if df_to_use.empty:
+        print("No valid slope data found for beta swarmplot")
+        return
+    
+    # Create color palette using consistent benchmark colors
+    palette_dict = {bench: benchmark_colors[bench] for bench in benchmarks_to_use if bench in df_to_use['benchmark'].unique()}
+    
+    # Create the swarmplot (use stripplot for better visibility when many points overlap)
+    sns.stripplot(data=df_to_use, x='benchmark', y='slope', hue='benchmark', 
+                  palette=palette_dict, size=6, ax=ax, legend=False, jitter=True)
+    
+    # Setup dual y-axis for beta values
+    setup_beta_dual_axis(ax, y_min=0.08, y_max=4)
+    
+    # Add faint grid lines for major y-ticks
+    ax.grid(True, which="major", axis="y", ls="--", linewidth=0.5, alpha=0.4)
+    
+    ax.set_xlabel("Benchmark")
+    ax.set_title("Distribution of β values across benchmarks\n(each point is a model)")
+    
+    # Replace x-axis tick labels with benchmark aliases
+    current_labels = [t.get_text() for t in ax.get_xticklabels()]
+    new_labels = [benchmark_aliases.get(label, label).replace(' ', '\n') for label in current_labels]
+    ax.set_xticks(range(len(new_labels)))
+    ax.set_xticklabels(new_labels, rotation=45, ha='right')
+    
+    plt.tight_layout()
+    plt.savefig(output_file)
+    print(f"Beta swarmplot saved to {output_file}")
 
 
 def plot_percent_over_time(df, output_file):
@@ -844,6 +911,8 @@ def main():
     parser.add_argument('--percent', action='store_true', help='Generate percent over time plot')
     parser.add_argument('--aime-gpqa', action='store_true',
                         help='Generate AIME vs GPQA two-subplot figure')
+    parser.add_argument('--beta-swarm', action='store_true',
+                        help='Generate beta swarmplot')
     args = parser.parse_args()
 
     plots_to_make = []
@@ -865,6 +934,8 @@ def main():
         plots_to_make += ["percent"]
     elif args.aime_gpqa:
         plots_to_make += ["aime_gpqa"]
+    elif args.beta_swarm:
+        plots_to_make += ["beta_swarm"]
 
     # If no arguments provided, default to --all
     if not any(vars(args).values()):
@@ -923,6 +994,9 @@ def main():
         plot_aime_gpqa_subplots(all_df.copy(),
                                 benchmark_data,
                                 AIME_GPQA_SUBPLOTS_OUTPUT_FILE)
+
+    if "beta_swarm" in plots_to_make:
+        plot_beta_swarmplot(all_df.copy(), BETA_SWARMPLOT_OUTPUT_FILE)
 
 if __name__ == "__main__":
     main()

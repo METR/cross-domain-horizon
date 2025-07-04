@@ -370,6 +370,7 @@ def plot_lines_over_time(df, output_file,
         fig.suptitle(params.title)
         fig.supxlabel("Model Release Date")
         fig.supylabel("50% Time Horizon (minutes)")
+        ax.grid(True, which="major", ls="--", linewidth=0.5, alpha=0.4)
     else:
         plt.xlabel("Model Release Date")
         plt.ylabel("50% Time Horizon (minutes)")
@@ -506,7 +507,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
     
     length_to_color_map = {
         "baseline": "royalblue",
-        "estimate": "darkred",
+        "estimate": "indianred",
         "default": "grey"
     }
 
@@ -518,14 +519,28 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
 
     benchmarks = lengths_df['benchmark'].unique().tolist()
     benchmarks = [b for b in benchmarks_to_use if b in benchmarks]
-    lengths_df.sort_values(by='benchmark', inplace=True)
     lengths_df = lengths_df[lengths_df['benchmark'].isin(benchmarks)]
+    
+    # Sort benchmarks by median length (lowest to highest)
+    median_lengths = lengths_df.groupby('benchmark')['length'].median().sort_values(ascending=True)
+    benchmarks = median_lengths.index.tolist()
+    
+    # Set benchmark order for plotting
+    lengths_df['benchmark'] = pd.Categorical(lengths_df['benchmark'], categories=benchmarks, ordered=True)
 
     plt.figure(figsize=(10, 6))
-    sns.boxplot(data=lengths_df, y='length', x='benchmark', whis=(10, 90),
-                showfliers=False, width=0.3, fill=False, color='black', zorder=2, linewidth=2)
+    # Create I-beam error bars showing 10th and 90th percentiles
+    for i, benchmark in enumerate(benchmarks):
+        bench_data = lengths_df[lengths_df['benchmark'] == benchmark]['length']
+        p10 = bench_data.quantile(0.1)
+        p90 = bench_data.quantile(0.9)
+        median = bench_data.median()
+        
+        # Draw error bar with caps (I-beam)
+        plt.errorbar(i, median, yerr=[[median - p10], [p90 - median]], 
+                    fmt='none', color='black', linewidth=2.5, capsize=8, capthick=2.5, zorder=2)
     sns.stripplot(data=lengths_df, y='length', x='benchmark', size=3, hue='length_type', zorder=1, alpha=0.3,
-                  palette=length_to_color_map.values(), legend=False)
+                  palette=length_to_color_map.values(), legend=False, jitter=0.375)
 
     # plot a diamond for the frontier (max horizon) model on each benchmark
     s_frontier = df.groupby('benchmark', as_index=True)["horizon"].max()
@@ -535,7 +550,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
     
     kwargs = {"label": f"Best performance\nof tested models"}
     for benchmark, horizon in s_frontier.items():
-        plt.scatter(benchmark, horizon, color='white', edgecolor='black', marker='*', s=130, zorder=3, **kwargs)
+        plt.scatter(benchmark, horizon, color='gold', edgecolor='darkorange', marker='*', s=130, zorder=3, **kwargs)
         kwargs = {}
 
     # Legend
@@ -626,7 +641,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     # Draw the HRS average β line using the same styling rule:
     #   – standard width when β≈0.6
     #   – slightly thicker when β differs from 0.6.
-    base_width = 2.5
+    base_width = 2
     hrs_line_width = base_width if np.isclose(hcast_avg_slope, 0.6) else base_width + 1.0
     ax.axhline(
         y=hcast_avg_slope,
@@ -640,7 +655,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
 
     # Create color palette using consistent benchmark colors
     palette_dict = {bench: benchmark_colors[bench] for bench in benchmarks_to_use}
-    sns.scatterplot(data=df_to_use, x='score', y='slope', hue='benchmark', ax=ax, palette=palette_dict)
+    sns.scatterplot(data=df_to_use, x='score', y='slope', hue='benchmark', ax=ax, palette=palette_dict, alpha=0.7)
 
     # Add bounding ellipses for specific benchmarks using consistent colors
     benchmark_to_ellipse_color = {
@@ -690,7 +705,8 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
             
             # Plot ellipse boundary with matching point color
             color = benchmark_colors[bench]
-            ax.fill(ellipse_x_final, ellipse_y_final, color=color, alpha=0.1, edgecolor=color, linewidth=1)
+            zorder = 0 if bench == "gpqa_diamond" else 1  # Send gpqa_diamond ellipse to back
+            ax.fill(ellipse_x_final, ellipse_y_final, color=color, alpha=0.06 if bench == "gpqa_diamond" else 0.1, edgecolor=color, linewidth=1, zorder=zorder)
 
     ax.set_xlabel("Model overall score on benchmark")
     ax.set_xlim(0, 1)
@@ -698,7 +714,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     # Setup dual y-axis
     setup_beta_dual_axis(ax, y_min=0.08, y_max=4)
     
-    ax.set_title("Benchmarks have varying relationships between task length and difficulty\n(each point is a model)")
+    ax.set_title("As models get better on GPQA and Video-MME, their performance is\nless correlated with task length")
     
     # Update legend to use benchmark aliases
     handles, labels = ax.get_legend_handles_labels()
@@ -1006,7 +1022,7 @@ def main():
             show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER,)
         )
         
-        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme","livecodebench_2411_2505"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2025-08-01"), ybound=(0.05, 400)))
+        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme","livecodebench_2411_2505_approx"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2025-08-01"), ybound=(0.05, 400)))
 
 
     # --- Benchmark Task Lengths Plot ---

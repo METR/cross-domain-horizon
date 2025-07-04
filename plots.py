@@ -838,7 +838,7 @@ def plot_percent_over_time(df, output_file):
     print(f"Percent over time plot saved to {output_file}")
     plt.close(fig)
 
-def _plot_bench_group(ax, df, benchmark_data, benches, params, date_cutoff):
+def _plot_bench_group(ax, df, benchmark_data, benches, params, date_cutoff, x_bound=None):
     tmp_png = os.path.join(tempfile.gettempdir(), "tmp_plot.png")
 
     # draw the mini-plot and save it to a file
@@ -851,7 +851,8 @@ def _plot_bench_group(ax, df, benchmark_data, benches, params, date_cutoff):
             show_benchmarks=benches,
             hide_benchmarks=[],
             subplots=False,
-            date_cutoff=date_cutoff
+            date_cutoff=date_cutoff,
+            xbound=x_bound
         ),
     )
 
@@ -864,7 +865,7 @@ def plot_robustness_subplots(df: pd.DataFrame,
                             benchmark_data: pd.DataFrame,
                             output_file: str):
     """
-    Two-panel (1x2) version of the big subplot figure.
+    2x2 version of the big subplot figure.
     """
     # Create a 2×2 grid and keep the overall footprint compact
     fig, axs = plt.subplots(2, 2, figsize=(8, 6), sharex=True, sharey=True)
@@ -886,7 +887,8 @@ def plot_robustness_subplots(df: pd.DataFrame,
         benchmark_data=benchmark_data,
         benches=["aime", "mock_aime"],
         params=common_params,
-        date_cutoff=date(2025, 1, 1)
+        date_cutoff=date(2025, 1, 1),
+        x_bound=("2023-01-01", "2025-12-31")
     )
     axs_flat[0].set_title("AIME family", fontsize=10)
 
@@ -916,9 +918,10 @@ def plot_robustness_subplots(df: pd.DataFrame,
         ax=axs_flat[3],
         df=df,
         benchmark_data=benchmark_data,
-        benches=["livecodebench_2411_2505","livecodebench_2411_2505_full_method"],
+        benches=["livecodebench_2411_2505","livecodebench_2411_2505_approx"],
         params=common_params,
-        date_cutoff=date(2024, 1, 1)
+        date_cutoff=date(2024, 1, 1),
+        x_bound=("2023-01-01", "2025-12-31")
     )
     axs_flat[3].set_title("LiveCodeBench family", fontsize=10)
 

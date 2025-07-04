@@ -589,28 +589,28 @@ def setup_beta_dual_axis(ax, y_min=0.08, y_max=4):
     ax.set_ylim(y_min, y_max)
     ax.set_yscale('log')
     
-    # Format left y-axis to show β values
-    def beta_formatter(x, _):
-        return f'{x:.2f}'
+    # Format left y-axis to show odds ratios
+    def odds_ratio_formatter(x, _):
+        return f'{np.exp(x):.2f}x'
     
     # Set specific tick locations for denser labeling
     tick_locations = np.logspace(np.log10(y_min), np.log10(y_max), 10)
     ax.yaxis.set_major_locator(FixedLocator(tick_locations))
     ax.yaxis.set_minor_locator(FixedLocator([]))  # Remove minor ticks
-    ax.yaxis.set_major_formatter(FuncFormatter(beta_formatter))
-    ax.set_ylabel(r'$\beta$ (log scale)')
+    ax.yaxis.set_major_formatter(FuncFormatter(odds_ratio_formatter))
+    ax.set_ylabel("Failure rate increase per 2x task length\n(odds ratio)", ha='center')
     
-    # Add secondary y-axis on the right showing odds ratios
+    # Add secondary y-axis on the right showing β values
     ax2 = ax.twinx()
     ax2.set_ylim(ax.get_ylim())
     ax2.set_yscale('log')
     ax2.yaxis.set_major_locator(FixedLocator(tick_locations))
     ax2.yaxis.set_minor_locator(FixedLocator([]))  # Remove minor ticks
     
-    def odds_ratio_formatter(x, _):
-        return f'{np.exp(x):.2f}x'
-    ax2.yaxis.set_major_formatter(FuncFormatter(odds_ratio_formatter))
-    ax2.set_ylabel("Failure odds ratio per task length doubling")
+    def beta_formatter(x, _):
+        return f'{x:.2f}'
+    ax2.yaxis.set_major_formatter(FuncFormatter(beta_formatter))
+    ax2.set_ylabel(r'$\beta$ (log scale)')
     
     # Ensure the right spine is visible
     ax2.spines['right'].set_visible(True)
@@ -730,11 +730,11 @@ def plot_beta_swarmplot(df: pd.DataFrame, output_file: pathlib.Path):
     """
     Creates a vertical swarmplot showing beta (slope) values for each benchmark
     """
-    _, ax = plt.subplots(figsize=(10, 6))
+    _, ax = plt.subplots(figsize=(9.4, 6))
     add_watermark(ax)
     
-    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "gpqa_diamond", 
-                         "livecodebench_2411_2505", "mock_aime", "swe_bench_verified"]
+    benchmarks_to_use = ["hcast_r_s_full_method", "swe_bench_verified", "video_mme", "gpqa_diamond", 
+                         "livecodebench_2411_2505", "mock_aime"]
     
     df_to_use = df[df['benchmark'].isin(benchmarks_to_use)].copy()
     
@@ -756,7 +756,7 @@ def plot_beta_swarmplot(df: pd.DataFrame, output_file: pathlib.Path):
     
     # Create the swarmplot (use stripplot for better visibility when many points overlap)
     sns.stripplot(data=df_to_use, x='benchmark', y='slope', hue='benchmark', 
-                  palette=palette_dict, size=6, ax=ax, legend=False, jitter=True)
+                  palette=palette_dict, size=6, ax=ax, legend=False, jitter=True, alpha=0.5)
     
     # Setup dual y-axis for beta values
     setup_beta_dual_axis(ax, y_min=0.08, y_max=4)
@@ -764,8 +764,8 @@ def plot_beta_swarmplot(df: pd.DataFrame, output_file: pathlib.Path):
     # Add faint grid lines for major y-ticks
     ax.grid(True, which="major", axis="y", ls="--", linewidth=0.5, alpha=0.4)
     
-    ax.set_xlabel("Benchmark")
-    ax.set_title("Distribution of β values across benchmarks\n(each point is a model)")
+    ax.set_title("Benchmarks vary in how strongly model performance correlates to task length\n(each point is a model)")
+    ax.set_xlabel("")  # Remove x-axis label
     
     # Replace x-axis tick labels with benchmark aliases
     current_labels = [t.get_text() for t in ax.get_xticklabels()]
@@ -904,7 +904,7 @@ def plot_robustness_subplots(df: pd.DataFrame,
         benches=["aime", "mock_aime"],
         params=common_params,
         date_cutoff=date(2025, 1, 1),
-        x_bound=("2023-01-01", "2025-12-31")
+        x_bound=("2023-05-01", "2025-12-31")
     )
     axs_flat[0].set_title("AIME family", fontsize=10)
 
@@ -926,7 +926,8 @@ def plot_robustness_subplots(df: pd.DataFrame,
         benchmark_data=benchmark_data,
         benches=["gpqa", "gpqa_diamond"],
         params=common_params,
-        date_cutoff=date(2025, 1, 1)
+        date_cutoff=date(2023, 6, 1),
+        x_bound=("2023-05-01", "2025-06-01")
     )
     axs_flat[2].set_title("GPQA family", fontsize=10)
 
@@ -937,7 +938,7 @@ def plot_robustness_subplots(df: pd.DataFrame,
         benches=["livecodebench_2411_2505","livecodebench_2411_2505_approx"],
         params=common_params,
         date_cutoff=date(2024, 1, 1),
-        x_bound=("2023-01-01", "2025-12-31")
+        x_bound=("2024-01-01", "2025-06-01")
     )
     axs_flat[3].set_title("LiveCodeBench family", fontsize=10)
 

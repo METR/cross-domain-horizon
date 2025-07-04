@@ -13,8 +13,6 @@ import pathlib
 import matplotlib.patheffects as patheffects
 import seaborn as sns
 import toml
-import tempfile
-import matplotlib.image as mpimg
 from scipy.interpolate import make_splrep
 from enum import Enum
 from dataclasses import dataclass, field
@@ -65,6 +63,8 @@ class LinesPlotParams:
     xbound: tuple[str, str] | None = None
     ybound: tuple[float, float] | None = None
     date_cutoff: date | None = date(2023, 1, 1)
+    skip_labels: bool = False  # New field to skip title and axis labels
+    skip_legend: bool = False  # New field to skip legend creation
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.35):
     """Add a watermark to the current plot or specified axes."""
@@ -194,9 +194,6 @@ def plot_lines_over_time(df, output_file,
         non_frontier_data = bench_data[~bench_data['is_frontier']]
 
         length_data = benchmark_data[benchmark_data['benchmark'] == bench]['length']
-        # Flag indicating whether any model for this benchmark has the special β (=0.6) value.
-        # This will later control whether the main (within-range) portion of the trend line
-        # is rendered dashed (β = 0.6) or solid (otherwise).
         has_placeholder_slope = benchmark_slope_info[benchmarks.index(bench)][1]
         p2 = length_data.quantile(0.02)
         p98 = length_data.quantile(0.98)
@@ -205,30 +202,6 @@ def plot_lines_over_time(df, output_file,
             p98 = 10**10
 
         def scatter_points(data, label, **kwargs):
-            # if 'slope' in data.columns and len(data) > 0:
-            #     # Plot each point individually with its own marker based on slope
-            #     for idx, row in data.iterrows():
-            #         slope_val = row['slope']
-            #         if pd.isna(slope_val):
-            #             marker = 'o'  # Keep as circle if slope is NaN
-            #         elif row['benchmark'] == 'hcast_r_s':
-            #             marker = '^'
-            #         else:
-            #             marker = 'x' if slope_val < 0.25 else 'o' if slope_val == 0.6 else '^'
-                    
-            #         # Only add label to the first point to avoid duplicate legend entries
-            #         point_label = label if idx == data.index[0] else None
-                    
-            #         ax.scatter(
-            #             row['release_date'],
-            #             row['horizon_minutes'],
-            #             color=color,
-            #             label=point_label,
-            #             marker=marker,
-            #             **kwargs
-            #         )
-            # else:
-                # Default to circles for all points
             ax.scatter(
                 data['release_date'],
                 data['horizon_minutes'],
@@ -256,9 +229,7 @@ def plot_lines_over_time(df, output_file,
             selected_data = frontier_data.iloc[[0, -1]] if params.show_points_level == ShowPointsLevel.FIRST_AND_LAST else frontier_data.iloc[[]]
             scatter_points(selected_data, f"_{bench}", alpha=0.9, s=30, linewidth=0.5)
 
-        # Fit and plot smoothing spline using only frontier points
         if len(frontier_data) >= 3:  # Need at least 3 points for spline
-            # Sort frontier data by release date for spline fitting
             frontier_sorted = frontier_data.sort_values('release_date_num')
             X = frontier_sorted['release_date_num'].values
             Y_log = frontier_sorted['log2_horizon_minutes'].values
@@ -332,17 +303,22 @@ def plot_lines_over_time(df, output_file,
                         y_offset = max(point['horizon_minutes'] * 1.5, 0.06)
                         va = 'bottom'
                     else:
-                        y_offset = point['horizon_minutes'] * 1.1  # 10% above the point
+                        # More offset for robustness subplots to reduce overlap
+                        is_robustness = ax is not None and not params.subplots
+                        offset_factor = 1.3 if is_robustness else 1.1
+                        y_offset = point['horizon_minutes'] * offset_factor
                         va = 'bottom'
                     
                     # Store actual data point coordinates
                     point_x = point['release_date']
                     point_y = point['horizon_minutes']
                     
+                    # Smaller font and no bbox for robustness subplots
+                    is_robustness = ax is not None and not params.subplots
                     text_obj = ax.text(point['release_date'],
                                       y_offset,
                                       model_name,
-                                      fontsize=8 if params.subplots else 10, 
+                                      fontsize=8 if is_robustness else 10,
                                       color=color,
                                       ha='center',
                                       va=va,
@@ -370,10 +346,12 @@ def plot_lines_over_time(df, output_file,
         fig.suptitle(params.title)
         fig.supxlabel("Model Release Date")
         fig.supylabel("50% Time Horizon (minutes)")
-    else:
+    elif not params.skip_labels:
         plt.xlabel("Model Release Date")
         plt.ylabel("50% Time Horizon (minutes)")
         plt.title(params.title)
+        ax.grid(True, which="major", ls="--", linewidth=0.5, alpha=0.4)
+    else:
         ax.grid(True, which="major", ls="--", linewidth=0.5, alpha=0.4)
 
 
@@ -442,7 +420,7 @@ def plot_lines_over_time(df, output_file,
     labels.append("Extrapolated outside \nbenchmark range")
 
     
-    if not params.subplots:
+    if not params.subplots and not params.skip_legend:
         bench_legend = ax.legend(handles=handles, labels=labels, title='Benchmark', bbox_to_anchor=(0.02, 1), loc='upper left')
         
         # Make section headings bold and left-aligned
@@ -452,10 +430,10 @@ def plot_lines_over_time(df, output_file,
                 plt.setp(text, text=text.get_text().strip('*'), weight='bold', 
                         position=(x - 0.05, y), ha='left')
 
+    if not params.subplots:
         if texts:
             adjustText.adjust_text(texts, ax=ax,
-                                points=points,
-                                only_move={'points':'y', 'texts':'y'})
+                                points=points)
 
         add_watermark(ax)
 
@@ -489,9 +467,11 @@ def plot_lines_over_time(df, output_file,
         if texts:
             adjustText.adjust_text(texts, ax=ax)
 
-    plt.tight_layout()
+    # Only apply tight_layout and save if we created the figure
+    if ax is None or params.subplots:
+        plt.tight_layout()
 
-    if output_file:
+    if output_file and (ax is None or params.subplots):
         fig.savefig(output_file)
         plt.close(fig)
 
@@ -839,12 +819,10 @@ def plot_percent_over_time(df, output_file):
     plt.close(fig)
 
 def _plot_bench_group(ax, df, benchmark_data, benches, params, date_cutoff, x_bound=None):
-    tmp_png = os.path.join(tempfile.gettempdir(), "tmp_plot.png")
-
-    # draw the mini-plot and save it to a file
+    # Draw directly on the provided axes
     plot_lines_over_time(
         df.copy(),
-        output_file=tmp_png,
+        output_file=None,  # Don't save to file
         benchmark_data=benchmark_data,
         params=dataclasses.replace(
             params,
@@ -852,13 +830,12 @@ def _plot_bench_group(ax, df, benchmark_data, benches, params, date_cutoff, x_bo
             hide_benchmarks=[],
             subplots=False,
             date_cutoff=date_cutoff,
-            xbound=x_bound
+            xbound=x_bound,
+            skip_labels=True,  # Skip individual labels
+            skip_legend=True  # Skip individual legends
         ),
-    )
-
-    # paste it into the ta
-    ax.imshow(mpimg.imread(tmp_png))
-    ax.axis("off")        
+        ax=ax  # Pass the axes directly
+    )        
 
 
 def plot_robustness_subplots(df: pd.DataFrame,
@@ -890,7 +867,7 @@ def plot_robustness_subplots(df: pd.DataFrame,
         date_cutoff=date(2025, 1, 1),
         x_bound=("2023-01-01", "2025-12-31")
     )
-    axs_flat[0].set_title("AIME family", fontsize=10)
+    axs_flat[0].set_title("AIME", fontsize=10)
 
     # Top-right – HRS family
     _plot_bench_group(
@@ -901,7 +878,7 @@ def plot_robustness_subplots(df: pd.DataFrame,
         params=common_params,
         date_cutoff=date(2025, 1, 1)
     )
-    axs_flat[1].set_title("HRS family", fontsize=10)
+    axs_flat[1].set_title("HRS", fontsize=10)
 
     # Bottom-left – GPQA family
     _plot_bench_group(
@@ -912,7 +889,7 @@ def plot_robustness_subplots(df: pd.DataFrame,
         params=common_params,
         date_cutoff=date(2025, 1, 1)
     )
-    axs_flat[2].set_title("GPQA family", fontsize=10)
+    axs_flat[2].set_title("GPQA", fontsize=10)
 
     _plot_bench_group(
         ax=axs_flat[3],
@@ -920,18 +897,41 @@ def plot_robustness_subplots(df: pd.DataFrame,
         benchmark_data=benchmark_data,
         benches=["livecodebench_2411_2505","livecodebench_2411_2505_approx"],
         params=common_params,
-        date_cutoff=date(2024, 1, 1),
+        date_cutoff=date(2025, 1, 1),
         x_bound=("2023-01-01", "2025-12-31")
     )
-    axs_flat[3].set_title("LiveCodeBench family", fontsize=10)
+    axs_flat[3].set_title("LiveCodeBench", fontsize=10)
 
 
-    # Tighten spacing between panels
-    fig.tight_layout(pad=1.0)
-    fig.subplots_adjust(wspace=0.05, hspace=0.15)
+    # Create a shared legend by getting handles and labels from all subplots
+    all_handles = []
+    all_labels = []
+    seen_labels = set()
+    
+    # Collect unique legend entries from all axes
+    for ax in axs_flat[:4]:  # Only the 4 subplots we're using
+        handles, labels = ax.get_legend_handles_labels()
+        for handle, label in zip(handles, labels):
+            if label not in seen_labels and not label.startswith('_'):
+                all_handles.append(handle)
+                all_labels.append(label)
+                seen_labels.add(label)
+    
+    # Add global title and axis labels
+    fig.suptitle("Time Horizon vs. Release Date (Log Scale, Trend on Frontier)", fontsize=14, y=0.99)
+    fig.supxlabel("Model Release Date", fontsize=12, y=0.01)
+    fig.supylabel("50% Time Horizon (minutes)", fontsize=12, x=0.01)
+    
+    # Create shared legend at the bottom
+    fig.legend(all_handles, all_labels, loc='center', bbox_to_anchor=(0.5, -0.05), 
+               ncol=min(4, len(all_handles)), frameon=True, fontsize=9)
+    
+    # Adjust layout with more space for legend and labels
+    fig.tight_layout(pad=1.5)
+    fig.subplots_adjust(wspace=0.08, hspace=0.20, top=0.92, bottom=0.15, left=0.12, right=0.98)
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    fig.savefig(output_file, dpi=300)
+    fig.savefig(output_file, dpi=300, bbox_inches='tight')
     plt.close(fig)
     print(f"Robustness subplots saved to {output_file}")
 

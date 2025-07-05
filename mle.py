@@ -4,6 +4,7 @@ import math
 from scipy.stats import poisson_binom as poisson_binom_dist
 from scipy.optimize import minimize
 from classes import BenchmarkScoresSpec
+import scipy
 
 @dataclass
 class ModelParams:
@@ -15,7 +16,7 @@ class ModelParams:
     loss: float | None = None
 
 def sigmoid(horizon, task_len, slope, chance_accuracy) -> np.ndarray:
-    result = 1 / (1 + np.exp(slope * (-np.log2(horizon) + np.log2(task_len))))
+    result = scipy.special.expit(-slope * (-np.log2(horizon) + np.log2(task_len)))
     return chance_accuracy + (1 - chance_accuracy) * result
 
 

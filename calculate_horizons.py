@@ -49,7 +49,7 @@ def initial_estimate(score: int, bspec: BenchmarkScoresSpec):
     lengths = sorted(bspec.splits["all"].lengths)
     return lengths[min(len(lengths) - 1, int(score))]
 
-def estimate_horizon_binsearch(score: int, bspec: BenchmarkScoresSpec, n_iterations=100, min_horizon=None, max_horizon=None):
+def estimate_horizon_binsearch(score: float, bspec: BenchmarkScoresSpec, n_iterations=100, min_horizon=None, max_horizon=None):
     """
     Estimates the horizon as the value of h for which
     a model would get mean score `score` with horizon h
@@ -125,7 +125,6 @@ def estimate_horizons(scores: dict[str, int], bspec: BenchmarkScoresSpec, mle: b
 
     result = {}
     for model, score in scores.items():
-        # if model != 'google/gemini-2.5-pro-exp-03-25': continue
         if mle:
             result[model] = estimate_params_mle(model, bspec=bspec)
         else:

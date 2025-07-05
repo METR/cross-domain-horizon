@@ -35,11 +35,6 @@ def plot_splits(df: pd.DataFrame, output_path: pathlib.Path):
             benchmark='gpqa_diamond', 
             models=['google/gemini-2.5-pro-exp-03-25', 'anthropic/claude-3-7-sonnet-20250219', 'openai/gpt-4-1106-preview'],
             num_splits=5
-        ),
-        BenchmarkGroupSpec(
-            benchmark='swe_bench_verified', 
-            models=['anthropic/claude-sonnet-4-20250514'],
-            dividers=[4, 15, 60]
         )
     ]
     
@@ -244,56 +239,83 @@ def plot_splits(df: pd.DataFrame, output_path: pathlib.Path):
     # Convert to DataFrame
     df = pd.DataFrame(data_points)
     
-    # Create the plot
-    plt.figure(figsize=(12, 8))
-    
-    # Get unique benchmarks - colors already defined in benchmark_colors
+    # Create subplots by benchmark
     benchmarks = df['benchmark'].unique()
+    n_benchmarks = len(benchmarks)
     
-    # Plot each (benchmark, model) group and track legend entries
-    legend_entries = {}
+    # Use 4 horizontal subplots (1 row, 4 columns)
+    n_rows = 1
+    n_cols = 4
+    
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(12, 4), squeeze=False, sharex=True, sharey=True)
+    axes = axes.flatten()
     
     # Create set of grouped benchmark names
     grouped_benchmarks = {spec.benchmark for spec in benchmark_specs}
     
-    for (benchmark, model), group in df.groupby(['benchmark', 'model']):
-        # Sort by appropriate column for line connection
-        if benchmark in grouped_benchmarks:
-            # For grouped benchmarks, sort by x-axis (length) to ensure proper ordering
-            group_sorted = group.sort_values('geom_mean_length')
+    for i, benchmark in enumerate(benchmarks):
+        ax = axes[i]
+        benchmark_df = df[df['benchmark'] == benchmark]
+        
+        # Get models in original order for this benchmark
+        models_in_benchmark = benchmark_df['model'].unique()
+        
+        # Define original order based on benchmark configuration (using normalized names)
+        if benchmark == 'gpqa_diamond':
+            original_order = ['gemini_2_5_pro_exp_03_25', 'claude_3_7_sonnet_20250219', 'gpt_4_1106_preview']
+        elif benchmark == 'livecodebench_2411_2505':
+            original_order = ['o4 mini', 'claude 3.7 sonnet', 'claude 3 haiku']
+        elif benchmark == 'video_mme':
+            original_order = ['google_gemini_1_5_pro_002', 'openai_gpt_4_vision']
+        elif benchmark == 'hcast_r_s':
+            original_order = ['GPT-4o']
         else:
-            # For regular benchmarks, sort by score
-            group_sorted = group.sort_values('score')
+            original_order = list(models_in_benchmark)
         
-        color = benchmark_colors[benchmark]
+        # Plot models in original order
+        for model in original_order:
+            if model in models_in_benchmark:
+                group = benchmark_df[benchmark_df['model'] == model]
+                
+                # Sort by appropriate column for line connection
+                if benchmark in grouped_benchmarks:
+                    # For grouped benchmarks, sort by x-axis (length) to ensure proper ordering
+                    group_sorted = group.sort_values('geom_mean_length')
+                else:
+                    # For regular benchmarks, sort by score
+                    group_sorted = group.sort_values('score')
+                
+                color = benchmark_colors[benchmark]
+                model_display = plotting_aliases.get(model, model)
+                
+                # Plot points and connect with lines
+                ax.plot(group_sorted['geom_mean_length'], group_sorted['score'], 
+                       'o-', color=color, label=model_display, alpha=0.7, linewidth=2, markersize=6)
         
-        # Create legend entry for this benchmark if not already created
-        if benchmark not in legend_entries:
-            # Collect all models for this benchmark
-            benchmark_df = df[df['benchmark'] == benchmark]
-            models_in_benchmark = benchmark_df['model'].unique()
-            model_names = [plotting_aliases.get(m, m) for m in models_in_benchmark]
-            model_list = '\n '.join(model_names)
-            legend_label = f'{benchmark_aliases.get(benchmark, benchmark)}:\n {model_list}'
-            legend_entries[benchmark] = legend_label
-            plot_label = legend_label
-        else:
-            # Don't add to legend again
-            plot_label = None
+        ax.set_xscale('log')
+        ax.set_title(benchmark_aliases.get(benchmark, benchmark))
+        legend = ax.legend(loc='lower left')
+        legend.get_frame().set_alpha(0.5)
+        ax.grid(True, alpha=0.3)
         
-        # Plot points and connect with lines
-        plt.plot(group_sorted['geom_mean_length'], group_sorted['score'], 
-                'o-', color=color, label=plot_label, alpha=0.7, linewidth=2, markersize=6)
+        # Only set labels on outer subplots since axes are shared
+        row = i // n_cols
+        col = i % n_cols
+        if row == n_rows - 1:  # Bottom row
+            ax.set_xlabel('Task Length (minutes)')
+        if col == 0:  # Left column
+            ax.set_ylabel('Score on Split (%)')
     
-
-    plt.xscale('log')
-
-    plt.xlabel('Task Length for Humans (minutes, geometric mean of split)')
-    plt.ylabel('Score (%)')
-    plt.title('Model Success Rate vs Task Length by Benchmark and Model')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
+    # Hide unused subplots
+    for i in range(n_benchmarks, len(axes)):
+        axes[i].set_visible(False)
+    
+    # Add supertitle with more space above subplot titles
+    fig.suptitle("Correlations between Model Success Rate and Task Length", fontsize=16, y=1.05)
+    
     plt.tight_layout()
+    # Adjust top margin to give supertitle more space
+    fig.subplots_adjust(top=0.85)
     
     # Save plot
     pathlib.Path(output_path).parent.mkdir(parents=True, exist_ok=True)

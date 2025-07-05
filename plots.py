@@ -65,6 +65,7 @@ class LinesPlotParams:
     date_cutoff: date | None = date(2023, 1, 1)
     skip_labels: bool = False  # New field to skip title and axis labels
     skip_legend: bool = False  # New field to skip legend creation
+    rotate_dates: bool = True  # New field to control date rotation
 
 def add_watermark(ax=None, text="DRAFT\nDO NOT HYPE", alpha=0.35):
     """Add a watermark to the current plot or specified axes."""
@@ -360,7 +361,8 @@ def plot_lines_over_time(df, output_file,
     ax.xaxis.set_major_locator(mdates.YearLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
     ax.xaxis.set_minor_locator(mdates.MonthLocator(bymonth=[1, 4, 7, 10]))
-    fig.autofmt_xdate(rotation=45, ha='right') # Auto-format dates (includes rotation)
+    if params.rotate_dates:
+        fig.autofmt_xdate(rotation=45, ha='right') # Auto-format dates (includes rotation)
     
     # Set x-axis bounds if specified
     if params.xbound is not None:
@@ -467,13 +469,13 @@ def plot_lines_over_time(df, output_file,
         if texts:
             adjustText.adjust_text(texts, ax=ax)
 
-    # Only apply tight_layout and save if we created the figure
-    if ax is None or params.subplots:
-        plt.tight_layout()
+    plt.tight_layout()
 
-    if output_file and (ax is None or params.subplots):
+    if output_file:
         fig.savefig(output_file)
+        print(f"Lines plot saved to {output_file}")
         plt.close(fig)
+
 
 
 def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], output_file: pathlib.Path):
@@ -486,7 +488,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
     
     length_to_color_map = {
         "baseline": "royalblue",
-        "estimate": "darkred",
+        "estimate": "indianred",
         "default": "grey"
     }
 
@@ -498,14 +500,30 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
 
     benchmarks = lengths_df['benchmark'].unique().tolist()
     benchmarks = [b for b in benchmarks_to_use if b in benchmarks]
-    lengths_df.sort_values(by='benchmark', inplace=True)
     lengths_df = lengths_df[lengths_df['benchmark'].isin(benchmarks)]
+    
+    # Sort benchmarks by median length (lowest to highest)
+    median_lengths = lengths_df.groupby('benchmark')['length'].median().sort_values(ascending=True)
+    benchmarks = median_lengths.index.tolist()
+    
+    # Set benchmark order for plotting
+    lengths_df['benchmark'] = pd.Categorical(lengths_df['benchmark'], categories=benchmarks, ordered=True)
 
     plt.figure(figsize=(10, 6))
-    sns.boxplot(data=lengths_df, y='length', x='benchmark', whis=(10, 90),
-                showfliers=False, width=0.3, fill=False, color='black', zorder=2, linewidth=2)
+    # Create I-beam error bars showing 10th and 90th percentiles
+    for i, benchmark in enumerate(benchmarks):
+        bench_data = lengths_df[lengths_df['benchmark'] == benchmark]['length']
+        p10 = bench_data.quantile(0.1)
+        p90 = bench_data.quantile(0.9)
+        median = bench_data.median()
+        
+        # Draw error bar with caps (I-beam)
+        plt.errorbar(i, median, yerr=[[median - p10], [p90 - median]], 
+                    fmt='none', color='black', linewidth=2.5, capsize=8, capthick=2.5, zorder=2)
+    # Set random seed for reproducible jitter
+    np.random.seed(42)
     sns.stripplot(data=lengths_df, y='length', x='benchmark', size=3, hue='length_type', zorder=1, alpha=0.3,
-                  palette=length_to_color_map.values(), legend=False)
+                  palette=length_to_color_map.values(), legend=False, jitter=0.375)
 
     # plot a diamond for the frontier (max horizon) model on each benchmark
     s_frontier = df.groupby('benchmark', as_index=True)["horizon"].max()
@@ -515,7 +533,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
     
     kwargs = {"label": f"Best performance\nof tested models"}
     for benchmark, horizon in s_frontier.items():
-        plt.scatter(benchmark, horizon, color='white', edgecolor='black', marker='*', s=130, zorder=3, **kwargs)
+        plt.scatter(benchmark, horizon, color='gold', edgecolor='darkorange', marker='*', s=130, zorder=3, **kwargs)
         kwargs = {}
 
     # Legend
@@ -554,28 +572,28 @@ def setup_beta_dual_axis(ax, y_min=0.08, y_max=4):
     ax.set_ylim(y_min, y_max)
     ax.set_yscale('log')
     
-    # Format left y-axis to show β values
-    def beta_formatter(x, _):
-        return f'{x:.2f}'
+    # Format left y-axis to show odds ratios
+    def odds_ratio_formatter(x, _):
+        return f'{np.exp(x):.2f}x'
     
     # Set specific tick locations for denser labeling
     tick_locations = np.logspace(np.log10(y_min), np.log10(y_max), 10)
     ax.yaxis.set_major_locator(FixedLocator(tick_locations))
     ax.yaxis.set_minor_locator(FixedLocator([]))  # Remove minor ticks
-    ax.yaxis.set_major_formatter(FuncFormatter(beta_formatter))
-    ax.set_ylabel(r'$\beta$ (log scale)')
+    ax.yaxis.set_major_formatter(FuncFormatter(odds_ratio_formatter))
+    ax.set_ylabel("Failure rate increase per 2x task length\n(odds ratio)", ha='center')
     
-    # Add secondary y-axis on the right showing odds ratios
+    # Add secondary y-axis on the right showing β values
     ax2 = ax.twinx()
     ax2.set_ylim(ax.get_ylim())
     ax2.set_yscale('log')
     ax2.yaxis.set_major_locator(FixedLocator(tick_locations))
     ax2.yaxis.set_minor_locator(FixedLocator([]))  # Remove minor ticks
     
-    def odds_ratio_formatter(x, _):
-        return f'{np.exp(x):.2f}x'
-    ax2.yaxis.set_major_formatter(FuncFormatter(odds_ratio_formatter))
-    ax2.set_ylabel("Failure odds ratio per task length doubling")
+    def beta_formatter(x, _):
+        return f'{x:.2f}'
+    ax2.yaxis.set_major_formatter(FuncFormatter(beta_formatter))
+    ax2.set_ylabel(r'$\beta$ (log scale)')
     
     # Ensure the right spine is visible
     ax2.spines['right'].set_visible(True)
@@ -606,7 +624,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     # Draw the HRS average β line using the same styling rule:
     #   – standard width when β≈0.6
     #   – slightly thicker when β differs from 0.6.
-    base_width = 2.5
+    base_width = 2
     hrs_line_width = base_width if np.isclose(hcast_avg_slope, 0.6) else base_width + 1.0
     ax.axhline(
         y=hcast_avg_slope,
@@ -620,7 +638,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
 
     # Create color palette using consistent benchmark colors
     palette_dict = {bench: benchmark_colors[bench] for bench in benchmarks_to_use}
-    sns.scatterplot(data=df_to_use, x='score', y='slope', hue='benchmark', ax=ax, palette=palette_dict)
+    sns.scatterplot(data=df_to_use, x='score', y='slope', hue='benchmark', ax=ax, palette=palette_dict, alpha=0.7)
 
     # Add bounding ellipses for specific benchmarks using consistent colors
     benchmark_to_ellipse_color = {
@@ -670,7 +688,8 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
             
             # Plot ellipse boundary with matching point color
             color = benchmark_colors[bench]
-            ax.fill(ellipse_x_final, ellipse_y_final, color=color, alpha=0.1, edgecolor=color, linewidth=1)
+            zorder = 0 if bench == "gpqa_diamond" else 1  # Send gpqa_diamond ellipse to back
+            ax.fill(ellipse_x_final, ellipse_y_final, color=color, alpha=0.06 if bench == "gpqa_diamond" else 0.1, edgecolor=color, linewidth=1, zorder=zorder)
 
     ax.set_xlabel("Model overall score on benchmark")
     ax.set_xlim(0, 1)
@@ -678,7 +697,7 @@ def plot_length_dependence(df: pd.DataFrame, output_file: pathlib.Path):
     # Setup dual y-axis
     setup_beta_dual_axis(ax, y_min=0.08, y_max=4)
     
-    ax.set_title("Benchmarks have varying relationships between task length and difficulty\n(each point is a model)")
+    ax.set_title("As models get better on GPQA and Video-MME, their performance is\nless correlated with task length")
     
     # Update legend to use benchmark aliases
     handles, labels = ax.get_legend_handles_labels()
@@ -694,11 +713,11 @@ def plot_beta_swarmplot(df: pd.DataFrame, output_file: pathlib.Path):
     """
     Creates a vertical swarmplot showing beta (slope) values for each benchmark
     """
-    _, ax = plt.subplots(figsize=(10, 6))
+    _, ax = plt.subplots(figsize=(9.4, 6))
     add_watermark(ax)
     
-    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "gpqa_diamond", 
-                         "livecodebench_2411_2505", "mock_aime", "swe_bench_verified"]
+    benchmarks_to_use = ["hcast_r_s_full_method", "swe_bench_verified", "video_mme", "gpqa_diamond", 
+                         "livecodebench_2411_2505", "mock_aime"]
     
     df_to_use = df[df['benchmark'].isin(benchmarks_to_use)].copy()
     
@@ -720,7 +739,7 @@ def plot_beta_swarmplot(df: pd.DataFrame, output_file: pathlib.Path):
     
     # Create the swarmplot (use stripplot for better visibility when many points overlap)
     sns.stripplot(data=df_to_use, x='benchmark', y='slope', hue='benchmark', 
-                  palette=palette_dict, size=6, ax=ax, legend=False, jitter=True)
+                  palette=palette_dict, size=6, ax=ax, legend=False, jitter=True, alpha=0.5)
     
     # Setup dual y-axis for beta values
     setup_beta_dual_axis(ax, y_min=0.08, y_max=4)
@@ -728,8 +747,8 @@ def plot_beta_swarmplot(df: pd.DataFrame, output_file: pathlib.Path):
     # Add faint grid lines for major y-ticks
     ax.grid(True, which="major", axis="y", ls="--", linewidth=0.5, alpha=0.4)
     
-    ax.set_xlabel("Benchmark")
-    ax.set_title("Distribution of β values across benchmarks\n(each point is a model)")
+    ax.set_title("Benchmarks vary in how strongly model performance correlates to task length\n(each point is a model)")
+    ax.set_xlabel("")  # Remove x-axis label
     
     # Replace x-axis tick labels with benchmark aliases
     current_labels = [t.get_text() for t in ax.get_xticklabels()]
@@ -845,7 +864,7 @@ def plot_robustness_subplots(df: pd.DataFrame,
     2x2 version of the big subplot figure.
     """
     # Create a 2×2 grid and keep the overall footprint compact
-    fig, axs = plt.subplots(2, 2, figsize=(8, 6), sharex=True, sharey=True)
+    fig, axs = plt.subplots(2, 2, figsize=(8, 6), sharex=False, sharey=True)
     # Flatten for easier indexing
     axs_flat = axs.flatten()
 
@@ -855,6 +874,7 @@ def plot_robustness_subplots(df: pd.DataFrame,
         verbose=False,
         xbound=("2022-01-01", "2025-12-31"),
         date_cutoff=None,  # show first-label even for post-cutoff models
+        rotate_dates=False,  # Don't rotate dates for robustness subplots
     )
 
     # Top-left – AIME family
@@ -865,7 +885,7 @@ def plot_robustness_subplots(df: pd.DataFrame,
         benches=["aime", "mock_aime"],
         params=common_params,
         date_cutoff=date(2025, 1, 1),
-        x_bound=("2023-01-01", "2025-12-31")
+        x_bound=("2023-05-01", "2025-06-01")
     )
     axs_flat[0].set_title("AIME", fontsize=10)
 
@@ -887,7 +907,8 @@ def plot_robustness_subplots(df: pd.DataFrame,
         benchmark_data=benchmark_data,
         benches=["gpqa", "gpqa_diamond"],
         params=common_params,
-        date_cutoff=date(2025, 1, 1)
+        date_cutoff=date(2023, 6, 1),
+        x_bound=("2023-05-01", "2025-06-01")
     )
     axs_flat[2].set_title("GPQA", fontsize=10)
 
@@ -897,18 +918,20 @@ def plot_robustness_subplots(df: pd.DataFrame,
         benchmark_data=benchmark_data,
         benches=["livecodebench_2411_2505","livecodebench_2411_2505_approx"],
         params=common_params,
-        date_cutoff=date(2025, 1, 1),
-        x_bound=("2023-01-01", "2025-12-31")
+        date_cutoff=date(2024, 1, 1),
+        x_bound=("2023-05-01", "2025-06-01")
     )
     axs_flat[3].set_title("LiveCodeBench", fontsize=10)
 
 
-    # Create a shared legend by getting handles and labels from all subplots
+    # Create a structured legend with two columns
+    from matplotlib.lines import Line2D
+    
+    # Collect unique legend entries from all axes
     all_handles = []
     all_labels = []
     seen_labels = set()
     
-    # Collect unique legend entries from all axes
     for ax in axs_flat[:4]:  # Only the 4 subplots we're using
         handles, labels = ax.get_legend_handles_labels()
         for handle, label in zip(handles, labels):
@@ -917,18 +940,57 @@ def plot_robustness_subplots(df: pd.DataFrame,
                 all_labels.append(label)
                 seen_labels.add(label)
     
-    # Add global title and axis labels
-    fig.suptitle("Time Horizon vs. Release Date (Log Scale, Trend on Frontier)", fontsize=14, y=0.99)
-    fig.supxlabel("Model Release Date", fontsize=12, y=0.01)
-    fig.supylabel("50% Time Horizon (minutes)", fontsize=12, x=0.01)
+    # Separate benchmarks into β known and approximate categories
+    # Based on the thick line logic from the main plotting function
+    beta_known = ["Mock AIME", "HRS (Original)", "GPQA Diamond", "LiveCodeBench"]  # These have thick lines (not has_placeholder_slope)
+    approximate = []  # These have thin lines (has_placeholder_slope)
     
-    # Create shared legend at the bottom
-    fig.legend(all_handles, all_labels, loc='center', bbox_to_anchor=(0.5, -0.05), 
-               ncol=min(4, len(all_handles)), frameon=True, fontsize=9)
+    # Categorize based on actual benchmark names that appear in the legend
+    for handle, label in zip(all_handles, all_labels):
+        if label not in beta_known:
+            approximate.append(label)
+    
+    # Create structured legend
+    structured_handles = []
+    structured_labels = []
+    
+    # Add β known section
+    heading_handle = Line2D([0], [0], color='none')
+    structured_handles.append(heading_handle)
+    structured_labels.append('Known β')
+    
+    for handle, label in zip(all_handles, all_labels):
+        if label in beta_known:
+            structured_handles.append(handle)
+            structured_labels.append(label)
+    
+    # Add approximate section
+    heading_handle2 = Line2D([0], [0], color='none')
+    structured_handles.append(heading_handle2)
+    structured_labels.append('Approximate (Unknown β)')
+    
+    for handle, label in zip(all_handles, all_labels):
+        if label in approximate:
+            structured_handles.append(handle)
+            structured_labels.append(label)
+    
+    # Add global title and axis labels
+    fig.suptitle("Robustness of Approximate Time Horizon Methods", fontsize=14, y=0.99)
+    fig.supxlabel("Model Release Date", fontsize=14, y=0.01)
+    fig.supylabel("50% Time Horizon (minutes)", fontsize=14, x=0.01)
+    
+    # Create shared legend at the bottom with 2 columns
+    legend = fig.legend(structured_handles, structured_labels, loc='center', bbox_to_anchor=(0.5, -0.1), 
+                       ncol=2, frameon=True, fontsize=9)
+    
+    # Make section headings bold
+    for text in legend.get_texts():
+        if text.get_text() in ['Known β', 'Approximate (Unknown β)']:
+            text.set_weight('bold')
     
     # Adjust layout with more space for legend and labels
     fig.tight_layout(pad=1.5)
-    fig.subplots_adjust(wspace=0.08, hspace=0.20, top=0.92, bottom=0.15, left=0.12, right=0.98)
+    fig.subplots_adjust(wspace=0.08, hspace=0.25, top=0.92, bottom=0.10, left=0.12, right=0.98)
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     fig.savefig(output_file, dpi=300, bbox_inches='tight')
@@ -996,17 +1058,12 @@ def main():
 
     # --- Lines Over Time Plot ---
     if "lines" in plots_to_make:
-        plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme", "gpqa", "aime"], show_points_level=ShowPointsLevel.NONE, verbose=False, show_dotted_lines=False, ybound=(0.05, 400)))
+        plot_lines_over_time(all_df.copy(), HEADLINE_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme", "gpqa", "aime", "livecodebench_2411_2505_approx"], show_points_level=ShowPointsLevel.NONE, verbose=False, show_dotted_lines=False, ybound=(0.05, 400)))
 
         # Generate and save the lines over time plot using the original loaded data
-        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme", "gpqa", "aime","livecodebench_2411_2505"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))
-
-        plot_lines_over_time(all_df.copy(), "plots/hcast_comparison.png", benchmark_data, LinesPlotParams(
-            title="HRS Time Horizons (full method vs average-scores-only)",
-            show_benchmarks=["hcast_r_s", "hcast_r_s_full_method"], show_points_level=ShowPointsLevel.FRONTIER,)
-        )
+        plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme", "gpqa", "aime","livecodebench_2411_2505_approx"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))
         
-        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme","livecodebench_2411_2505"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2025-08-01"), ybound=(0.05, 400)))
+        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme","livecodebench_2411_2505_approx"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2025-08-01"), ybound=(0.05, 400)))
 
 
     # --- Benchmark Task Lengths Plot ---

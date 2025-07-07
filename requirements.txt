@@ -7,3 +7,5 @@ adjustText
 pydantic
 seaborn
 toml
+scikit-learn
+cairo

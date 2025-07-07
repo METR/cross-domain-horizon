@@ -329,19 +329,19 @@ def add_bootstrap_confidence_region(
                 linestyle='-',  # Solid line
                 linewidth=2,
                 label="_HRS_median",  # Underscore to hide from legend
-                zorder=60,  # Above confidence region but below main lines
+                zorder=100,  # Above confidence region
                 alpha=0.8
             )
-            # Add HRS label at the end of the solid portion
-            hrs_label_x = time_points[mask_solid][-1]
-            hrs_label_y = median_predictions[mask_solid][-1]
+            # Add HRS label at the start of the solid portion
+            hrs_label_x = time_points[mask_solid][0]
+            hrs_label_y = median_predictions[mask_solid][0]
             
             # Manual x-axis adjustment for HRS label
-            hrs_label_x += pd.Timedelta(days=220)  
-            hrs_label_y *= 0.8
+            hrs_label_x += pd.Timedelta(days=230)  
+            hrs_label_y *= 1.6
             
-            hrs_text = ax.text(hrs_label_x, hrs_label_y, "  Original Graph", 
-                             color="#2c7c58", fontsize=11, 
+            hrs_text = ax.text(hrs_label_x, hrs_label_y, "METR-HRS\n(Original Time Horizons)", 
+                             color="#2c7c58", fontsize=13, 
                              va='center', ha='left',
                              weight='bold')
             hrs_labels.append(hrs_text)
@@ -935,7 +935,7 @@ def main():
     # Configure plot parameters
     params = CombinedPlotParams(
         # Benchmark settings
-        hide_benchmarks=["hcast_r_s", "hcast_r_s_full_method", "video_mme", "gpqa", "aime"], 
+        hide_benchmarks=["hcast_r_s", "hcast_r_s_full_method", "video_mme", "gpqa", "aime", "livecodebench_2411_2505_approx"], 
         show_points_level=ShowPointsLevel.NONE,  # Show frontier points  
         verbose=False,
         

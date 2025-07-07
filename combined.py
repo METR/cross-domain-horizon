@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 # Configuration constants
 BENCHMARKS_PATH = 'data/benchmarks'  # Path to benchmark TOML files
 LINES_PLOT_OUTPUT_FILE = 'plots/combined.png'  # Default output filename
+ALL_LABELS_PLOT_OUTPUT_FILE = 'plots/combined_all_labels.png'  # Default output filename
 WATERMARK = False  # Whether to add watermark (not implemented)
 
 
@@ -61,6 +62,7 @@ class CombinedPlotParams:
     show_points_level: ShowPointsLevel  # Which points to show on benchmark lines
     show_benchmarks: list[str] = field(default_factory=list)  # Only show these benchmarks (if specified)
     hide_benchmarks: list[str] = field(default_factory=list)  # Hide these benchmarks
+    hide_labels: list[str] = field(default_factory=list)  # Hide these labels
     show_dotted_lines: bool = False 
     show_doubling_rate: bool = False  # Display doubling rate annotations on lines
     title: str = "Time Horizon vs. Release Date with Bootstrap CI"
@@ -739,10 +741,10 @@ def plot_combined(df, output_file,
                 # Create text label with benchmark name
                 label_text = benchmark_aliases[bench]
                 
-                if bench in ['mock_aime', 'livecodebench_2411_2505', 'gpqa_diamond']:
+                if bench in params.hide_labels:
                     continue  
                 
-                if bench in ['hendrycks_math', 'tesla_fsd', 'swe_bench_verified','webarena','rlbench']:
+                if bench in ['hendrycks_math', 'tesla_fsd', 'swe_bench_verified','webarena','rlbench', 'mock_aime', 'livecodebench_2411_2505', 'gpqa_diamond']:
                     # Manual positioning for these specific benchmarks
                     if bench == 'hendrycks_math':
                         label_y *= 3
@@ -757,6 +759,15 @@ def plot_combined(df, output_file,
                     elif bench == 'rlbench':
                         label_y *= 0.4
                         label_x += pd.Timedelta(days=-110)
+                    elif bench == 'mock_aime':
+                        label_y *= 8
+                        label_x += pd.Timedelta(days=-50)
+                    elif bench == 'livecodebench_2411_2505':
+                        label_y *= 1.5
+                        label_x += pd.Timedelta(days=200)
+                    elif bench == 'gpqa_diamond':
+                        label_y *= 9
+                        label_x += pd.Timedelta(days=-250)
                     
                     # Create text but don't add to line_end_labels (won't be adjusted by adjustText)
                     text = ax.text(label_x, label_y, f"  {label_text}", 
@@ -938,7 +949,7 @@ def main():
         hide_benchmarks=["hcast_r_s", "hcast_r_s_full_method", "video_mme", "gpqa", "aime", "livecodebench_2411_2505_approx"], 
         show_points_level=ShowPointsLevel.NONE,  # Show frontier points  
         verbose=False,
-        
+        hide_labels=["hcast_r_s", "mock_aime", "livecodebench_2411_2505", "gpqa_diamond"],
         # Bootstrap CI settings
         show_bootstrap_ci=show_bootstrap,
         bootstrap_data_file=bootstrap_data_file if show_bootstrap else None,
@@ -955,6 +966,9 @@ def main():
     
     # Generate the combined plot
     plot_combined(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, params)
+
+    params.hide_labels = ["hcast_r_s"]
+    plot_combined(all_df.copy(), ALL_LABELS_PLOT_OUTPUT_FILE, benchmark_data, params)
 
 
 if __name__ == "__main__":

@@ -761,7 +761,7 @@ def plot_beta_swarmplot(df: pd.DataFrame, output_file: pathlib.Path):
     print(f"Beta swarmplot saved to {output_file}")
 
 
-def plot_percent_over_time(df, output_file):
+def plot_percent_over_time(df, output_file, benchmarks_to_skip=None):
     """Generates and saves a plot of score (percentage) over time for frontier models only."""
     
     assert not df.empty, "No data loaded for percent over time plot."
@@ -776,6 +776,9 @@ def plot_percent_over_time(df, output_file):
     # Identify frontier models for each benchmark (models with highest score at each time point)
     plot_df['is_frontier'] = False
     benchmarks = plot_df['benchmark'].unique()
+
+    if benchmarks_to_skip is not None:
+        benchmarks = [bench for bench in benchmarks if bench not in benchmarks_to_skip]
     
     for bench in benchmarks:
         bench_df = plot_df[plot_df['benchmark'] == bench].sort_values(by=['release_date_num', 'score'], ascending=[True, False])
@@ -1081,7 +1084,7 @@ def main():
         plot_speculation(all_df, SPECULATION_OUTPUT_FILE)
 
     if "percent" in plots_to_make:
-        plot_percent_over_time(all_df.copy(), PERCENT_OVER_TIME_OUTPUT_FILE)
+        plot_percent_over_time(all_df.copy(), PERCENT_OVER_TIME_OUTPUT_FILE, benchmarks_to_skip=["hcast_r_s", "gpqa", "livecodebench_2411_2505_approx"])
 
     if "robustness" in plots_to_make:
         plot_robustness_subplots(all_df.copy(),

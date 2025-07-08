@@ -229,7 +229,7 @@ def plot_splits(df: pd.DataFrame, output_path: pathlib.Path):
     
     for bucket_name, geom_mean_length, score in hcast_buckets:
         data_points.append({
-            'benchmark': 'hcast_r_s',
+            'benchmark': 'hcast_r_s_full_method',
             'model': 'GPT-4o',
             'split': bucket_name,
             'score': score * 100,  # Convert to percentage

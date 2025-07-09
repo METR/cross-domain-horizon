@@ -1019,7 +1019,7 @@ def main():
 
     plots_to_make = []
     if args.all or not any(vars(args).values()):
-        plots_to_make = ["lines", "hcast", "lengths", "length_dependence", "robustness"]
+        plots_to_make = ["lines", "hcast", "lengths", "length_dependence", "robustness", "splits", "speculation", "percent", "beta_swarm"]
     elif args.lines:
         plots_to_make += ["lines"]
     elif args.hcast:

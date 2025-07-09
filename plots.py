@@ -180,8 +180,8 @@ def plot_lines_over_time(df, output_file,
     benchmarks = [bench for bench, _ in benchmark_slope_info]
 
     densely_dotted = (0, (1, 1))
-    BASE_LINE_WIDTH = 2
-    THICK_LINE_WIDTH = BASE_LINE_WIDTH + 1.0
+    BASE_LINE_WIDTH = 1.6
+    THICK_LINE_WIDTH = BASE_LINE_WIDTH + 1.4
     for bench in benchmarks:
         if params.subplots:
             ax = axs[benchmarks.index(bench)]

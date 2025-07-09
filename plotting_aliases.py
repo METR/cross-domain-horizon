@@ -6,7 +6,7 @@ benchmark_aliases = {
     "gpqa": "GPQA",
     "gpqa_diamond": "GPQA Diamond",
     "hcast_r_s": "HRS (Approximate)",
-    "hcast_r_s_full_method": "HRS (Original)",
+    "hcast_r_s_full_method": "METR-HRS (Original)",
     "hendrycks_math": "MATH",
     "livecodebench_2411_2505": "LiveCodeBench",
     "osworld": "OSWorld",

@@ -492,7 +492,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
         "default": "grey"
     }
 
-    benchmarks_to_use = ["hcast_r_s_full_method", "video_mme", "gpqa_diamond", "livecodebench_2411_2505", "mock_aime", "hendrycks_math", "osworld", "rlbench", "swe_bench_verified"]
+    benchmarks_to_use = ["hcast_r_s", "video_mme", "gpqa_diamond", "livecodebench_2411_2505", "mock_aime", "hendrycks_math", "osworld", "rlbench", "swe_bench_verified", "webarena"]
 
     # Create a DataFrame for seaborn
     lengths_df = benchmark_data.copy()
@@ -537,7 +537,7 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
         kwargs = {}
 
     # Legend
-    plt.plot([], [], color='black', linewidth=2, label="Quantiles\n(10/25/50/75/90%)")
+    plt.plot([], [], color='black', linewidth=2, label="2%-98% quantile")
     plt.scatter([], [], color='royalblue', marker='o', s=20, label="Individual\ntask")
     plt.scatter([], [], color='darkred', marker='o', s=20, label="Individual task\n(estimated)")
     plt.legend()
@@ -553,7 +553,8 @@ def plot_benchmarks(df: pd.DataFrame, benchmark_data: dict[str, list[float]], ou
     # Replace x-axis tick labels with benchmark aliases
     ax = plt.gca()
     tick_labels = ax.get_xticklabels()
-    new_labels = [benchmark_aliases.get(label.get_text(), label.get_text()).replace(' ', '\n') for label in tick_labels]
+    benchmark_aliases_for_plot = {**benchmark_aliases, "hcast_r_s": "METR-HRS", "livecodebench_2411_2505": "LiveCode-\nBench"}
+    new_labels = [benchmark_aliases_for_plot.get(label.get_text(), label.get_text()).replace(' ', '\n') for label in tick_labels]
     ax.set_xticklabels(new_labels)
 
     plt.tight_layout()
@@ -901,7 +902,7 @@ def plot_robustness_subplots(df: pd.DataFrame,
         params=common_params,
         date_cutoff=date(2025, 1, 1)
     )
-    axs_flat[1].set_title("HRS", fontsize=10)
+    axs_flat[1].set_title("METR-HRS", fontsize=10)
 
     # Bottom-left – GPQA family
     _plot_bench_group(
@@ -945,7 +946,7 @@ def plot_robustness_subplots(df: pd.DataFrame,
     
     # Separate benchmarks into β known and approximate categories
     # Based on the thick line logic from the main plotting function
-    beta_known = ["Mock AIME", "HRS (Original)", "GPQA Diamond", "LiveCodeBench"]  # These have thick lines (not has_placeholder_slope)
+    beta_known = ["Mock AIME", "METR-HRS (Original)", "GPQA Diamond", "LiveCodeBench"]  # These have thick lines (not has_placeholder_slope)
     approximate = []  # These have thin lines (has_placeholder_slope)
     
     # Categorize based on actual benchmark names that appear in the legend

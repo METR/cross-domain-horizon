@@ -28,7 +28,6 @@ logger = logging.getLogger(__name__)
 
 # Configuration constants
 BENCHMARKS_PATH = 'data/benchmarks'  # Path to benchmark TOML files
-LINES_PLOT_OUTPUT_FILE = 'plots/combined.png'  # Default output filename
 ALL_LABELS_PLOT_OUTPUT_FILE = 'plots/combined_all_labels.png'  # Default output filename
 WATERMARK = False  # Whether to add watermark (not implemented)
 
@@ -963,9 +962,6 @@ def main():
         title=title,
         xbound=(x_lim_start, x_lim_end)  # Use config values for x-axis limits
     )
-    
-    # Generate the combined plot
-    plot_combined(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, params)
 
     params.hide_labels = ["hcast_r_s"]
     plot_combined(all_df.copy(), ALL_LABELS_PLOT_OUTPUT_FILE, benchmark_data, params)

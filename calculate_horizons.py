@@ -173,6 +173,7 @@ def process_dataset(dataset_name: str) -> None:
         'model': list(horizons.keys()),
         'horizon': [h.horizon for h in horizons.values()],
         'slope': [h.slope for h in horizons.values()],
+        'slope_method': ['mle' if use_mle else 'guess' for _ in horizons.values()],
         'score': [h.score for h in horizons.values()],
         'loss':  [h.loss  for h in horizons.values()],
     })

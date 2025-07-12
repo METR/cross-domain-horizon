@@ -576,8 +576,8 @@ def plot_combined(df, output_file,
                             agent_data['value'],
                             color=params.agent_point_color,
                             s=params.agent_point_size,
-                            zorder=200,  # On top of everything
-                            alpha=0.8,
+                            zorder=80,  # Below the benchmark lines
+                            alpha=0.5,
                             edgecolors='black',
                             linewidth=0.5
                         )
@@ -608,6 +608,19 @@ def plot_combined(df, output_file,
     
     # Plot benchmark trend lines (main visualization from lines_over_time.py)
     densely_dotted = (0, (1, 1))  # Line style for dotted portions
+    
+    # Sort benchmarks by has_slope_06 for legend purposes and line width determination
+    # Calculate has_placeholder_slope for each benchmark first
+    benchmark_slope_info = []
+    for bench in benchmarks:
+        bench_data = plot_df[plot_df['benchmark'] == bench]
+        has_placeholder_slope = bench_data['slope'].eq(0.6).any()
+        has_placeholder_slope |= bench_data['slope'].isna().all()
+        benchmark_slope_info.append((bench, has_placeholder_slope))
+    
+    # Define line width constants (same as plots.py)
+    BASE_LINE_WIDTH = 1.5
+    THICK_LINE_WIDTH = 2.5
     
     for bench in benchmarks:
         # Get data for this benchmark
@@ -717,11 +730,14 @@ def plot_combined(df, output_file,
             mask_above = y_line > p98
             mask_below = y_line < p2
             
-            thick = (bench == "hcast_r_s")
+            # Determine line width based on slope information (same logic as plots.py)
+            has_placeholder_slope = benchmark_slope_info[benchmarks.index(bench)][1]
+            line_width = THICK_LINE_WIDTH if not has_placeholder_slope else BASE_LINE_WIDTH
+            is_hrs = (bench == "hcast_r_s_full_method")
             
             ax.plot(x_line_date[mask_within], y_line[mask_within], color=color, linestyle='-', 
-                   linewidth=5 if thick else 2.5, label=f"_{benchmark_aliases[bench]}", 
-                   zorder=100 if thick else None)
+                   linewidth=line_width, label=f"_{benchmark_aliases[bench]}", 
+                   zorder=100 if is_hrs else 90)
             if params.show_dotted_lines:
                 ax.plot(x_line_date[mask_above], y_line[mask_above], color=color, alpha=0.3, 
                        linestyle=densely_dotted, linewidth=2)

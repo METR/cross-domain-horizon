@@ -21,3 +21,5 @@ pip install requirements.txt --no-deps
 * Run `calculate_horizons.py` to estimate time horizons for each dataset
 
 * Run `plots.py` to make all plots
+
+To run the combined plot, you'll need cairosvg, see `https://stackoverflow.com/questions/73637315/oserror-no-library-called-cairo-2-was-found-from-custom-widgets-import-proje` if you get import errors

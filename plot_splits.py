@@ -304,7 +304,7 @@ def plot_splits(df: pd.DataFrame, output_path: pathlib.Path):
         if row == n_rows - 1:  # Bottom row
             ax.set_xlabel('Task Length (minutes)')
         if col == 0:  # Left column
-            ax.set_ylabel('Score on Split (%)')
+            ax.set_ylabel('Score on Time Bucket or Split (%)')
     
     # Hide unused subplots
     for i in range(n_benchmarks, len(axes)):

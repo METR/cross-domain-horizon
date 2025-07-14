@@ -235,12 +235,6 @@ def plot_lines_over_time(df, output_file,
             X = frontier_sorted['release_date_num'].values
             Y_log = frontier_sorted['log2_horizon_minutes'].values
 
-            # Keep linear regression for doubling rate calculation
-            coeffs = np.polyfit(X, Y_log, 1)
-            doubling_rate_per_year = coeffs[0] * 365  # Convert from per day to per year
-            months_per_doubling = 12 / doubling_rate_per_year
-            slope = coeffs[0]  # Store raw slope for marker selection
-
             # degree-1 spline to avoid negative slopes
             spline = make_splrep(X, Y_log, s=0.2, k=1)
 
@@ -252,18 +246,37 @@ def plot_lines_over_time(df, output_file,
             mid_x_num = x_line_num[mid_point_idx]
             mid_y = 2**y_line_log[mid_point_idx]
             mid_x = mdates.num2date(mid_x_num)
-            
-            if params.show_doubling_rate:
-                rate_text = f"Doubling time:\n{months_per_doubling:.1f} months"
-                ax.text(0.02, 0.99, rate_text, fontsize=14, color=color, 
-                        ha='left', va='top', transform=ax.transAxes, 
-                        bbox=dict(facecolor='white', alpha=0.7, pad=2, edgecolor='none'))
 
             x_line_date = np.array(mdates.num2date(x_line_num))
             y_line = 2.0**y_line_log
 
             # Split the line into three segments based on p2 and p98
             mask_within = (y_line >= p2) & (y_line <= p98)
+            
+            # Calculate doubling rate using slope between min/max points in mask_within
+            if params.show_doubling_rate and np.sum(mask_within) >= 2:
+                within_x = x_line_num[mask_within]
+                within_y_log = y_line_log[mask_within]
+                
+                # Find min and max x values and their corresponding y values
+                min_idx = np.argmin(within_x)
+                max_idx = np.argmax(within_x)
+                
+                x_min, y_log_min = within_x[min_idx], within_y_log[min_idx]
+                x_max, y_log_max = within_x[max_idx], within_y_log[max_idx]
+                
+                # Calculate slope between these two points
+                slope = (y_log_max - y_log_min) / (x_max - x_min)
+                doubling_rate_per_year = slope * 365  # Convert from per day to per year
+                months_per_doubling = 12 / doubling_rate_per_year
+                
+                if has_placeholder_slope:
+                    rate_text = f"Doubling time:\n{months_per_doubling:.0f} months?"
+                else:
+                    rate_text = f"Doubling time:\n{months_per_doubling:.1f} months"
+                ax.text(0.02, 0.99, rate_text, fontsize=14, color=color, 
+                        ha='left', va='top', transform=ax.transAxes, 
+                        bbox=dict(facecolor='white', alpha=0.7, pad=2, edgecolor='none'))
             mask_above = y_line > p98
             mask_below = y_line < p2
 
@@ -1067,7 +1080,7 @@ def main():
         # Generate and save the lines over time plot using the original loaded data
         plot_lines_over_time(all_df.copy(), LINES_PLOT_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme", "gpqa", "aime","livecodebench_2411_2505_approx"], show_points_level=ShowPointsLevel.FRONTIER, verbose=False))
         
-        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme","livecodebench_2411_2505_approx"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2025-08-01"), ybound=(0.05, 400)))
+        plot_lines_over_time(all_df.copy(), LINES_SUBPLOTS_OUTPUT_FILE, benchmark_data, LinesPlotParams(hide_benchmarks=["hcast_r_s", "video_mme","livecodebench_2411_2505_approx", "aime", "gpqa"], show_points_level=ShowPointsLevel.ALL, subplots=True, show_doubling_rate=True, xbound=("2021-01-01", "2025-08-01"), ybound=(0.05, 400)))
 
 
     # --- Benchmark Task Lengths Plot ---

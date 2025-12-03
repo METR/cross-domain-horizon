@@ -1,0 +1,29 @@
+combined.py
+  5bb51be 84-86,826-827,829,834
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.21",
+  "base_commit_sha": "9184df3b59e3a164aa03d4dd53795e3d2fc0b6c9",
+  "prompts": {
+    "5bb51be": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "9e4f483e-23bd-445d-b614-6bc50a7db099",
+        "model": "claude-4.5-opus-high-thinking"
+      },
+      "human_author": "Thomas Kwa <kwathomas0@gmail.com>",
+      "messages": [
+        {
+          "type": "user",
+          "text": "In @combined.py add an option to CombinedPlotParams called log_y_axis which is True by default and when set to False, makes the overall plot (ie both the multiple benchmarks data from all_data.csv and imported agent summaries data) have a linear y axis",
+          "timestamp": "2025-12-03T00:56:04.885Z"
+        }
+      ],
+      "total_additions": 10,
+      "total_deletions": 4,
+      "accepted_lines": 7,
+      "overriden_lines": 0
+    }
+  }
+}

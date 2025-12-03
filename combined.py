@@ -81,6 +81,9 @@ class CombinedPlotParams:
     agent_point_color: str = "#2c7c58"  # Color for individual agent points (same green as HRS line)
     agent_point_size: int = 80 # Size of individual agent points
     show_model_names: bool = False  # Show model names on points (controlled by --model-names flag)
+    
+    # Axis scale parameters
+    log_y_axis: bool = True  # Use logarithmic y-axis (False for linear)
 
 
 def get_benchmark_data(benchmarks_path) -> pd.DataFrame:
@@ -761,6 +764,7 @@ def plot_combined(df, output_file,
                 
                 if bench in ['hendrycks_math', 'tesla_fsd', 'swe_bench_verified','webarena','rlbench', 'mock_aime', 'livecodebench_2411_2505', 'gpqa_diamond']:
                     # Manual positioning for these specific benchmarks
+                    lya = params.log_y_axis
                     if bench == 'hendrycks_math':
                         label_y *= 3
                     elif bench == 'tesla_fsd':
@@ -769,19 +773,19 @@ def plot_combined(df, output_file,
                         label_y *= 0.9  
                         label_x += pd.Timedelta(days=40)  
                     elif bench == 'webarena':
-                        label_y *= 0.3
+                        label_y *= 0.3 if lya else 4
                         label_x += pd.Timedelta(days=-180)
                     elif bench == 'rlbench':
-                        label_y *= 0.4
+                        label_y *= 0.4 if lya else 10
                         label_x += pd.Timedelta(days=-110)
                     elif bench == 'mock_aime':
-                        label_y *= 8
+                        label_y *= 8 if lya else 4
                         label_x += pd.Timedelta(days=-50)
                     elif bench == 'livecodebench_2411_2505':
                         label_y *= 1.5
                         label_x += pd.Timedelta(days=200)
                     elif bench == 'gpqa_diamond':
-                        label_y *= 9
+                        label_y *= 9 if lya else 6
                         label_x += pd.Timedelta(days=-250)
                     
                     # Create text but don't add to line_end_labels (won't be adjusted by adjustText)
@@ -819,12 +823,15 @@ def plot_combined(df, output_file,
                 text_label(last_frontier_point)
     
     # Configure plot appearance
-    ax.set_yscale('log')  # Log scale for y-axis (time horizon)
-    plt.ylim(0.0083333, 240)  # Y-axis range in minutes (0.0083333 = 0.5 seconds), high is 2000 minutes which is hard-coded
+    scale = 'log' if params.log_y_axis else 'linear'
+    if params.log_y_axis:
+        plt.ylim(0.0083333, 240)  # Y-axis range in minutes (0.0083333 = 0.5 seconds)
+    else:
+        plt.ylim(0, 120)  # Linear scale starts at 0
     
     # Create script params with y_ticks_skip to show every other tick
     script_params = {'y_ticks_skip': 2}
-    make_y_axis(ax, scale='log', unit='minutes', script_params=script_params)
+    make_y_axis(ax, scale=scale, unit='minutes', script_params=script_params)
     
     # Labels and title
     plt.xlabel("Model release date", fontsize=14)
@@ -976,7 +983,8 @@ def main():
         show_individual_agents=True,  # Show red dots for individual models
         show_model_names=args.model_names,  # Show model names based on command-line flag
         title=title,
-        xbound=(x_lim_start, x_lim_end)  # Use config values for x-axis limits
+        xbound=(x_lim_start, x_lim_end),  # Use config values for x-axis limits
+        log_y_axis=False
     )
 
     params.hide_labels = ["hcast_r_s"]
